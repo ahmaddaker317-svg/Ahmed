@@ -1,0 +1,11 @@
+<resources>
+    <style name="Theme.ADTPro" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowBackground">@color/adt_black</item>
+        <item name="android:navigationBarColor">@color/adt_black</item>
+        <item name="android:statusBarColor">@color/adt_black</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:colorAccent">@color/adt_teal</item>
+    </style>
+</resources>
