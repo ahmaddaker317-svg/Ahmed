@@ -493,7 +493,7 @@
         .adt-home-welcome-icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:24px;background:rgba(0,210,180,.1);border:1px solid rgba(0,210,180,.18);}
         .adt-home-welcome-title{font-size:16px;font-weight:900;color:#fff;margin-bottom:5px;}
         .adt-home-welcome-sub{font-size:11px;font-weight:700;color:#8693a7;}
-        .adt-home-section-title{font-size:15px!important;font-weight:900!important;color:#fff!important;margin:0 2px 12px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;}
+        .adt-home-section-title{font-size:15px!important;font-weight:900!important;color:#fff!important;margin:0 2px 12px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;flex-direction:row-reverse!important;direction:rtl!important;text-align:right!important;width:100%!important;}
         .adt-home-section-title:before{content:'▦';color:var(--primary);font-size:18px;}
         .hub-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin-bottom:14px!important;}
         .hub-card{min-height:205px!important;padding:18px 14px!important;border-radius:18px!important;border:1px solid #1b2a3d!important;background:linear-gradient(160deg,#0a1522 0%,#07101b 100%)!important;box-shadow:0 12px 30px rgba(0,0,0,.22)!important;align-items:flex-start!important;gap:12px!important;}
@@ -1102,7 +1102,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
             <svg class="svg-icon" style="width:42px; height:42px; color:var(--primary); margin-bottom:8px;" viewBox="0 0 24 24"><path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/></svg>
             <h2 style="font-size:16px; font-weight:900; color:#FFF; margin-bottom:6px;">طلبك قيد الانتظار</h2>
             <p style="font-size:12px; color:var(--text-white); margin-bottom:14px; line-height:1.5;">تم إرسال طلب الانضمام للفريق بنجاح.<br>بانتظار موافقة مدير المحل لتتمكن من استخدام المنظومة.</p>
-            <button class="btn-primary" onclick="location.reload()">تحديث الحالة</button>
+            <button class="btn-primary" id="btnRefreshPendingApproval" onclick="window.refreshPendingApprovalStatus()">تحديث الحالة</button>
         </div>
     </div>
 
@@ -1981,7 +1981,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
                         <a href="https://wa.me/218943102554?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%AF%D8%A7%D9%83%D8%B1%D8%8C%20%D8%A3%D8%AD%D8%AA%D8%A7%D8%AC%20%D8%AA%D8%AC%D8%AF%D9%8A%D8%AF%20%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20%D9%85%D8%AA%D8%AC%D8%B1%D9%8A" target="_blank" style="background:#25D366; color:#FFF; padding:4px 8px; border-radius:6px; font-size:10px; font-weight:900; text-decoration:none;">تجديد الآن</a>
                     </div>
 
-                    <div class="hub-title-text adt-home-section-title" style="margin-top:4px;">الأقسام الرئيسية</div>
+                    <div class="hub-title-text adt-home-section-title" style="margin-top:4px;direction:rtl;text-align:right" dir="rtl">الأقسام الرئيسية</div>
 
                     <!-- الوظائف الموجودة فعلياً فقط -->
                     <div class="hub-grid no-print">
@@ -2280,12 +2280,15 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
             const activeId = String(currentTeam?.id || localStorage.getItem('atd_sales_team_id') || '');
             const teamId = (isGhostMode && originalId) ? originalId : activeId;
             const ids = JSON.parse(localStorage.getItem('atd_developer_team_ids') || '[]');
-            return !!teamId && Array.isArray(ids) && ids.map(String).includes(teamId);
+            const entitled = localStorage.getItem('atd_dev_device_authorized') === '1';
+            const originRole = isGhostMode ? String(sessionStorage.getItem('adt_ghost_origin_role_v2')||'') : String(userRole||'');
+            return !!teamId && entitled && originRole === 'manager' && Array.isArray(ids) && ids.map(String).includes(teamId);
         } catch(_) { return false; }
     };
     window.canCreateInvoices = function() { return window.isDeveloperAccount() || userRole==='manager' || userRole==='sub_manager' || !!myPermissions.can_create_invoices || isGhostMode; };
     window.canEditSellPrice = function() { return window.isDeveloperAccount() || userRole==='manager' || userRole==='sub_manager' || !!myPermissions.can_edit_sell_price || isGhostMode; };
     window.canManageCatalog = function() { return window.isDeveloperAccount() || userRole==='manager' || userRole==='sub_manager' || !!myPermissions.can_manage_catalog || isGhostMode; };
+    window.canCreateSuppliers = function() { return window.isDeveloperAccount() || userRole==='manager' || userRole==='sub_manager' || isGhostMode; };
 
     // نافذة اختيار المورد الداكنة المخصصة (تمنع القائمة البيضاء نهائياً)
     window.openSupplierPickerModal = function() {
@@ -3136,14 +3139,15 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
         );
 
         if (isDevPermanentTeam) {
-            if (dExpiry) dExpiry.innerText = 'الاشتراك: دائم';
+            if (dExpiry) { dExpiry.style.display=(userRole==='member'||userRole==='sub_manager')?'none':'block'; dExpiry.innerText=(userRole==='member'||userRole==='sub_manager')?'':'الاشتراك: دائم'; }
             if (warnBanner) warnBanner.style.display = 'none';
         } else if (currentTeam && currentTeam.expires_at) {
             let expiry = new Date(currentTeam.expires_at).getTime();
             let diffDays = Math.ceil((expiry - Date.now()) / (1000 * 60 * 60 * 24));
 
             if (dExpiry) {
-                dExpiry.innerText = diffDays > 0 ? `الاشتراك: متبقي ${diffDays} أيام` : 'الاشتراك: منتهي';
+                if (userRole==='member' || userRole==='sub_manager') { dExpiry.style.display='none'; dExpiry.innerText=''; }
+                else { dExpiry.style.display='block'; dExpiry.innerText = diffDays > 0 ? `الاشتراك: متبقي ${diffDays} أيام` : 'الاشتراك: منتهي'; }
             }
 
             if (diffDays > 0 && diffDays <= 2) {
@@ -3160,7 +3164,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
                 return;
             }
         } else {
-            if (dExpiry) dExpiry.innerText = 'الاشتراك: دائم';
+            if (dExpiry) { dExpiry.style.display=(userRole==='member'||userRole==='sub_manager')?'none':'block'; dExpiry.innerText=(userRole==='member'||userRole==='sub_manager')?'':'الاشتراك: دائم'; }
             if (warnBanner) warnBanner.style.display = 'none';
         }
 
@@ -3206,6 +3210,12 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
             document.getElementById('pendingApprovalModal').style.display='none';
             currentTeam=ctx.team; userRole=m.role||savedRole||'member';
             myPermissions={can_edit_products:!!m.can_edit_products,can_manage_shortages:!!m.can_manage_shortages,can_edit_debts:!!m.can_edit_debts,can_audit:!!m.can_audit,can_view_cost:!!m.can_view_cost,can_create_invoices:!!m.can_create_invoices,can_edit_sell_price:!!m.can_edit_sell_price,can_manage_catalog:!!m.can_manage_catalog};
+            if (userRole !== 'manager') {
+                try { const ids=JSON.parse(localStorage.getItem('atd_developer_team_ids')||'[]'); localStorage.setItem('atd_developer_team_ids',JSON.stringify((Array.isArray(ids)?ids:[]).map(String).filter(id=>id!==String(currentTeam.id)))); } catch(_){}
+                localStorage.removeItem('atd_dev_device_authorized'); developerSessionPin='';
+            } else {
+                try { const ids=JSON.parse(localStorage.getItem('atd_developer_team_ids')||'[]').map(String); if(ids.includes(String(currentTeam.id))) localStorage.setItem('atd_dev_device_authorized','1'); } catch(_){}
+            }
             window.loadTeamLocalCaches(currentTeam.id); window.saveCurrentTeamSnapshot(); localStorage.setItem('atd_sales_user_role',userRole); document.getElementById('onboardingModal').style.display='none';
             const leaveBtnItem=document.getElementById('drawerLeaveTeamItem'), memberLeaveBox=document.getElementById('memberLeaveBox');
             const canLeave=(userRole==='member'||userRole==='sub_manager'); if(leaveBtnItem) leaveBtnItem.style.display=canLeave?'flex':'none'; if(memberLeaveBox) memberLeaveBox.style.display=canLeave?'block':'none';
@@ -3284,6 +3294,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
             window.loadTeamLocalCaches(currentTeam.id);
             window.saveCurrentTeamSnapshot();
             userRole = 'manager';
+            try { const ids=JSON.parse(localStorage.getItem('atd_developer_team_ids')||'[]'); const known=Array.isArray(ids)&&ids.map(String).includes(String(currentTeam.id)); if(known) localStorage.setItem('atd_dev_device_authorized','1'); else localStorage.removeItem('atd_dev_device_authorized'); } catch(_){ localStorage.removeItem('atd_dev_device_authorized'); }
 
             document.getElementById('onboardingModal').style.display = 'none';
             window.showToast(`أهلاً بك يا مدير (${teamData.name})`);
@@ -3412,7 +3423,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
             localStorage.setItem('atd_sales_user_name', userName);
 
             currentTeam = newTeam;
-            if (isMaster) { try { const ids=JSON.parse(localStorage.getItem('atd_developer_team_ids')||'[]'); const next=[...new Set([...(Array.isArray(ids)?ids:[]).map(String),String(newTeam.id)])]; localStorage.setItem('atd_developer_team_ids',JSON.stringify(next)); } catch(_) {} }
+            if (isMaster) { try { const ids=JSON.parse(localStorage.getItem('atd_developer_team_ids')||'[]'); const next=[...new Set([...(Array.isArray(ids)?ids:[]).map(String),String(newTeam.id)])]; localStorage.setItem('atd_developer_team_ids',JSON.stringify(next)); localStorage.setItem('atd_dev_device_authorized','1'); } catch(_) {} }
             window.loadTeamLocalCaches(currentTeam.id);
             window.saveCurrentTeamSnapshot();
             userRole = 'manager';
@@ -3430,6 +3441,41 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
         } catch(e) {
             console.error('[Team Creation] unexpected error:', e);
             window.customAlert('خطأ', e?.message || 'تعذر إنشاء الفريق.');
+        }
+    };
+
+    window.refreshPendingApprovalStatus = async function() {
+        const btn = document.getElementById('btnRefreshPendingApproval');
+        if (btn) { btn.disabled = true; btn.textContent = 'جاري التحديث...'; }
+        try {
+            if (!dbClient) window.initSupabaseClient();
+            const teamId = String(localStorage.getItem('atd_sales_team_id') || currentTeam?.id || '');
+            if (!dbClient || !teamId) { window.customAlert('تعذر التحديث','لا توجد بيانات فريق محفوظة لإعادة فحص حالة الانضمام.'); return; }
+            const {data:ctx,error}=await dbClient.rpc('adt_get_my_context',{p_team_id:teamId,p_user_id:getDeviceId()});
+            if (error) throw error;
+            const m=ctx?.member;
+            if (!ctx?.team || !m) {
+                window.customAlert('الطلب غير موجود','لم يعد طلب الانضمام موجوداً. يمكنك العودة لشاشة الدخول وإرسال طلب جديد.');
+                document.getElementById('pendingApprovalModal').style.display='none';
+                document.getElementById('onboardingModal').style.display='flex';
+                return;
+            }
+            if (m.status === 'approved' || m.role === 'manager') {
+                currentTeam=ctx.team; userRole=m.role||'member';
+                myPermissions={can_edit_products:!!m.can_edit_products,can_manage_shortages:!!m.can_manage_shortages,can_edit_debts:!!m.can_edit_debts,can_audit:!!m.can_audit,can_view_cost:!!m.can_view_cost,can_create_invoices:!!m.can_create_invoices,can_edit_sell_price:!!m.can_edit_sell_price,can_manage_catalog:!!m.can_manage_catalog};
+                localStorage.setItem('atd_sales_user_role',userRole);
+                document.getElementById('pendingApprovalModal').style.display='none';
+                document.getElementById('onboardingModal').style.display='none';
+                window.loadTeamLocalCaches(currentTeam.id); window.saveCurrentTeamSnapshot(); window.checkTeamLockState();
+                window.updateUserProfileUI(localStorage.getItem('atd_sales_user_name')||'عضو');
+                await Promise.all([window.loadTeamMembers(),window.fetchProductsFromSupabase(),window.fetchShortagesFromSupabase(),window.fetchDebtsFromSupabase()]);
+                window.setupRealtimeSubscription(); window.switchTab('home',false); window.showToast('تم قبول انضمامك للفريق');
+            } else window.showToast('الطلب مازال بانتظار موافقة المدير');
+        } catch(e) {
+            console.error('[Join Status] refresh failed:',e);
+            window.customAlert('تعذر تحديث الحالة','تحقق من اتصال الإنترنت ثم حاول مرة أخرى.');
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = 'تحديث الحالة'; }
         }
     };
 
@@ -3482,7 +3528,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
             window.loadTeamLocalCaches(currentTeam.id);
             window.saveCurrentTeamSnapshot();
             userRole = result.role || 'member';
-            myPermissions = { can_edit_products: false, can_manage_shortages: false, can_edit_debts: false, can_audit: false, can_view_cost: false };
+            myPermissions={can_edit_products:false,can_manage_shortages:false,can_edit_debts:false,can_audit:false,can_view_cost:false,can_create_invoices:false,can_edit_sell_price:false,can_manage_catalog:false};
 
             document.getElementById('onboardingModal').style.display = 'none';
             if ((result.status || 'pending') === 'approved') {
@@ -3823,7 +3869,9 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
             products=[];
             shortages=[];
             debts={customers:[],suppliers:[]};
-            location.replace(location.pathname + location.search);
+            myPermissions={can_edit_products:false,can_manage_shortages:false,can_edit_debts:false,can_audit:false,can_view_cost:false,can_create_invoices:false,can_edit_sell_price:false,can_manage_catalog:false};
+            sessionStorage.removeItem('adt_ghost_origin_session_v2'); sessionStorage.removeItem('adt_ghost_origin_role_v2');
+            try { if(window.Android&&typeof window.Android.reloadApp==='function') window.Android.reloadApp(); else location.href='index.html?logout='+Date.now(); } catch(_){ location.reload(); }
         }
     };
 
@@ -3849,6 +3897,8 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
         const start = function(e) {
             opened = false; if (timer) clearTimeout(timer);
             timer = setTimeout(() => {
+                const activeId=String(currentTeam?.id||localStorage.getItem('atd_sales_team_id')||''); let ids=[]; try{ids=JSON.parse(localStorage.getItem('atd_developer_team_ids')||'[]').map(String);}catch(_){}
+                if(!(userRole==='manager' && localStorage.getItem('atd_dev_device_authorized')==='1' && activeId && ids.includes(activeId))) return;
                 opened = true; try { if (navigator.vibrate) navigator.vibrate(60); } catch(e) {} window.openSuperAdminAuthModal();
             }, 1200);
         };
@@ -3881,6 +3931,8 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
             const { data, error } = await dbClient.rpc('adt_verify_dev_pin', { p_pin: pin, p_device_id: getDeviceId() });
             if (error) throw error;
             if (data === true) {
+                const activeId=String(currentTeam?.id||localStorage.getItem('atd_sales_team_id')||''); let knownIds=[]; try{knownIds=JSON.parse(localStorage.getItem('atd_developer_team_ids')||'[]').map(String);}catch(_){}
+                if(userRole!=='manager' || !activeId || !knownIds.includes(activeId) || localStorage.getItem('atd_dev_device_authorized')!=='1'){ developerSessionPin=''; window.customAlert('غير مصرح','وضع المطور غير متاح لهذا الحساب.'); return; }
                 developerSessionPin = pin;
                 try {
                     const originalId = String(localStorage.getItem('atd_original_team_id') || '');
@@ -4404,25 +4456,14 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
                 p_device_id: getDeviceId()
             });
             if (error || !targetTeam || !targetTeam.id) throw error || new Error('TEAM_NOT_FOUND');
-            if (!localStorage.getItem('atd_original_team_id') && currentTeam) localStorage.setItem('atd_original_team_id', currentTeam.id);
-
-            // إصلاح أي نسخة قديمة كانت قد أضافت الفريق المشترك إلى قائمة فرق المطور.
-            try {
-                const originalId = String(localStorage.getItem('atd_original_team_id') || '');
-                const targetId = String(targetTeam.id || '');
-                if (originalId && targetId && originalId !== targetId) {
-                    let ids = JSON.parse(localStorage.getItem('atd_developer_team_ids') || '[]');
-                    ids = Array.isArray(ids) ? ids.map(String) : [];
-                    ids = ids.filter(id => id !== targetId);
-                    if (!ids.includes(originalId)) ids.push(originalId);
-                    localStorage.setItem('atd_developer_team_ids', JSON.stringify([...new Set(ids)]));
-                }
-            } catch(_) {}
+            if (!currentTeam || !window.isDeveloperAccount()) { window.customAlert('غير مصرح','وضع التصفح السري متاح لحساب المطور المصرح فقط.'); return; }
+            const originSession={teamId:String(currentTeam.id),role:String(userRole||'member'),permissions:{...myPermissions},userName:String(localStorage.getItem('atd_sales_user_name')||''),teamSnapshot:currentTeam};
+            sessionStorage.setItem('adt_ghost_origin_session_v2',JSON.stringify(originSession)); sessionStorage.setItem('adt_ghost_origin_role_v2',originSession.role); localStorage.setItem('atd_original_team_id',originSession.teamId);
 
             currentTeam = targetTeam;
             window.loadTeamLocalCaches(currentTeam.id);
-            window.saveCurrentTeamSnapshot();
             userRole = 'manager';
+            myPermissions={can_edit_products:true,can_manage_shortages:true,can_edit_debts:true,can_audit:true,can_view_cost:true,can_create_invoices:true,can_edit_sell_price:true,can_manage_catalog:true};
             isGhostMode = true;
             document.body.classList.add('adt-ghost-mode');
             window.updateUserProfileUI(targetTeam.manager_name);
@@ -4445,46 +4486,30 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
 
     window.executeExitGhostMode = async function() {
         window.closeModal('exitGhostCustomModal');
-        let originalId = localStorage.getItem('atd_original_team_id');
-        const ghostTeamId = String(currentTeam?.id || '');
-        try {
-            if (originalId && ghostTeamId && String(originalId) !== ghostTeamId) {
-                let ids = JSON.parse(localStorage.getItem('atd_developer_team_ids') || '[]');
-                ids = Array.isArray(ids) ? ids.map(String) : [];
-                ids = ids.filter(id => id !== ghostTeamId);
-                if (!ids.includes(String(originalId))) ids.push(String(originalId));
-                localStorage.setItem('atd_developer_team_ids', JSON.stringify([...new Set(ids)]));
-            }
-        } catch(_) {}
-        isGhostMode = false;
-        document.body.classList.remove('adt-ghost-mode');
-
-
-        if (originalId && dbClient) {
-            const { data: origCtx } = await dbClient.rpc('adt_get_my_context', { p_team_id: String(originalId), p_user_id: getDeviceId() });
-            const origTeam = origCtx && origCtx.team ? origCtx.team : null;
-            if (origTeam) {
-                currentTeam = origTeam;
-                window.loadTeamLocalCaches(currentTeam.id);
-                window.saveCurrentTeamSnapshot();
-                localStorage.removeItem('atd_original_team_id');
-                window.showToast('تمت العودة لمتجرك الأصلي');
-                window.updateUserProfileUI();
-                window.fetchProductsFromSupabase();
-                window.fetchShortagesFromSupabase();
-                window.fetchDebtsFromSupabase();
-                window.setupRealtimeSubscription();
-                window.switchTab('home', false);
-                const devModal = document.getElementById('superAdminModal');
-                if (devModal) {
-                    devModal.style.display = 'flex';
-                    if (typeof window.switchDevSubTab === 'function') window.switchDevSubTab('teams');
-                    if (typeof window.loadSuperAdminStats === 'function') window.loadSuperAdminStats();
-                }
-                return;
-            }
+        let saved=null; try{saved=JSON.parse(sessionStorage.getItem('adt_ghost_origin_session_v2')||'null');}catch(_){}
+        const originalId=String(saved?.teamId||localStorage.getItem('atd_original_team_id')||'');
+        isGhostMode=false; document.body.classList.remove('adt-ghost-mode');
+        if(!originalId){
+            developerSessionPin=''; sessionStorage.removeItem('adt_ghost_origin_session_v2'); sessionStorage.removeItem('adt_ghost_origin_role_v2'); localStorage.removeItem('atd_original_team_id');
+            window.customAlert('تعذر العودة','لم نجد بيانات الجلسة الأصلية. سيتم تسجيل الخروج لحماية الحساب.'); window.handleSignOut(); return;
         }
-        location.reload();
+        try{
+            if(!dbClient) window.initSupabaseClient(); if(!dbClient) throw new Error('NO_DB');
+            const {data:origCtx,error}=await dbClient.rpc('adt_get_my_context',{p_team_id:originalId,p_user_id:getDeviceId()});
+            if(error||!origCtx?.team||!origCtx?.member) throw error||new Error('ORIGINAL_CONTEXT_NOT_FOUND');
+            const member=origCtx.member; currentTeam=origCtx.team; userRole=member.role||saved?.role||'member';
+            myPermissions={can_edit_products:!!member.can_edit_products,can_manage_shortages:!!member.can_manage_shortages,can_edit_debts:!!member.can_edit_debts,can_audit:!!member.can_audit,can_view_cost:!!member.can_view_cost,can_create_invoices:!!member.can_create_invoices,can_edit_sell_price:!!member.can_edit_sell_price,can_manage_catalog:!!member.can_manage_catalog};
+            const restoredName=String(saved?.userName||localStorage.getItem('atd_sales_user_name')||'عضو');
+            localStorage.setItem('atd_sales_team_id',String(currentTeam.id)); localStorage.setItem('atd_sales_user_role',userRole); localStorage.setItem('atd_sales_user_name',restoredName);
+            localStorage.removeItem('atd_original_team_id'); sessionStorage.removeItem('adt_ghost_origin_session_v2'); sessionStorage.removeItem('adt_ghost_origin_role_v2');
+            window.loadTeamLocalCaches(currentTeam.id); window.saveCurrentTeamSnapshot(); window.updateUserProfileUI(restoredName); window.checkTeamLockState();
+            await Promise.all([window.loadTeamMembers(),window.fetchProductsFromSupabase(),window.fetchShortagesFromSupabase(),window.fetchDebtsFromSupabase()]);
+            window.setupRealtimeSubscription(); window.switchTab('home',false); window.showToast('تمت العودة للحساب الأصلي بأمان');
+            if(window.isDeveloperAccount()){const devModal=document.getElementById('superAdminModal');if(devModal){devModal.style.display='flex';window.switchDevSubTab?.('teams');window.loadSuperAdminStats?.();}} else developerSessionPin='';
+        }catch(err){
+            console.error('[Ghost Exit] restore failed:',err); developerSessionPin=''; sessionStorage.removeItem('adt_ghost_origin_session_v2'); sessionStorage.removeItem('adt_ghost_origin_role_v2'); localStorage.removeItem('atd_original_team_id');
+            window.customAlert('تعذر استعادة الحساب','سيتم تسجيل الخروج لحماية صلاحيات الحساب وعدم نقل صلاحيات المطور لأي مستخدم.'); window.handleSignOut();
+        }
     };
 
     // سلة المهملات السحابية مع التنظيف التلقائي لكل 48 ساعة
@@ -4744,7 +4769,9 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
                 catalogHidden: !!p.catalog_hidden
             }));
 
-            const changedNames=[]; for(const np of products){ const op=oldPriceMap.get(String(np.id)); if(op && (op.buy!==Number(np.buyPrice||0)||op.sell!==Number(np.sellPrice||0))) changedNames.push(np.name); }
+            let ownEdit=null;try{ownEdit=JSON.parse(localStorage.getItem('adt_last_own_price_edit_'+String(teamIdAtStart))||'null');}catch(_){}
+            const changedNames=[];for(const np of products){const op=oldPriceMap.get(String(np.id));if(op&&(op.buy!==Number(np.buyPrice||0)||op.sell!==Number(np.sellPrice||0))){const own=ownEdit&&String(ownEdit.id)===String(np.id)&&(Date.now()-Number(ownEdit.at||0)<120000);if(!own)changedNames.push(np.name);}}
+            if(ownEdit&&Date.now()-Number(ownEdit.at||0)>=120000)localStorage.removeItem('adt_last_own_price_edit_'+String(teamIdAtStart));
             window.saveTeamCache('atd_sales_products_v17', products);
             if(changedNames.length){ const signature=String(teamIdAtStart)+'|'+changedNames.slice().sort().join('|')+'|'+Math.max(...products.filter(x=>changedNames.includes(x.name)).map(x=>Number(x.updatedAt||0))); const seenKey='adt_seen_price_change_signature_'+String(teamIdAtStart); if(localStorage.getItem(seenKey)!==signature){ localStorage.setItem(seenKey,signature); const shown=changedNames.slice(0,3); const more=changedNames.length-shown.length; const body=changedNames.length===1 ? `تم تحديث سعر الصنف: ${shown[0]}. يمكنك مراجعة السعر الجديد من قائمة المنتجات.` : `تم تحديث أسعار ${changedNames.length} أصناف: ${shown.join('، ')}${more>0?`، و${more} أخرى`:''}. راجع قائمة المنتجات للاطلاع على الأسعار الجديدة.`; window.sendPushNotification('تحديث أسعار المنتجات',body,false); } }
             window.renderProducts();
@@ -4869,6 +4896,8 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
 
         const oldProduct = (editingIndex !== null && products[editingIndex]) ? products[editingIndex] : null;
         const priceChanged = !!oldProduct && (Number(oldProduct.buyPrice||0)!==Number(buyPrice) || Number(oldProduct.sellPrice||0)!==Number(sellPrice));
+        const editedProductId = oldProduct ? String(oldProduct.id||'') : '';
+        if(priceChanged&&editedProductId){try{localStorage.setItem('adt_last_own_price_edit_'+String(currentTeam.id),JSON.stringify({id:editedProductId,at:Date.now()}));}catch(_){}}
         const prodObj = {
             id: (editingIndex !== null && products[editingIndex]?.id)
                 ? String(products[editingIndex].id)
@@ -4898,8 +4927,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
                 window.customAlert('تعذر حفظ الصنف', 'لم يتم حفظ الصنف على الخادم. لم يتم تغيير القائمة المحلية حتى لا يحدث اختلاف بين الأجهزة.\n\nالسبب: ' + (productError?.message || 'رفض الخادم العملية'));
                 return;
             }
-            // إشعارات الأسعار تُرسل من Supabase تلقائياً عبر Trigger بعد إنشاء الـ job.
-            // لا نستدعي Edge Function من الهاتف لتجنب التكرار وسباقات التنفيذ.
+            if(priceChanged){try{if(window.Android&&typeof window.Android.triggerPricePush==='function')window.Android.triggerPricePush(String(currentTeam.id),String(getDeviceId()));}catch(e){console.warn('[Push] native price dispatch skipped',e);}}
         }
 
         // تحديث خريطة المورد بعد نجاح الحفظ فقط.
@@ -5344,7 +5372,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
                 const arg = window.safeUrlArg(s.name);
                 return `<button class="btn-filter-pill ${activeShortageSupplierFilter===s.name?'active':''}" onclick="window.filterShortagesBySupplier(decodeURIComponent('${arg}'))">${window.escapeHtml(s.name)}</button>`;
             }).join('')}
-            <button class="btn-filter-pill" style="background:rgba(255,165,2,0.15); color:var(--orange); border-color:var(--orange);" onclick="window.openNewSupplierModal()">+ إضافة مورد</button>`;
+            ${window.canCreateSuppliers()?'<button class="btn-filter-pill" style="background:rgba(255,165,2,0.15); color:var(--orange); border-color:var(--orange);" onclick="window.openNewSupplierModal()">+ إضافة مورد</button>':''}`;
     };
 
     window.filterShortagesBySupplier = function(suppName) {
@@ -5353,6 +5381,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
     };
 
     window.openNewSupplierModal = function() {
+        if (!window.canCreateSuppliers()) { window.customAlert('غير مسموح','إضافة الموردين متاحة للمدير فقط.'); return; }
         document.getElementById('newSupplierNameInput').value = '';
         document.getElementById('newSupplierPhoneInput').value = '';
         document.getElementById('newSupplierModal').style.display = 'flex';
@@ -5360,6 +5389,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
     };
 
     window.saveNewSupplierAction = async function() {
+        if (!window.canCreateSuppliers()) { window.customAlert('غير مسموح','إضافة الموردين متاحة للمدير فقط.'); return; }
         if (!(await window.confirmGhostMutation('إضافة مورد'))) return;
         const name = document.getElementById('newSupplierNameInput').value.trim();
         const phone = document.getElementById('newSupplierPhoneInput').value.trim();
@@ -6746,7 +6776,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
   window.renderShortageSuppliersBar=function(){
     const bar=document.getElementById('shortageSuppliersBar'); if(!bar)return;
     const opts=[`<option value="all" ${activeShortageSupplierFilter==='all'?'selected':''}>جميع الموردين</option>`].concat((suppliers||[]).map(s=>`<option value="${encodeURIComponent(s.name)}" ${activeShortageSupplierFilter===s.name?'selected':''}>${esc(s.name)}</option>`));
-    bar.innerHTML=`<select class="adt-supplier-select" onchange="window.filterShortagesBySupplier(this.value==='all'?'all':decodeURIComponent(this.value))">${opts.join('')}</select><button class="btn-filter-pill adt-add-supplier" onclick="window.openNewSupplierModal()">إضافة مورد</button>`;
+    bar.innerHTML=`<select class="adt-supplier-select" onchange="window.filterShortagesBySupplier(this.value==='all'?'all':decodeURIComponent(this.value))">${opts.join('')}</select>${window.canCreateSuppliers()?'<button class="btn-filter-pill adt-add-supplier" onclick="window.openNewSupplierModal()">إضافة مورد</button>':''}`;
   };
 
   /* Make the home shortcuts unmistakable without relying on emoji glyphs. */
@@ -6841,7 +6871,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
   window.renderShortageSuppliersBar=function(){
     const bar=document.getElementById('shortageSuppliersBar');if(!bar)return;
     const label=activeShortageSupplierFilter==='all'?'جميع الموردين':activeShortageSupplierFilter;
-    bar.innerHTML=`<div id="shortageSupplierSelectedBtn" onclick="window.openShortageSupplierPicker()"><span>${esc(label)}</span><svg class="svg-icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div><button class="btn-filter-pill adt-add-supplier" onclick="window.openNewSupplierModal()">إضافة مورد</button>`;
+    bar.innerHTML=`<div id="shortageSupplierSelectedBtn" onclick="window.openShortageSupplierPicker()"><span>${esc(label)}</span><svg class="svg-icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>${window.canCreateSuppliers()?'<button class="btn-filter-pill adt-add-supplier" onclick="window.openNewSupplierModal()">إضافة مورد</button>':''}`;
   };
   window.openShortageSupplierPicker=function(){
     const list=document.getElementById('shortageSupplierPickerList'); if(!list)return;
@@ -6999,13 +7029,18 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
     container.innerHTML=audited.map(p=>{const idx=products.indexOf(p),q=Number(p.auditQty||0),total=q*Number(p.buyPrice||0);return `<div class="product-card-classic" onclick="window.openAuditModal(${idx})" style="cursor:pointer"><div class="audit-prod-main"><div class="prod-name-title">${esc(p.name)}</div><div class="audit-buy-inline"><span>سعر الشراء</span> <strong>${Number(p.buyPrice||0).toFixed(2)}</strong></div></div><div class="audit-qty-col"><span>عدد الجرد</span><strong>${q}</strong></div><div class="audit-total-col"><span>إجمالي السعر</span><strong>${total.toFixed(2)}</strong></div><div class="prod-box-badge" style="border-color:var(--green);color:var(--green)"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M19 3h-4.2A3 3 0 0 0 9.2 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-9 14-4-4 1.4-1.4 2.6 2.6 6.6-6.6L18 9l-8 8z"/></svg></div></div>`}).join('');
   };
 
-  /* Make previous-audit modal show immediately on the first tap. */
+  /* Previous audit: validate before opening so the warning appears before changing screens. */
   const oldOpenPrev=window.openPreviousAuditModal;
   if(typeof oldOpenPrev==='function'){
     window.openPreviousAuditModal=function(){
+      const snap=readLastAuditSnapshot();
+      if(!snap || !Array.isArray(snap.items) || !snap.items.length){
+        window.customAlert('لا يوجد جرد سابق','بعد أول عملية تصفير سيتم حفظ نسخة من الجرد تلقائياً هنا لتقدر تعدلها وتصدر PDF جديد.');
+        return false;
+      }
       const r=oldOpenPrev.apply(this,arguments);
       requestAnimationFrame(()=>{
-        const m=document.getElementById('previousAuditModal');if(!m)return;
+        const m=document.getElementById('previousAuditModal');if(!m || m.style.display==='none')return;
         m.style.setProperty('display','flex','important');m.style.setProperty('visibility','visible','important');m.style.setProperty('opacity','1','important');m.style.setProperty('z-index','20050','important');
         const box=m.querySelector('.modal-box');if(box)box.scrollTop=0;
       });

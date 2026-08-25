@@ -55,9 +55,10 @@ public class ADTFirebaseMessagingService extends FirebaseMessagingService {
                 ? new android.app.Notification.Builder(this, CHANNEL_ID)
                 : new android.app.Notification.Builder(this);
 
-        b.setSmallIcon(android.R.drawable.ic_dialog_info)
+        b.setSmallIcon(R.drawable.ic_stat_adt)
          .setContentTitle(title)
          .setContentText(body)
+         .setStyle(new android.app.Notification.BigTextStyle().bigText(body))
          .setAutoCancel(true)
          .setContentIntent(pi)
          .setPriority(android.app.Notification.PRIORITY_HIGH);

@@ -24,6 +24,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.ValueCallback;
 import android.widget.Toast;
+import android.widget.FrameLayout;
+import android.view.ViewGroup;
 import android.util.Base64;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -55,9 +57,24 @@ public class MainActivity extends Activity {
         getWindow().setStatusBarColor(Color.BLACK);
         getWindow().setNavigationBarColor(Color.BLACK);
 
+        if (Build.VERSION.SDK_INT >= 30) {
+            try { getWindow().setDecorFitsSystemWindows(true); } catch (Exception ignored) {}
+        }
+        createPriceNotificationChannel();
+
         webView = new WebView(this);
         webView.setBackgroundColor(Color.BLACK);
-        setContentView(webView);
+
+        FrameLayout root = new FrameLayout(this);
+        root.setBackgroundColor(Color.BLACK);
+        int topInset = Build.VERSION.SDK_INT >= 35 ? getStatusBarHeightPx() : 0;
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        );
+        lp.topMargin = topInset;
+        root.addView(webView, lp);
+        setContentView(root);
 
         WebSettings s = webView.getSettings();
         s.setJavaScriptEnabled(true);
@@ -140,6 +157,27 @@ public class MainActivity extends Activity {
         refreshFcmToken();
 
         webView.loadUrl(HOME_URL);
+    }
+
+    private int getStatusBarHeightPx() {
+        try {
+            int resId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if (resId > 0) return getResources().getDimensionPixelSize(resId);
+        } catch (Exception ignored) {}
+        return 0;
+    }
+
+    private void createPriceNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            android.app.NotificationManager nm = (android.app.NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            android.app.NotificationChannel ch = new android.app.NotificationChannel(
+                    "adt_price_updates", "تحديثات ADT Pro", android.app.NotificationManager.IMPORTANCE_HIGH);
+            ch.setDescription("إشعارات تحديث الأسعار والتنبيهات المهمة");
+            ch.enableVibration(true);
+            ch.enableLights(true);
+            ch.setLightColor(Color.CYAN);
+            nm.createNotificationChannel(ch);
+        }
     }
 
     private void loadStoredToken() {
@@ -227,6 +265,17 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void refreshFcmToken() {
             MainActivity.this.refreshFcmToken();
+        }
+
+        @JavascriptInterface
+        public void reloadApp() {
+            runOnUiThread(() -> {
+                try {
+                    webView.stopLoading();
+                    webView.clearHistory();
+                    webView.loadUrl(HOME_URL + "?t=" + System.currentTimeMillis());
+                } catch (Exception ignored) {}
+            });
         }
 
         @JavascriptInterface

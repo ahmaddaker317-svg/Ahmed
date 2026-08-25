@@ -1,0 +1,20 @@
+ADT Pro v1.2 / v75 fixes
+========================
+1) Launcher icon scaled into Android adaptive safe area so the full logo is visible.
+2) Native Android WebView moved below the Android 15/16 status/camera area.
+3) Home main-section heading forced RTL/right aligned.
+4) Previous-audit restore now checks for a saved audit before opening the restore modal.
+5) Pending join "refresh status" now checks Supabase directly instead of relying on file:// reload.
+6) Team members no longer see the manager subscription countdown in the drawer.
+7) APK sign-out now clears session then reloads the local app through the Android bridge.
+8) Ordinary members cannot create suppliers; server/UI entry points are guarded in the client.
+9) Price-change notifications suppress the editor's own local notification and invoke native external push with actor_user_id so other devices (including manager) can receive it.
+10) Developer long-press entry is limited to an authorized manager/device/team; member accounts are cleaned from accidental developer entitlement.
+11) Ghost/private-browse mode stores the exact original role, permissions, user name and team context and restores them from Supabase on exit. On restore failure it signs out instead of leaking manager/developer privileges.
+12) FCM notification channel + dedicated notification small icon retained/strengthened.
+
+Important server dependency:
+- External price push requires the existing Supabase Edge Function: adt-send-price-push.
+- The Edge Function should exclude actor_user_id from recipients (the Android bridge sends it).
+
+V78: Main sections title corrected RTL/right in original CSS rule.
