@@ -1,0 +1,8 @@
+ADT Pro v87 FINAL
+- Latest clean teal decorated logo in header and login.
+- Launcher icon rebuilt to avoid the ugly pure-black outer ending.
+- Adaptive launcher background now matches the app dark navy.
+- FCM token is refreshed automatically on app launch/resume.
+- Firebase onNewToken continues storing every newly issued token.
+- The web layer re-registers/binds the current token to the active team/user.
+- Existing push notification backend and notification channel were preserved.
