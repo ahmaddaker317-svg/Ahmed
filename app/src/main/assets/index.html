@@ -1780,7 +1780,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
     <div class="modal no-print adt-invoice-modal" id="invoiceModal" style="display:none;z-index:9998;">
       <div class="modal-box adt-invoice-box">
         <div class="adt-invoice-head">
-          <button class="adt-invoice-close" onclick="window.closeModal('invoiceModal')" aria-label="إغلاق">×</button>
+          <button class="adt-invoice-close" onclick="window.confirmCloseInvoice()" aria-label="إغلاق">×</button>
           <div>
             <h3>إنشاء فاتورة جديدة</h3>
             <p>أضف الأصناف وحدد الكمية والسعر ثم صدّر الفاتورة</p>
@@ -1823,7 +1823,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
         </section>
 
         <div class="adt-invoice-actions">
-          <button class="btn-secondary" onclick="window.saveInvoiceDraft()">حفظ كمسودة</button>
+          <button class="btn-secondary" onclick="window.confirmCloseInvoice()">إغلاق</button>
           <button class="btn-primary" onclick="window.exportInvoicePDF()">إصدار الفاتورة</button>
         </div>
       </div>
@@ -2279,10 +2279,20 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
             const originalId = String(localStorage.getItem('atd_original_team_id') || '');
             const activeId = String(currentTeam?.id || localStorage.getItem('atd_sales_team_id') || '');
             const teamId = (isGhostMode && originalId) ? originalId : activeId;
-            const ids = JSON.parse(localStorage.getItem('atd_developer_team_ids') || '[]');
-            const entitled = localStorage.getItem('atd_dev_device_authorized') === '1';
             const originRole = isGhostMode ? String(sessionStorage.getItem('adt_ghost_origin_role_v2')||'') : String(userRole||'');
-            return !!teamId && entitled && originRole === 'manager' && Array.isArray(ids) && ids.map(String).includes(teamId);
+            const activeCode = String(currentTeam?.code || '').trim().toUpperCase();
+            const canonicalDevTeam = !isGhostMode && activeCode === '086' && originRole === 'manager';
+
+            let ids = [];
+            try { ids = JSON.parse(localStorage.getItem('atd_developer_team_ids') || '[]'); } catch(_) { ids = []; }
+            const entitled = localStorage.getItem('atd_dev_device_authorized') === '1';
+
+            // فريق المطور الرسمي هو الفريق ذو الكود 086، بشرط أن يكون الحساب مديراً.
+            // مع الاحتفاظ بقائمة المعرفات للتوافق مع الجلسات القديمة والتصفح السري.
+            return !!teamId && originRole === 'manager' && (
+                canonicalDevTeam ||
+                (entitled && Array.isArray(ids) && ids.map(String).includes(teamId))
+            );
         } catch(_) { return false; }
     };
     window.canCreateInvoices = function() { return window.isDeveloperAccount() || userRole==='manager' || userRole==='sub_manager' || !!myPermissions.can_create_invoices || isGhostMode; };
@@ -2616,7 +2626,10 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
         if (!currentTeam) return false;
         if (isGhostMode) return true;
 
-        // الميزات المدفوعة تعتمد على حالة الخادم فقط حتى لا تفتح بسبب نسخة محلية قديمة.
+        // فريق المطور الرسمي (كود 086) جميع ميزاته مفعلة دائماً.
+        if (window.isDeveloperAccount && window.isDeveloperAccount()) return true;
+
+        // باقي الفرق تعتمد على حالة الخادم.
         const teamFeats = (currentTeam.features && typeof currentTeam.features === 'object') ? currentTeam.features : {};
         return teamFeats[featureKey] === true;
     };
@@ -3214,7 +3227,17 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
                 try { const ids=JSON.parse(localStorage.getItem('atd_developer_team_ids')||'[]'); localStorage.setItem('atd_developer_team_ids',JSON.stringify((Array.isArray(ids)?ids:[]).map(String).filter(id=>id!==String(currentTeam.id)))); } catch(_){}
                 localStorage.removeItem('atd_dev_device_authorized'); developerSessionPin='';
             } else {
-                try { const ids=JSON.parse(localStorage.getItem('atd_developer_team_ids')||'[]').map(String); if(ids.includes(String(currentTeam.id))) localStorage.setItem('atd_dev_device_authorized','1'); } catch(_){}
+                try {
+                    const code = String(currentTeam?.code || '').trim().toUpperCase();
+                    if (code === '086') {
+                        localStorage.setItem('atd_developer_team_ids', JSON.stringify([String(currentTeam.id)]));
+                        localStorage.setItem('atd_dev_device_authorized','1');
+                        currentTeam.features = { ...(currentTeam.features || {}), catalog:true, shortages:true, invoices:true };
+                    } else {
+                        const ids=JSON.parse(localStorage.getItem('atd_developer_team_ids')||'[]').map(String);
+                        if(ids.includes(String(currentTeam.id))) localStorage.setItem('atd_dev_device_authorized','1');
+                    }
+                } catch(_){}
             }
             window.loadTeamLocalCaches(currentTeam.id); window.saveCurrentTeamSnapshot(); localStorage.setItem('atd_sales_user_role',userRole); document.getElementById('onboardingModal').style.display='none';
             const leaveBtnItem=document.getElementById('drawerLeaveTeamItem'), memberLeaveBox=document.getElementById('memberLeaveBox');
@@ -3294,7 +3317,20 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
             window.loadTeamLocalCaches(currentTeam.id);
             window.saveCurrentTeamSnapshot();
             userRole = 'manager';
-            try { const ids=JSON.parse(localStorage.getItem('atd_developer_team_ids')||'[]'); const known=Array.isArray(ids)&&ids.map(String).includes(String(currentTeam.id)); if(known) localStorage.setItem('atd_dev_device_authorized','1'); else localStorage.removeItem('atd_dev_device_authorized'); } catch(_){ localStorage.removeItem('atd_dev_device_authorized'); }
+            try {
+                const code=String(currentTeam?.code||'').trim().toUpperCase();
+                if(code==='086'){
+                    localStorage.setItem('atd_developer_team_ids',JSON.stringify([String(currentTeam.id)]));
+                    localStorage.setItem('atd_dev_device_authorized','1');
+                    currentTeam.features={...(currentTeam.features||{}),catalog:true,shortages:true,invoices:true};
+                    window.saveCurrentTeamSnapshot();
+                }else{
+                    const ids=JSON.parse(localStorage.getItem('atd_developer_team_ids')||'[]');
+                    const known=Array.isArray(ids)&&ids.map(String).includes(String(currentTeam.id));
+                    if(known) localStorage.setItem('atd_dev_device_authorized','1');
+                    else localStorage.removeItem('atd_dev_device_authorized');
+                }
+            } catch(_){ localStorage.removeItem('atd_dev_device_authorized'); }
 
             document.getElementById('onboardingModal').style.display = 'none';
             window.showToast(`أهلاً بك يا مدير (${teamData.name})`);
@@ -3423,7 +3459,47 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
             localStorage.setItem('atd_sales_user_name', userName);
 
             currentTeam = newTeam;
-            if (isMaster) { try { const ids=JSON.parse(localStorage.getItem('atd_developer_team_ids')||'[]'); const next=[...new Set([...(Array.isArray(ids)?ids:[]).map(String),String(newTeam.id)])]; localStorage.setItem('atd_developer_team_ids',JSON.stringify(next)); localStorage.setItem('atd_dev_device_authorized','1'); } catch(_) {} }
+            if (isMaster) {
+                try {
+                    // احتفظ بمعرفات فرق المطور القديمة قبل استبدالها، ثم احذفها من الخادم.
+                    let previousDeveloperIds = [];
+                    try {
+                        previousDeveloperIds = JSON.parse(localStorage.getItem('atd_developer_team_ids') || '[]');
+                        previousDeveloperIds = Array.isArray(previousDeveloperIds) ? previousDeveloperIds.map(String) : [];
+                    } catch(_) { previousDeveloperIds = []; }
+
+                    for (const oldId of previousDeveloperIds) {
+                        if (!oldId || oldId === String(newTeam.id)) continue;
+                        try {
+                            await dbClient.rpc('adt_admin_delete_team', {
+                                p_dev_pin: developerSessionPin,
+                                p_team_id: String(oldId),
+                                p_device_id: getDeviceId()
+                            });
+                        } catch(e) {
+                            console.warn('[Developer Team] old developer team delete failed:', oldId, e);
+                        }
+                    }
+
+                    // الفريق الجديد المنشأ بعد تحقق كود المطور يصبح فريق المطور الوحيد محلياً.
+                    localStorage.setItem('atd_developer_team_ids', JSON.stringify([String(newTeam.id)]));
+                    localStorage.setItem('atd_dev_device_authorized','1');
+
+                    // تفعيل جميع الميزات المدفوعة على الخادم للفريق المنشأ بكود المطور.
+                    const { error: featureErr } = await dbClient.rpc('adt_admin_set_features_v2', {
+                        p_dev_pin: developerSessionPin,
+                        p_team_id: String(newTeam.id),
+                        p_catalog: true,
+                        p_shortages: true,
+                        p_invoices: true,
+                        p_device_id: getDeviceId()
+                    });
+                    if (featureErr) throw featureErr;
+                    newTeam.features = { ...(newTeam.features || {}), catalog:true, shortages:true, invoices:true };
+                } catch(e) {
+                    console.warn('[Developer Team] setup sync failed:', e);
+                }
+            }
             window.loadTeamLocalCaches(currentTeam.id);
             window.saveCurrentTeamSnapshot();
             userRole = 'manager';
@@ -3938,10 +4014,53 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
                     const originalId = String(localStorage.getItem('atd_original_team_id') || '');
                     const activeId = String(currentTeam?.id || localStorage.getItem('atd_sales_team_id') || '');
                     const developerTeamId = (isGhostMode && originalId) ? originalId : activeId;
+                    const currentCode = String(currentTeam?.code || '').trim().toUpperCase();
+
                     if (developerTeamId) {
-                        const ids = JSON.parse(localStorage.getItem('atd_developer_team_ids') || '[]');
-                        const next = [...new Set([...(Array.isArray(ids)?ids:[]).map(String), developerTeamId])];
-                        localStorage.setItem('atd_developer_team_ids', JSON.stringify(next));
+                        let ids = [];
+                        try { ids = JSON.parse(localStorage.getItem('atd_developer_team_ids') || '[]'); } catch(_) { ids = []; }
+                        ids = Array.isArray(ids) ? ids.map(String) : [];
+
+                        if (!isGhostMode && currentCode === '086') {
+                            // الفريق 086 هو فريق المطور الوحيد.
+                            const oldDeveloperIds = ids.filter(id => id && id !== String(developerTeamId));
+
+                            // حذف الفريق/الفرق القديمة التي كانت مسجلة سابقاً كفريق مطور.
+                            for (const oldId of oldDeveloperIds) {
+                                try {
+                                    await dbClient.rpc('adt_admin_delete_team', {
+                                        p_dev_pin: developerSessionPin,
+                                        p_team_id: String(oldId),
+                                        p_device_id: getDeviceId()
+                                    });
+                                } catch(e) {
+                                    console.warn('[Developer Team] old team delete deferred:', oldId, e);
+                                }
+                            }
+
+                            localStorage.setItem('atd_developer_team_ids', JSON.stringify([String(developerTeamId)]));
+                            localStorage.setItem('atd_dev_device_authorized','1');
+
+                            try {
+                                await dbClient.rpc('adt_admin_set_features_v2', {
+                                    p_dev_pin: developerSessionPin,
+                                    p_team_id: String(developerTeamId),
+                                    p_catalog: true,
+                                    p_shortages: true,
+                                    p_invoices: true,
+                                    p_device_id: getDeviceId()
+                                });
+                                if (currentTeam) {
+                                    currentTeam.features = { ...(currentTeam.features || {}), catalog:true, shortages:true, invoices:true };
+                                    window.saveCurrentTeamSnapshot();
+                                }
+                            } catch(e) {
+                                console.warn('[Developer Team] feature sync deferred:', e);
+                            }
+                        } else {
+                            const next = [...new Set([...ids, String(developerTeamId)])];
+                            localStorage.setItem('atd_developer_team_ids', JSON.stringify(next));
+                        }
                     }
                 } catch(_) {}
                 if (input) input.value = '';
@@ -4156,7 +4275,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
             }
             container.innerHTML = allTeams.map(t => {
                 const isThisActive = currentTeam && String(currentTeam.id) === String(t.id);
-                const isDevTeam = protectedDevIds.includes(String(t.id));
+                const isDevTeam = String(t.code || '').trim().toUpperCase() === '086';
                 const isFrozen = isDevTeam ? false : !!t.is_frozen;
                 const expStr = isDevTeam ? 'دائم' : (t.expires_at ? new Date(t.expires_at).toLocaleDateString('ar-EG') : 'دائم');
                 const diffDays = isDevTeam ? 999999 : (t.expires_at ? Math.ceil((new Date(t.expires_at).getTime() - Date.now()) / 86400000) : 999);
@@ -8127,18 +8246,25 @@ body.adt-ghost-mode #ghostExitBadge{
     if(total && total.textContent && !/د\.ل/.test(total.textContent)) total.textContent=total.textContent.trim()+' د.ل';
   }
 
-  window.saveInvoiceDraft = function(){
-    try{
-      const draft={
-        customer:(document.getElementById('invoiceCustomerName')||{}).value||'',
-        note:(document.getElementById('invoiceGeneralNote')||{}).value||'',
-        savedAt:new Date().toISOString()
-      };
-      localStorage.setItem('adt_invoice_draft_meta',JSON.stringify(draft));
-      if(typeof window.showToast==='function') window.showToast('تم حفظ الفاتورة كمسودة');
-    }catch(e){
-      if(typeof window.showToast==='function') window.showToast('تعذر حفظ المسودة');
-    }
+  window.confirmCloseInvoice = async function(){
+    const hasItems = Array.isArray(window.invoiceItems)
+        ? window.invoiceItems.length > 0
+        : (typeof invoiceItems !== 'undefined' && Array.isArray(invoiceItems) ? invoiceItems.length > 0 : false);
+    const customer = String((document.getElementById('invoiceCustomerName')||{}).value || '').trim();
+    const note = String((document.getElementById('invoiceGeneralNote')||{}).value || '').trim();
+
+    // حتى لو الفاتورة فارغة نظهر تأكيداً بسيطاً كما طلب المستخدم.
+    const ok = await window.showAppConfirm({
+      title:'إغلاق الفاتورة؟',
+      message: (hasItems || customer || note)
+        ? 'سيتم إغلاق الفاتورة الحالية وفقد البيانات التي لم يتم إصدارها. هل تريد المتابعة؟'
+        : 'هل تريد إغلاق واجهة الفاتورة؟',
+      confirmText:'إغلاق',
+      cancelText:'رجوع',
+      danger: (hasItems || customer || note)
+    });
+    if(!ok) return;
+    window.closeModal('invoiceModal');
   };
 
   function markKeyboard(){
