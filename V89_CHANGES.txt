@@ -1,0 +1,5 @@
+ADT Pro v89
+- Reduced launcher logo size from v88 to a balanced size.
+- Reduced splash logo size separately.
+- Preserved transparent splash.
+- Preserved automatic FCM token refresh/self-heal.
