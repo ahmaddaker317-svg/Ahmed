@@ -8,7 +8,7 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:colorAccent">@color/adt_teal</item>
         <item name="android:windowSplashScreenBackground">@color/adt_black</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
-        <item name="android:windowSplashScreenIconBackgroundColor">@color/adt_black</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
     </style>
 </resources>

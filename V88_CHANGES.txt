@@ -1,0 +1,7 @@
+ADT Pro v88 FINAL
+- Preserved automatic FCM token refresh/rebind from v87.
+- Launcher logo enlarged correctly (actual upscale, not thumbnail-only).
+- Removed the dark/black ring outside the turquoise border: turquoise outline is now the visual edge.
+- Android 12+ splash uses a transparent standalone logo drawable.
+- Splash no longer shows the logo inside a black rectangular image.
+- App dark-navy background and all push notification logic preserved.
