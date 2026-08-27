@@ -3232,7 +3232,24 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
         try {
             const {data:ctx,error}=await dbClient.rpc('adt_get_my_context',{p_team_id:String(savedTeamId),p_user_id:getDeviceId()});
             if (error) throw error;
-            if (!ctx || !ctx.team || !ctx.member) { localStorage.removeItem('atd_sales_team_id'); localStorage.removeItem('atd_sales_user_role'); currentTeam=null; document.getElementById('onboardingModal').style.display='flex'; return; }
+            if (!ctx || !ctx.team || !ctx.member) {
+                // لا نمسح الجلسة المحفوظة تلقائياً بسبب رد مؤقت/فارغ من الشبكة أو RPC.
+                // احتفظ بالحساب على الجهاز، واعرض آخر Snapshot محلي إلى أن ينجح التحقق لاحقاً.
+                console.warn('[Auth] context unavailable; preserving saved session');
+                try {
+                    const snap=JSON.parse(localStorage.getItem(`atd_team_snapshot__${savedTeamId}`)||'null');
+                    currentTeam=(snap&&snap.id)?snap:{id:savedTeamId,name:'الفريق المحفوظ',manager_name:savedName||'مستخدم'};
+                } catch(_) {
+                    currentTeam={id:savedTeamId,name:'الفريق المحفوظ',manager_name:savedName||'مستخدم'};
+                }
+                userRole=savedRole||'member';
+                window.loadTeamLocalCaches(savedTeamId);
+                document.getElementById('onboardingModal').style.display='none';
+                window.updateUserProfileUI(savedName);
+                window.renderProducts(); window.renderShortagesView(); window.renderDebts(); window.renderHomeStats();
+                window.switchTab('home',false);
+                return;
+            }
             const m=ctx.member;
             if (m.status==='pending' && m.role!=='manager') { document.getElementById('onboardingModal').style.display='none'; document.getElementById('pendingApprovalModal').style.display='flex'; return; }
             if (m.status!=='approved' && m.role!=='manager') { document.getElementById('onboardingModal').style.display='flex'; return; }
@@ -3262,7 +3279,26 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
             await Promise.all([window.loadTeamMembers(),window.fetchProductsFromSupabase(),window.fetchShortagesFromSupabase(),window.fetchDebtsFromSupabase()]);
             window.checkWeeklyDebtReminder();
             window.setupRealtimeSubscription(); try{await dbClient.rpc('adt_touch_team',{p_team_id:String(currentTeam.id),p_user_id:getDeviceId()});}catch(_){} try{await window.fetchDeveloperNotices();}catch(_){} window.switchTab('home',false);
-        } catch(e) { console.error('[Auth] secure context failed:',e); document.getElementById('onboardingModal').style.display='flex'; }
+        } catch(e) {
+            console.error('[Auth] secure context failed:',e);
+            // فشل الإنترنت/الخادم لا يعني تسجيل خروج. استخدم الجلسة المحلية المحفوظة.
+            if (savedTeamId) {
+                try {
+                    const snap=JSON.parse(localStorage.getItem(`atd_team_snapshot__${savedTeamId}`)||'null');
+                    currentTeam=(snap&&snap.id)?snap:{id:savedTeamId,name:'الفريق المحفوظ',manager_name:savedName||'مستخدم'};
+                } catch(_) {
+                    currentTeam={id:savedTeamId,name:'الفريق المحفوظ',manager_name:savedName||'مستخدم'};
+                }
+                userRole=savedRole||'member';
+                window.loadTeamLocalCaches(savedTeamId);
+                document.getElementById('onboardingModal').style.display='none';
+                window.updateUserProfileUI(savedName);
+                window.renderProducts(); window.renderShortagesView(); window.renderDebts(); window.renderHomeStats();
+                window.switchTab('home',false);
+            } else {
+                document.getElementById('onboardingModal').style.display='flex';
+            }
+        }
     };
 
     window.showOnboardingSubTab = function(type) {

@@ -1,0 +1,5 @@
+ADT Pro v90 SESSION PERSISTENCE
+- Saved login is no longer cleared when adt_get_my_context temporarily returns empty.
+- Network/RPC failure at startup falls back to the saved local team snapshot instead of showing login.
+- Explicit user logout behavior remains unchanged.
+- Existing FCM token refresh/self-heal code is preserved.
