@@ -1632,6 +1632,16 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
                 <div class="form-group" style="margin-bottom:7px;"><label>سعر البيع للزبون:</label><input type="number" id="pSellPrice" class="input-field" style="padding:8px 10px;" placeholder="0.00" onkeydown="if(event.key==='Enter'||event.keyCode===13){ event.preventDefault(); window.saveProduct(); }"></div>
             </div>
 
+            <div style="border:1px solid var(--border);border-radius:11px;padding:8px 9px;margin:1px 0 7px;background:rgba(0,210,180,.035);">
+                <div style="font-size:10.5px;font-weight:900;color:var(--accent-teal);margin-bottom:6px;">وحدات البيع والتعبئة</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+                    <div class="form-group" style="margin:0;"><label>الوحدة الكبيرة</label><input type="text" id="pPackName" class="input-field" value="صندوق" placeholder="صندوق" style="padding:7px 8px;"></div>
+                    <div class="form-group" style="margin:0;"><label>الوحدة الصغيرة</label><input type="text" id="pPieceName" class="input-field" value="قطعة" placeholder="قطعة" style="padding:7px 8px;"></div>
+                    <div class="form-group" style="margin:0;"><label>عدد القطع</label><input type="number" id="pPackQty" class="input-field" min="1" step="1" value="1" inputmode="numeric" style="padding:7px 8px;text-align:center;"></div>
+                </div>
+                <div id="pPiecePricePreview" style="font-size:10px;color:var(--text-muted);margin-top:6px;text-align:center;"></div>
+            </div>
+
             <div class="form-group" style="margin-bottom:7px;">
                 <label>المورد المسؤول عن هذا الصنف:</label>
                 <div id="pSupplierSelectedBtn" onclick="window.openSupplierPickerModal()" style="width:100%; padding:8px 10px; border-radius:10px; border:1px solid var(--border); font-size:12px; background:var(--input-bg); color:var(--accent-teal); cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-weight:800;">
@@ -1833,10 +1843,17 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
     <div class="modal no-print adt-invoice-item-modal" id="invoiceItemEditModal" style="display:none;z-index:10010;">
       <div class="modal-box adt-invoice-item-compact">
         <h3 id="invoiceItemEditTitle" style="color:var(--primary);margin-bottom:9px;font-size:16px;">إضافة صنف للفاتورة</h3>
+        <div class="form-group" id="invoiceItemUnitGroup" style="margin-bottom:7px;">
+          <label>وحدة البيع:</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <button type="button" id="invoiceUnitPackBtn" class="btn-filter-pill active" onclick="window.setInvoiceItemUnit('pack')">صندوق</button>
+            <button type="button" id="invoiceUnitPieceBtn" class="btn-filter-pill" onclick="window.setInvoiceItemUnit('piece')">قطعة</button>
+          </div>
+        </div>
         <div class="adt-invoice-qty-price-grid">
           <div class="form-group">
             <label>الكمية:</label>
-            <input type="number" min="0" step="1" id="invoiceItemQtyInput" class="input-field" value="0" inputmode="numeric" onfocus="if(this.value==='0'){this.value='';}">
+            <input type="number" min="0.01" step="0.5" id="invoiceItemQtyInput" class="input-field" value="0" inputmode="decimal" onfocus="if(this.value==='0'){this.value='';}">
           </div>
           <div class="form-group">
             <label>سعر البيع:</label>
@@ -4937,7 +4954,10 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
                 updatedAt: p.updated_at ? new Date(p.updated_at).getTime() : Date.now(),
                 auditQty: p.audit_qty || 0,
                 imageData: p.image_data || '',
-                catalogHidden: !!p.catalog_hidden
+                catalogHidden: !!p.catalog_hidden,
+                packQty: Math.max(1, Number(p.pack_qty || 1)),
+                packName: String(p.pack_name || 'صندوق'),
+                pieceName: String(p.piece_name || 'قطعة')
             }));
 
             let ownEdit=null;try{ownEdit=JSON.parse(localStorage.getItem('adt_last_own_price_edit_'+String(teamIdAtStart))||'null');}catch(_){}
@@ -5007,6 +5027,10 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
         document.getElementById('pName').value = '';
         document.getElementById('pBuyPrice').value = '';
         document.getElementById('pSellPrice').value = '';
+        document.getElementById('pPackName').value = 'صندوق';
+        document.getElementById('pPieceName').value = 'قطعة';
+        document.getElementById('pPackQty').value = '1';
+        window.updatePiecePricePreview?.();
         const sellInput=document.getElementById('pSellPrice'); if (sellInput) { sellInput.disabled=!window.canEditSellPrice(); sellInput.style.opacity=sellInput.disabled?'.55':'1'; }
         document.getElementById('pSupplierSelectedText').innerText = '-- بدون مورد محدد --';
         window.setProductImagePreview('');
@@ -5028,6 +5052,10 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
         document.getElementById('pName').value = p.name;
         document.getElementById('pBuyPrice').value = p.buyPrice;
         document.getElementById('pSellPrice').value = p.sellPrice;
+        document.getElementById('pPackName').value = p.packName || 'صندوق';
+        document.getElementById('pPieceName').value = p.pieceName || 'قطعة';
+        document.getElementById('pPackQty').value = Math.max(1, Number(p.packQty || 1));
+        window.updatePiecePricePreview?.();
         const sellInput=document.getElementById('pSellPrice'); if (sellInput) { sellInput.disabled=!window.canEditSellPrice(); sellInput.style.opacity=sellInput.disabled?'.55':'1'; sellInput.title=sellInput.disabled?'المدير لم يسمح لك بتغيير سعر البيع':''; }
         document.getElementById('pSupplierSelectedText').innerText = currentSelectedSupplier ? currentSelectedSupplier : '-- بدون مورد محدد --';
         window.setProductImagePreview(p.imageData || p.image_data || '');
@@ -5046,6 +5074,9 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
         const name = document.getElementById('pName').value.trim();
         const buyPrice = parseFloat(document.getElementById('pBuyPrice').value) || 0;
         const sellPrice = parseFloat(document.getElementById('pSellPrice').value) || 0;
+        const packQty = Math.max(1, parseInt(document.getElementById('pPackQty')?.value || '1',10) || 1);
+        const packName = (document.getElementById('pPackName')?.value || 'صندوق').trim() || 'صندوق';
+        const pieceName = (document.getElementById('pPieceName')?.value || 'قطعة').trim() || 'قطعة';
         const supplier = currentSelectedSupplier || '';
         const oldName = (editingIndex !== null && products[editingIndex]) ? String(products[editingIndex].name || '') : '';
         if (editingIndex !== null && products[editingIndex] && !window.canEditSellPrice() && Number(sellPrice)!==Number(products[editingIndex].sellPrice||0)) { window.customAlert('غير مسموح','المدير لم يسمح لك بتغيير سعر البيع.'); return; }
@@ -5081,7 +5112,10 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
             updated_at: new Date().toISOString(),
             is_deleted: false,
             image_data: currentProductImageData || null,
-            catalog_hidden: false
+            catalog_hidden: false,
+            pack_qty: packQty,
+            pack_name: packName,
+            piece_name: pieceName
         };
 
         // احفظ المنتج على الخادم أولاً. لا نغير أي cache محلي قبل نجاح الحفظ.
@@ -5120,7 +5154,8 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
                 supplier: supplier,
                     updatedAt: Date.now(),
                 auditQty: products[editingIndex].auditQty || 0,
-                catalogHidden: !!prodObj.catalog_hidden
+                catalogHidden: !!prodObj.catalog_hidden,
+                packQty, packName, pieceName
             };
             window.showToast('تم تحديث بيانات الصنف بنجاح');
         } else {
@@ -5132,7 +5167,8 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
                 supplier: supplier,
                     updatedAt: Date.now(),
                 auditQty: 0,
-                catalogHidden: false
+                catalogHidden: false,
+                packQty, packName, pieceName
             });
             window.showToast('تمت إضافة الصنف للقائمة');
         }
@@ -6082,16 +6118,36 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
           </div>`}).join('');
         box.style.display='block';
     };
+    let pendingInvoiceUnit='pack';
+    window.updatePiecePricePreview=function(){
+        const sell=Number(document.getElementById('pSellPrice')?.value||0),qty=Math.max(1,Number(document.getElementById('pPackQty')?.value||1));
+        const piece=(document.getElementById('pPieceName')?.value||'قطعة').trim()||'قطعة',el=document.getElementById('pPiecePricePreview');
+        if(el)el.textContent=sell>0&&qty>1?`سعر ${piece} تلقائياً: ${(sell/qty).toFixed(2)} د.ل`:'';
+    };
+    document.addEventListener('input',e=>{if(['pSellPrice','pPackQty','pPieceName'].includes(e.target?.id))window.updatePiecePricePreview();});
+    window.setInvoiceItemUnit=function(unit){
+        pendingInvoiceUnit=unit==='piece'?'piece':'pack';
+        const p=editingInvoiceItemIndex!==null?products.find(z=>String(z.id)===String(invoiceItems[editingInvoiceItemIndex]?.id)):products[pendingInvoiceProductIndex];if(!p)return;
+        const pq=Math.max(1,Number(p.packQty||1));if(pq<=1)pendingInvoiceUnit='pack';
+        const a=document.getElementById('invoiceUnitPackBtn'),b=document.getElementById('invoiceUnitPieceBtn');
+        if(a){a.textContent=p.packName||'صندوق';a.classList.toggle('active',pendingInvoiceUnit==='pack');}
+        if(b){b.textContent=p.pieceName||'قطعة';b.classList.toggle('active',pendingInvoiceUnit==='piece');b.disabled=pq<=1;b.style.opacity=pq<=1?'.45':'1';}
+        const sell=document.getElementById('invoiceItemSellPriceInput'),base=Number(p.sellPrice||0);
+        if(sell)sell.value=(pendingInvoiceUnit==='piece'?base/pq:base).toFixed(2);
+        const h=document.getElementById('invoiceItemPriceHint');if(h)h.textContent=pendingInvoiceUnit==='piece'?`${pq} ${p.pieceName||'قطعة'} = 1 ${p.packName||'صندوق'}`:`سعر ${p.packName||'صندوق'} الكامل`;
+    };
     window.addInvoiceProductByIndex=function(idx){
         const p=products[idx]; if(!p)return;
         pendingInvoiceProductIndex=idx; editingInvoiceItemIndex=null;
         const title=document.getElementById('invoiceItemEditTitle'); if(title)title.innerText=p.name;
         const qty=document.getElementById('invoiceItemQtyInput'); if(qty)qty.value='0';
+        pendingInvoiceUnit='pack';
         const sell=document.getElementById('invoiceItemSellPriceInput');
         if(sell){sell.value=Number(p.sellPrice||0).toFixed(2);sell.disabled=!window.canEditSellPrice();sell.style.opacity=sell.disabled?'.65':'1';}
         const hint=document.getElementById('invoiceItemPriceHint');
         if(hint)hint.innerHTML='';
         const note=document.getElementById('invoiceItemNoteInput'); if(note)note.value='';
+        window.setInvoiceItemUnit('pack');
         document.getElementById('invoiceItemEditModal').style.display='flex'; setTimeout(()=>qty?.focus(),120);
     };
     window.editInvoiceItem=function(i){
@@ -6100,36 +6156,40 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
         editingInvoiceItemIndex=i; pendingInvoiceProductIndex=null;
         const title=document.getElementById('invoiceItemEditTitle'); if(title)title.innerText=x.name;
         const qty=document.getElementById('invoiceItemQtyInput'); if(qty)qty.value=String(x.qty||1);
+        pendingInvoiceUnit=x.unit||'pack';
         const sell=document.getElementById('invoiceItemSellPriceInput');
         if(sell){sell.value=Number(x.price||0).toFixed(2);sell.disabled=!window.canEditSellPrice();sell.style.opacity=sell.disabled?'.65':'1';}
         const hint=document.getElementById('invoiceItemPriceHint');
         if(hint)hint.innerHTML='';
         const note=document.getElementById('invoiceItemNoteInput'); if(note)note.value=x.note||'';
+        window.setInvoiceItemUnit(pendingInvoiceUnit); if(sell)sell.value=Number(x.price||0).toFixed(2);
         document.getElementById('invoiceItemEditModal').style.display='flex';
     };
     window.confirmInvoiceItemEdit=function(){
-        const qty=parseInt(document.getElementById('invoiceItemQtyInput')?.value||'0',10)||0;
+        const qty=parseFloat(document.getElementById('invoiceItemQtyInput')?.value||'0')||0;
         if(qty<=0){const q=document.getElementById('invoiceItemQtyInput');if(q){q.classList.add('adt-invalid-qty');q.focus();setTimeout(()=>q.classList.remove('adt-invalid-qty'),700);}return;}
         const p = editingInvoiceItemIndex!==null ? products.find(z=>String(z.id)===String(invoiceItems[editingInvoiceItemIndex]?.id)) : products[pendingInvoiceProductIndex];
         if(!p)return;
         const sellEl=document.getElementById('invoiceItemSellPriceInput');
         let sellPrice=Number(sellEl?.value||p.sellPrice||0);
         if(!Number.isFinite(sellPrice)||sellPrice<=0){sellEl?.classList.add('adt-invalid-qty');sellEl?.focus();setTimeout(()=>sellEl?.classList.remove('adt-invalid-qty'),700);return;}
-        const buyPrice=Number(p.buyPrice||0);
+        const packQty=Math.max(1,Number(p.packQty||1));
+        const unit=(pendingInvoiceUnit==='piece'&&packQty>1)?'piece':'pack';
+        const buyPrice=Number(p.buyPrice||0)/(unit==='piece'?packQty:1);
         if(sellPrice<buyPrice){
             if(sellEl){sellEl.classList.add('adt-invalid-price');sellEl.focus();setTimeout(()=>sellEl.classList.remove('adt-invalid-price'),1200);}
             const hint=document.getElementById('invoiceItemPriceHint');
             if(hint){hint.innerHTML='<span class="adt-price-error">سعر البيع أقل من الحد المسموح لهذا الصنف</span>';}
             return;
         }
-        if(!window.canEditSellPrice()) sellPrice=Number(p.sellPrice||0);
+        if(!window.canEditSellPrice()) sellPrice=Number(p.sellPrice||0)/(unit==='piece'?packQty:1);
         const note=(document.getElementById('invoiceItemNoteInput')?.value||'').trim();
         if(editingInvoiceItemIndex!==null){
-            const x=invoiceItems[editingInvoiceItemIndex]; x.qty=qty;x.note=note;x.price=sellPrice;x.buyPrice=buyPrice;
+            const x=invoiceItems[editingInvoiceItemIndex]; x.qty=qty;x.note=note;x.price=sellPrice;x.buyPrice=buyPrice;x.unit=unit;x.unitName=unit==='piece'?(p.pieceName||'قطعة'):(p.packName||'صندوق');
         } else {
-            const existing=invoiceItems.find(x=>String(x.id)===String(p.id));
-            if(existing){existing.qty=Number(existing.qty||0)+qty;if(note)existing.note=existing.note?(existing.note+' | '+note):note;existing.price=sellPrice;existing.buyPrice=buyPrice;}
-            else invoiceItems.push({id:p.id,name:p.name,qty,price:sellPrice,buyPrice,note});
+            const existing=invoiceItems.find(x=>String(x.id)===String(p.id)&&String(x.unit||'pack')===unit);
+            if(existing){existing.qty=Number(existing.qty||0)+qty;if(note)existing.note=existing.note?(existing.note+' | '+note):note;existing.price=sellPrice;existing.buyPrice=buyPrice;existing.unitName=unit==='piece'?(p.pieceName||'قطعة'):(p.packName||'صندوق');}
+            else invoiceItems.push({id:p.id,name:p.name,qty,price:sellPrice,buyPrice,note,unit,unitName:unit==='piece'?(p.pieceName||'قطعة'):(p.packName||'صندوق')});
         }
         pendingInvoiceProductIndex=null;editingInvoiceItemIndex=null;
         const input=document.getElementById('invoiceProductSearch');if(input)input.value='';
@@ -6137,7 +6197,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
         window.closeModal('invoiceItemEditModal');window.renderInvoiceItems();
     };
     window.addInvoiceItem=function(){window.handleInvoiceProductSearch();};
-    window.changeInvoiceQty=function(i,d){invoiceItems[i].qty=Math.max(1,Number(invoiceItems[i].qty||1)+d);window.renderInvoiceItems();};
+    window.changeInvoiceQty=function(i,d){invoiceItems[i].qty=Math.max(0.01,Number(invoiceItems[i].qty||0)+Number(d||0));window.renderInvoiceItems();};
     window.setInvoicePrice=function(i,v){
         const x=invoiceItems[i],p=products.find(p=>String(p.id)===String(x.id));const buy=Number(p?.buyPrice||x.buyPrice||0),nv=Number(v||0);
         if(nv<buy)return false;x.price=nv;window.renderInvoiceItems(false);return true;
@@ -6149,7 +6209,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
           const total=Number(x.qty||0)*Number(x.price||0);
           return `<div class="adt-invoice-line" onclick="window.editInvoiceItem(${i})">
             <div class="adt-invoice-line-main"><div class="adt-invoice-line-name">${window.escapeHtml(x.name)}</div>${x.note?`<div class="adt-invoice-line-note">${window.escapeHtml(x.note)}</div>`:''}</div>
-            <div class="adt-invoice-line-data"><span><small>الكمية</small><b>${x.qty}</b></span><span><small>السعر</small><b>${Number(x.price).toFixed(2)}</b></span><span><small>الإجمالي</small><b>${total.toFixed(2)}</b></span></div>
+            <div class="adt-invoice-line-data"><span><small>الكمية</small><b>${x.qty} ${window.escapeHtml(x.unitName||'صندوق')}</b></span><span><small>السعر / ${window.escapeHtml(x.unitName||'صندوق')}</small><b>${Number(x.price).toFixed(2)}</b></span><span><small>الإجمالي</small><b>${total.toFixed(2)}</b></span></div>
             <button class="adt-invoice-delete" onclick="event.stopPropagation();window.removeInvoiceItem(${i})" aria-label="حذف">×</button>
           </div>`
         }).join(''):`<div class="adt-invoice-empty-state adt-invoice-empty-inline">
@@ -6195,7 +6255,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
             let xx=margin;
             ctx.fillStyle='#111827';ctx.textAlign='center';ctx.font='bold 18px Cairo, sans-serif';ctx.fillText(sum.toFixed(2),xx+cols[0]/2,y+34);xx+=cols[0];
             ctx.font='18px Cairo, sans-serif';ctx.fillText(Number(it.price||0).toFixed(2),xx+cols[1]/2,y+34);xx+=cols[1];
-            ctx.fillText(String(it.qty),xx+cols[2]/2,y+34);xx+=cols[2];
+            ctx.fillText(`${it.qty} ${it.unitName||'صندوق'}`,xx+cols[2]/2,y+34);xx+=cols[2];
             ctx.textAlign='right';ctx.font='bold 18px Cairo, sans-serif';ctx.fillText(clipCanvasText(ctx,it.name,cols[3]-26),xx+cols[3]-14,y+31);
             if(it.note){ctx.fillStyle='#697386';ctx.font='15px Cairo, sans-serif';ctx.fillText(clipCanvasText(ctx,it.note,cols[3]-26),xx+cols[3]-14,y+57);}
             xx+=cols[3];ctx.fillStyle='#111827';ctx.textAlign='center';ctx.font='bold 18px Cairo, sans-serif';ctx.fillText(String(i+1),xx+cols[4]/2,y+34);
