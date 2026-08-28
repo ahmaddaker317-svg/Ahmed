@@ -3889,6 +3889,17 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
     window.kickCurrentMemberAction = async function() {
         if (!(await window.confirmGhostMutation('إزالة عضو من الفريق'))) return;
         if (!activeMemberForPerms || !dbClient || !currentTeam) return;
+
+        const memberName = String(activeMemberForPerms.user_name || 'هذا العضو');
+        const confirmed = await window.showAppConfirm({
+            title: 'تأكيد طرد العضو',
+            message: `هل أنت متأكد من طرد «${memberName}» من الفريق؟\nلن يتمكن من الوصول إلى بيانات الفريق بعد الطرد.`,
+            confirmText: 'طرد العضو',
+            cancelText: 'إلغاء',
+            danger: true
+        });
+        if (!confirmed) return;
+
         try {
             const { data, error } = await dbClient.rpc('adt_manager_member_action', {
                 p_team_id: String(currentTeam.id), p_manager_user_id: getDeviceId(), p_member_id: String(activeMemberForPerms.id),
@@ -4968,6 +4979,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
                 sellPrice: p.sell_price || 0,
                 supplier: p.supplier_name || productSuppliersMap[p.name] || '',
                 updatedAt: p.updated_at ? new Date(p.updated_at).getTime() : Date.now(),
+                priceUpdatedAt: p.price_updated_at ? new Date(p.price_updated_at).getTime() : 0,
                 auditQty: p.audit_qty || 0,
                 imageData: p.image_data || '',
                 catalogHidden: !!p.catalog_hidden,
@@ -5360,9 +5372,9 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
 
         const now = Date.now();
         const threshold = 48 * 60 * 60 * 1000;
-        const recent = products.filter(p => p.updatedAt && ((now - p.updatedAt) <= threshold));
+        const recent = products.filter(p => p.priceUpdatedAt && ((now - p.priceUpdatedAt) <= threshold));
 
-        recent.sort((a, b) => b.updatedAt - a.updatedAt);
+        recent.sort((a, b) => b.priceUpdatedAt - a.priceUpdatedAt);
 
         const statBadge = document.getElementById('recentStatCount');
         const hubBadge = document.getElementById('hubRecentBadge');
@@ -5389,7 +5401,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
                             </div>
                             <div style="flex:1; min-width:0;">
                                 <div class="prod-name-title">${window.escapeHtml(p.name)}</div>
-                                <div style="font-size:10px; color:var(--accent-teal); font-weight:800;">${window.timeAgo(p.updatedAt)}</div>
+                                <div style="font-size:10px; color:var(--accent-teal); font-weight:800;">${window.timeAgo(p.priceUpdatedAt)}</div>
                             </div>
                         </div>
                     </div>
@@ -7112,7 +7124,7 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
 
   // Recent count stays numeric only and remains read-only.
   const oldRecent=window.renderRecentProducts;
-  window.renderRecentProducts=function(){if(typeof oldRecent==='function')oldRecent.apply(this,arguments);const n=document.getElementById('recentStatCount');if(n) n.textContent=String(products.filter(p=>p.updatedAt&&(Date.now()-p.updatedAt<=48*60*60*1000)).length);document.querySelectorAll('#recentProductsList .btn-icon-edit').forEach(x=>x.remove());};
+  window.renderRecentProducts=function(){if(typeof oldRecent==='function')oldRecent.apply(this,arguments);const n=document.getElementById('recentStatCount');if(n) n.textContent=String(products.filter(p=>p.priceUpdatedAt&&(Date.now()-p.priceUpdatedAt<=48*60*60*1000)).length);document.querySelectorAll('#recentProductsList .btn-icon-edit').forEach(x=>x.remove());};
 
   // Supplier chooser in shortages — one selector, same visual pattern as Products.
   window.renderShortageSuppliersBar=function(){
