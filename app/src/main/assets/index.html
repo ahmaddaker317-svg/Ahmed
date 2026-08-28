@@ -3823,21 +3823,37 @@ body[data-adt-tab="home"] .page{padding-bottom:18px!important}
         finally { if(btn){btn.disabled=false;btn.innerText='↻ تحديث';} }
     };
 
-    window.openMemberPermissionsModal = function(memberId) {
-        activeMemberForPerms = currentTeamMembers.find(m => m.id === memberId);
-        if (!activeMemberForPerms) return;
+    // V92: اقرأ صلاحيات العضو الحقيقية من الخادم قبل عرض المفاتيح.
+    // هذا يمنع ظهور الصلاحية مقفولة بينما هي مفعلة فعلياً في team_members.
+    window.openMemberPermissionsModal = async function(memberId) {
+        activeMemberForPerms = currentTeamMembers.find(m => String(m.id) === String(memberId));
+        if (!activeMemberForPerms || !dbClient || !currentTeam) return;
+
+        try {
+            const { data: freshPerms, error: permsError } = await dbClient.rpc('adt_read_member_permissions', {
+                p_team_id: String(currentTeam.id),
+                p_manager_user_id: getDeviceId(),
+                p_member_id: String(memberId)
+            });
+            if (permsError) throw permsError;
+            if (!freshPerms || typeof freshPerms !== 'object') throw new Error('EMPTY_PERMISSIONS');
+            activeMemberForPerms = { ...activeMemberForPerms, ...freshPerms };
+        } catch (e) {
+            console.error('[Permissions] fresh read failed:', e);
+            window.customAlert('تعذر قراءة الصلاحيات', 'شغّل ملف SQL المرفق V92_PERMISSIONS_SYNC.sql مرة واحدة في Supabase ثم أعد المحاولة.');
+            return;
+        }
 
         document.getElementById('permModalMemberName').innerText = `صلاحيات: ${activeMemberForPerms.user_name}`;
         document.getElementById('permSubManager').checked = (activeMemberForPerms.role === 'sub_manager');
-        document.getElementById('permEditProducts').checked = !!activeMemberForPerms.can_edit_products;
-        document.getElementById('permManageShortages').checked = !!activeMemberForPerms.can_manage_shortages;
-        document.getElementById('permEditDebts').checked = !!activeMemberForPerms.can_edit_debts;
-        document.getElementById('permAudit').checked = !!activeMemberForPerms.can_audit;
-        document.getElementById('permViewCost').checked = !!activeMemberForPerms.can_view_cost;
-        document.getElementById('permCreateInvoices').checked = !!activeMemberForPerms.can_create_invoices;
-        document.getElementById('permEditSellPrice').checked = !!activeMemberForPerms.can_edit_sell_price;
-        document.getElementById('permManageCatalog').checked = !!activeMemberForPerms.can_manage_catalog;
-
+        document.getElementById('permEditProducts').checked = activeMemberForPerms.can_edit_products === true;
+        document.getElementById('permManageShortages').checked = activeMemberForPerms.can_manage_shortages === true;
+        document.getElementById('permEditDebts').checked = activeMemberForPerms.can_edit_debts === true;
+        document.getElementById('permAudit').checked = activeMemberForPerms.can_audit === true;
+        document.getElementById('permViewCost').checked = activeMemberForPerms.can_view_cost === true;
+        document.getElementById('permCreateInvoices').checked = activeMemberForPerms.can_create_invoices === true;
+        document.getElementById('permEditSellPrice').checked = activeMemberForPerms.can_edit_sell_price === true;
+        document.getElementById('permManageCatalog').checked = activeMemberForPerms.can_manage_catalog === true;
         document.getElementById('memberPermissionsModal').style.display = 'flex';
     };
 
