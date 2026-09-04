@@ -1,0 +1,8 @@
+V133 - Restore working external notifications
+
+- Restored the Firebase Messaging service and Android notification channel from the known-working V93 project.
+- Removed the V132 ADTPushBackend / JobService token-sync path.
+- Restored direct local FCM token storage and WebView delivery behavior.
+- Restored the previous server-side push dispatch behavior in index.html (no extra client Edge Function invocation).
+- Removed V132 push SQL/setup files and bundled Edge Function because the existing backend was already working.
+- Preserved all V132 UI/features and V131 primary-manager-only buy-price protection.

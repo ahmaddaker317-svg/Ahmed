@@ -11,8 +11,8 @@ android {
         applicationId "com.adt.pro"
         minSdk 24
         targetSdk 35
-        versionCode 3
-        versionName "1.2"
+        versionCode 133
+        versionName "1.33.0"
     }
 
     buildTypes {
