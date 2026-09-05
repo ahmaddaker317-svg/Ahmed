@@ -5934,12 +5934,12 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 <div class="modal no-print" id="productModal" style="align-items:flex-start; padding-top:max(14px, env(safe-area-inset-top));">
 <div class="modal-box" style="max-width:340px; padding:13px 14px; margin-top:8px;">
 <h3 id="modalTitle" style="margin-bottom:9px;">بيانات الصنف والأسعار</h3>
-<div class="form-group" style="margin-bottom:7px;"><label>اسم المنتج:</label><input class="input-field" id="pName" onkeydown="if(event.key==='Enter'||event.keyCode===13){ event.preventDefault(); document.getElementById(window.canEditBuyPrice?.()?'pBuyPrice':'pSellPrice')?.focus(); }" placeholder="أدخل اسم المنتج" style="padding:8px 10px;" type="text"/></div>
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:7px;">
+<div class="form-group" id="pNameGroup" style="margin-bottom:7px;"><label>اسم المنتج:</label><input class="input-field" id="pName" onkeydown="if(event.key==='Enter'||event.keyCode===13){ event.preventDefault(); document.getElementById(window.canEditBuyPrice?.()?'pBuyPrice':'pSellPrice')?.focus(); }" placeholder="أدخل اسم المنتج" style="padding:8px 10px;" type="text"/></div>
+<div id="pPricesGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:7px;">
 <div class="form-group" id="pBuyPriceGroup" style="margin-bottom:7px;"><label>سعر الشراء والتكلفة:</label><input class="input-field" id="pBuyPrice" onkeydown="if(event.key==='Enter'||event.keyCode===13){ event.preventDefault(); document.getElementById('pSellPrice').focus(); }" placeholder="0.00" style="padding:8px 10px;" type="number"/><div id="pBuyPriceLockHint" style="display:none;margin-top:4px;color:#ffbf00;font-size:8.5px;font-weight:800;line-height:1.45;">للعرض فقط — التعديل متاح لمدير الفريق الرئيسي.</div></div>
-<div class="form-group" style="margin-bottom:7px;"><label>سعر البيع للزبون:</label><input class="input-field" id="pSellPrice" onkeydown="if(event.key==='Enter'||event.keyCode===13){ event.preventDefault(); window.saveProduct(); }" placeholder="0.00" style="padding:8px 10px;" type="number"/></div>
+<div class="form-group" id="pSellPriceGroup" style="margin-bottom:7px;"><label>سعر البيع للزبون:</label><input class="input-field" id="pSellPrice" onkeydown="if(event.key==='Enter'||event.keyCode===13){ event.preventDefault(); window.saveProduct(); }" placeholder="0.00" style="padding:8px 10px;" type="number"/></div>
 </div>
-<div style="border:1px solid var(--border);border-radius:11px;padding:8px 9px;margin:1px 0 7px;background:rgba(0,210,180,.035);">
+<div id="pPackagingGroup" style="border:1px solid var(--border);border-radius:11px;padding:8px 9px;margin:1px 0 7px;background:rgba(0,210,180,.035);">
 <div style="font-size:10.5px;font-weight:900;color:var(--accent-teal);margin-bottom:6px;">وحدات البيع والتعبئة</div>
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
 <div class="form-group" style="margin:0;"><label>الوحدة الكبيرة</label><input class="input-field" id="pPackName" placeholder="صندوق" style="padding:7px 8px;" type="text" value="صندوق"/></div>
@@ -5948,7 +5948,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 </div>
 <div id="pPiecePricePreview" style="font-size:10px;color:var(--text-muted);margin-top:6px;text-align:center;"></div>
 </div>
-<div class="form-group" style="margin-bottom:7px;">
+<div class="form-group" id="pSupplierGroup" style="margin-bottom:7px;">
 <label>المورد المسؤول عن هذا الصنف:</label>
 <div id="pSupplierSelectedBtn" onclick="window.openSupplierPickerModal()" style="width:100%; padding:8px 10px; border-radius:10px; border:1px solid var(--border); font-size:12px; background:var(--input-bg); color:var(--accent-teal); cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-weight:800;">
 <span id="pSupplierSelectedText">-- بدون مورد محدد --</span>
@@ -6564,6 +6564,36 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     let pendingDeleteIndex = null;
     let lastGeneratedKey = '';
     let isLoggingIn = false;
+    let isPrimaryManagerVerified = false;
+
+    window.isPrimaryManager = function() {
+        if (isGhostMode || userRole !== 'manager') return false;
+        if (isPrimaryManagerVerified) return true;
+        try {
+            const teamId = String(currentTeam?.id || localStorage.getItem('atd_sales_team_id') || '');
+            const deviceId = String(getDeviceId());
+            return localStorage.getItem('adt_primary_manager_verified_v141') === `${teamId}:${deviceId}`;
+        } catch (_) { return false; }
+    };
+
+    window.refreshPrimaryManagerStatus = async function() {
+        isPrimaryManagerVerified = false;
+        try {
+            if (!dbClient || !currentTeam?.id || userRole !== 'manager' || isGhostMode) return false;
+            const { data, error } = await dbClient.rpc('adt_is_primary_manager', {
+                p_team_id: String(currentTeam.id), p_user_id: getDeviceId()
+            });
+            if (error) throw error;
+            isPrimaryManagerVerified = data === true;
+            const key = 'adt_primary_manager_verified_v141';
+            if (isPrimaryManagerVerified) localStorage.setItem(key, `${String(currentTeam.id)}:${String(getDeviceId())}`);
+            else localStorage.removeItem(key);
+            return isPrimaryManagerVerified;
+        } catch (e) {
+            console.warn('[Primary Manager] verification failed:', e);
+            return window.isPrimaryManager();
+        }
+    };
 
     let activeDebtSubTab = 'customer';
     let activeFilter = 'all';
@@ -6574,7 +6604,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         return window.isDeveloperAccount() || userRole === 'manager' || !!myPermissions.can_audit || isGhostMode;
     };
     window.canEditProducts = function() {
-        return window.isDeveloperAccount() || userRole === 'manager' || userRole === 'sub_manager' || myPermissions.can_edit_products || isGhostMode;
+        // في واجهة المنتجات: غير المدير الرئيسي لا يرى زر التعديل إلا عند تفعيل صلاحية تغيير سعر البيع.
+        return window.isDeveloperAccount() || window.isPrimaryManager() || !!myPermissions.can_edit_sell_price || isGhostMode;
     };
     window.canManageShortages = function() {
         return window.isDeveloperAccount() || userRole === 'manager' || !!myPermissions.can_manage_shortages || isGhostMode;
@@ -6583,12 +6614,12 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         return window.isDeveloperAccount() || userRole === 'manager' || !!myPermissions.can_edit_debts || isGhostMode;
     };
     window.canViewCost = function() {
-        return window.isDeveloperAccount() || userRole === 'manager' || userRole === 'sub_manager' || myPermissions.can_view_cost || isGhostMode;
+        return window.isDeveloperAccount() || userRole === 'manager' || !!myPermissions.can_view_cost || isGhostMode;
     };
     // سعر الشراء من البيانات الحساسة: تعديله محصور في مدير الفريق الرئيسي فقط.
     // المدير المساعد والمطور في وضع التصفح يستطيعان رؤية السعر حسب صلاحياتهما دون تغييره.
     window.canEditBuyPrice = function() {
-        return userRole === 'manager' && !isGhostMode;
+        return window.isPrimaryManager();
     };
     window.applyBuyPriceEditState = function() {
         const input = document.getElementById('pBuyPrice');
@@ -6604,6 +6635,22 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         input.title = canEdit ? '' : 'تعديل سعر الشراء متاح لمدير الفريق الرئيسي فقط';
         if (group) group.style.display = (canEdit || canView) ? '' : 'none';
         if (hint) hint.style.display = (!canEdit && canView) ? 'block' : 'none';
+    };
+
+    // المدير الرئيسي يرى نموذج الصنف كاملاً. العضو/المدير المساعد المسموح له يرى سعر البيع فقط.
+    window.applyProductEditScope = function() {
+        const primary = window.canEditBuyPrice();
+        const editing = editingIndex !== null;
+        const sellOnly = editing && !primary;
+        const setDisplay = (id, show, displayValue='') => { const el=document.getElementById(id); if(el) el.style.display=show?displayValue:'none'; };
+        setDisplay('pNameGroup', !sellOnly);
+        setDisplay('pBuyPriceGroup', !sellOnly);
+        setDisplay('pPackagingGroup', !sellOnly);
+        setDisplay('pSupplierGroup', !sellOnly);
+        const grid=document.getElementById('pPricesGrid');
+        if(grid) grid.style.gridTemplateColumns = sellOnly ? '1fr' : '1fr 1fr';
+        const title=document.getElementById('modalTitle');
+        if(title && sellOnly) title.innerText='تعديل سعر البيع';
     };
 
     window.isDeveloperAccount = function() {
@@ -6678,7 +6725,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     };
 
     window.canCreateInvoices = function() { return window.isDeveloperAccount() || userRole==='manager' || userRole==='sub_manager' || !!myPermissions.can_create_invoices || isGhostMode; };
-    window.canEditSellPrice = function() { return window.isDeveloperAccount() || userRole==='manager' || userRole==='sub_manager' || !!myPermissions.can_edit_sell_price || isGhostMode; };
+    window.canEditSellPrice = function() { return window.isDeveloperAccount() || userRole==='manager' || !!myPermissions.can_edit_sell_price || isGhostMode; };
     window.canCreateSuppliers = function() { return window.isDeveloperAccount() || userRole==='manager' || userRole==='sub_manager' || isGhostMode; };
     window.useManagerProductQuickSearch = function() {
         return userRole === 'manager' || window.isDeveloperAccount() || isGhostMode;
@@ -8220,7 +8267,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             pageTitleBar.textContent = pageTitles[tabName] || 'الواجهة';
         }
 
-        if (fabAdd) fabAdd.style.display = (tabName === 'products') ? 'flex' : 'none';
+        if (fabAdd) fabAdd.style.display = (tabName === 'products' && window.canEditBuyPrice()) ? 'flex' : 'none';
         if (fabDebt) fabDebt.style.display = (tabName === 'debts') ? 'flex' : 'none';
         if (fabSupp) fabSupp.style.display = (tabName === 'shortages') ? 'flex' : 'none';
         if (fabSearch) fabSearch.style.display = (tabName === 'shortages') ? 'flex' : 'none';
@@ -8372,6 +8419,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             document.getElementById('pendingApprovalModal').style.display='none';
             currentTeam=ctx.team; userRole=m.role||savedRole||'member';
             window.applyCurrentMemberContext(m, ctx.team);
+            await window.refreshPrimaryManagerStatus();
             if (userRole !== 'manager') {
                 try { const ids=JSON.parse(localStorage.getItem('atd_developer_team_ids')||'[]'); localStorage.setItem('atd_developer_team_ids',JSON.stringify((Array.isArray(ids)?ids:[]).map(String).filter(id=>id!==String(currentTeam.id)))); } catch(_){}
                 localStorage.removeItem('atd_dev_device_authorized'); developerSessionPin='';
@@ -8492,6 +8540,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             await window.loadTeamLocalCaches(currentTeam.id);
             window.saveCurrentTeamSnapshot();
             userRole = 'manager';
+            await window.refreshPrimaryManagerStatus();
             try {
                 const code=String(currentTeam?.code||'').trim().toUpperCase();
                 if(code==='086'){
@@ -8696,6 +8745,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             await window.loadTeamLocalCaches(currentTeam.id);
             window.saveCurrentTeamSnapshot();
             userRole = 'manager';
+            await window.refreshPrimaryManagerStatus();
 
             document.getElementById('onboardingModal').style.display = 'none';
             window.showToast('تم إنشاء الفريق بنجاح');
@@ -8732,6 +8782,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             if (m.status === 'approved' || m.role === 'manager') {
                 currentTeam=ctx.team; userRole=m.role||'member';
                 window.applyCurrentMemberContext(m, ctx.team);
+                await window.refreshPrimaryManagerStatus();
                 document.getElementById('pendingApprovalModal').style.display='none';
                 document.getElementById('onboardingModal').style.display='none';
                 await window.loadTeamLocalCaches(currentTeam.id); window.saveCurrentTeamSnapshot(); window.checkTeamLockState();
@@ -10495,8 +10546,9 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     document.addEventListener('focusin', function(e){ if (e.target?.matches?.('#productModal input, #productModal select, #productModal textarea')) window.keepProductFieldAboveKeyboard(e.target); });
 
     window.openAddModal = function() {
-        if (!window.canEditProducts()) {
-            window.customAlert('تنبيه', 'لا تملك صلاحية إضافة أو تعديل المنتجات. اطلب الصلاحية من المدير.');
+        // إضافة صنف جديد محصورة في مدير الفريق الرئيسي لأن سعر الشراء إلزامي عند الإنشاء.
+        if (!window.canEditBuyPrice()) {
+            window.customAlert('غير مسموح', 'إضافة صنف جديد متاحة لمدير الفريق الرئيسي فقط.');
             return;
         }
         editingIndex = null;
@@ -10511,6 +10563,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         document.getElementById('pPackQty').value = '1';
         window.updatePiecePricePreview?.();
         window.applyBuyPriceEditState();
+        window.applyProductEditScope();
+        const packQtyInput=document.getElementById('pPackQty'); if (packQtyInput) { const canEditPackQty=window.canEditBuyPrice(); packQtyInput.readOnly=!canEditPackQty; packQtyInput.style.opacity=canEditPackQty?'1':'.62'; packQtyInput.style.cursor=canEditPackQty?'text':'not-allowed'; packQtyInput.title=canEditPackQty?'':'تعديل عدد القطع متاح لمدير الفريق الرئيسي فقط'; }
         const sellInput=document.getElementById('pSellPrice'); if (sellInput) { sellInput.disabled=!window.canEditSellPrice(); sellInput.style.opacity=sellInput.disabled?'.55':'1'; }
         document.getElementById('pSupplierSelectedText').innerText = '-- بدون مورد محدد --';
 
@@ -10545,6 +10599,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         document.getElementById('pPackQty').value = Math.max(1, Number(p.packQty || 1));
         window.updatePiecePricePreview?.();
         window.applyBuyPriceEditState();
+        window.applyProductEditScope();
+        const packQtyInput=document.getElementById('pPackQty'); if (packQtyInput) { const canEditPackQty=window.canEditBuyPrice(); packQtyInput.readOnly=!canEditPackQty; packQtyInput.style.opacity=canEditPackQty?'1':'.62'; packQtyInput.style.cursor=canEditPackQty?'text':'not-allowed'; packQtyInput.title=canEditPackQty?'':'تعديل عدد القطع متاح لمدير الفريق الرئيسي فقط'; }
         const sellInput=document.getElementById('pSellPrice'); if (sellInput) { sellInput.disabled=!window.canEditSellPrice(); sellInput.style.opacity=sellInput.disabled?'.55':'1'; sellInput.title=sellInput.disabled?'المدير لم يسمح لك بتغيير سعر البيع':''; }
         document.getElementById('pSupplierSelectedText').innerText = currentSelectedSupplier ? currentSelectedSupplier : '-- بدون مورد محدد --';
 
@@ -10566,7 +10622,10 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             ? requestedBuyPrice
             : (oldProduct ? Number(oldProduct.buyPrice || 0) : 0);
         const sellPrice = parseFloat(document.getElementById('pSellPrice').value) || 0;
-        const packQty = Math.max(1, parseInt(document.getElementById('pPackQty')?.value || '1',10) || 1);
+        const requestedPackQty = Math.max(1, parseInt(document.getElementById('pPackQty')?.value || '1',10) || 1);
+        const packQty = window.canEditBuyPrice()
+            ? requestedPackQty
+            : (oldProduct ? Math.max(1, Number(oldProduct.packQty || 1)) : 1);
         const packName = (document.getElementById('pPackName')?.value || 'صندوق').trim() || 'صندوق';
         const pieceName = (document.getElementById('pPieceName')?.value || 'قطعة').trim() || 'قطعة';
         const supplier = currentSelectedSupplier || '';
@@ -10574,6 +10633,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         if (editingIndex !== null && products[editingIndex] && !window.canEditSellPrice() && Number(sellPrice)!==Number(products[editingIndex].sellPrice||0)) { window.customAlert('غير مسموح','المدير لم يسمح لك بتغيير سعر البيع.'); return; }
 
         if (!name) { window.customAlert('بيانات ناقصة', 'يرجى إدخال اسم المنتج.'); return; }
+        if (editingIndex === null && !window.canEditBuyPrice()) { window.customAlert('غير مسموح', 'إضافة صنف جديد متاحة لمدير الفريق الرئيسي فقط.'); return; }
+        if (editingIndex === null && requestedBuyPrice <= 0) { window.customAlert('بيانات ناقصة', 'يرجى إدخال سعر الشراء والتكلفة.'); document.getElementById('pBuyPrice')?.focus(); return; }
         if (sellPrice <= 0) { window.customAlert('بيانات ناقصة', 'يرجى إدخال سعر البيع للزبون.'); return; }
 
         // منع تكرار اسم الصنف نهائياً
@@ -10680,8 +10741,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     };
 
     window.promptDeleteProduct = function(idx) {
-        if (!window.canEditProducts()) {
-            window.customAlert('تنبيه', 'لا تملك صلاحية حذف الأصناف.');
+        if (!window.canEditBuyPrice()) {
+            window.customAlert('غير مسموح', 'حذف الأصناف متاح لمدير الفريق الرئيسي فقط.');
             return;
         }
         pendingDeleteIndex = idx;
