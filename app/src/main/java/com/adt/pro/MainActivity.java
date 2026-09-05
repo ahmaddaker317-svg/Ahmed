@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -14,9 +15,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -32,6 +30,9 @@ import android.view.ViewGroup;
 import android.util.Base64;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import android.app.Activity;
 import androidx.core.content.FileProvider;
 
@@ -46,9 +47,9 @@ public class MainActivity extends Activity {
     private volatile String fcmToken = "";
     private ValueCallback<Uri[]> filePathCallback;
     private static final int REQ_FILE_CHOOSER = 1202;
-    private static final int REQ_SAVE_FILE = 1203;
     private static final String SB_URL = "https://ufvsxvifbmqsqcugbtlf.supabase.co";
     private static final String SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmdnN4dmlmYm1xc3FjdWdidGxmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MDU3NjksImV4cCI6MjEwMjI4MTc2OX0.1KL6y2gH3galMeJC2bUGnIl_flKA7pLZY5C6KYTQ_L0";
+    private static final int REQ_SAVE_FILE = 1203;
     private byte[] pendingFileBytes;
     private String pendingFileName;
     private String pendingFileMime;
@@ -427,14 +428,9 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
-        public void bindPushIdentity(String teamId, String userId) { }
-
-        @JavascriptInterface
-        public void clearPushIdentity() { }
-
-        @JavascriptInterface
         public String getNotificationPermissionState() {
-            return (Build.VERSION.SDK_INT < 33 || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) ? "granted" : "denied";
+            boolean allowed = Build.VERSION.SDK_INT < 33 || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
+            return allowed ? "granted" : "denied";
         }
 
         @JavascriptInterface

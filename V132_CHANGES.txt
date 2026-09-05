@@ -12,4 +12,4 @@ ADT Pro v132
 9) مصدر Supabase Edge Function للإرسال عبر FCM HTTP v1.
 10) استمرار قفل سعر الشراء على مدير الفريق الرئيسي فقط.
 
-مهم: نفّذ V132_PUSH_NOTIFICATIONS.sql وانشر Edge Function وفق V132_PUSH_SETUP.md.
+ملاحظة V136: تعليمات Push الجديدة المذكورة سابقاً في V132 أُلغيت؛ V136 يستخدم مسار الإشعارات القديم الشغال من V93.
