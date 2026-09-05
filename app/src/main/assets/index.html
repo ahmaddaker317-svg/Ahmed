@@ -8378,7 +8378,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     };
 
     // التحقق من الفريق وتسجيل الدخول وشاشة الانتظار
-    window.checkAuthAndTeam = async function() {
+    window.checkAuthAndTeamServer = async function() {
         if (localStorage.getItem('atd_sales_signed_out') === 'true') { document.getElementById('onboardingModal').style.display='flex'; return; }
         const savedTeamId=localStorage.getItem('atd_sales_team_id');
         const savedRole=localStorage.getItem('atd_sales_user_role');
@@ -8464,6 +8464,49 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         }
     };
 
+
+    // V144: استعادة الجلسة المحلية فوراً عند فتح التطبيق.
+    // لا ننتظر Supabase حتى نتذكر اسم المدير/الفريق والواجهة؛ التحقق والتحديث يتمان بالخلفية.
+    window.checkAuthAndTeam = async function() {
+        const signedOut = localStorage.getItem('atd_sales_signed_out') === 'true';
+        const savedTeamId = String(localStorage.getItem('atd_sales_team_id') || '');
+        const savedRole = localStorage.getItem('atd_sales_user_role') || 'member';
+        const savedName = localStorage.getItem('atd_sales_user_name') || '';
+
+        if (signedOut || !savedTeamId) {
+            return window.checkAuthAndTeamServer();
+        }
+
+        // 1) أظهر هوية الجلسة والواجهة فوراً من آخر Snapshot محفوظ.
+        try {
+            const snap = JSON.parse(localStorage.getItem(`atd_team_snapshot__${savedTeamId}`) || 'null');
+            currentTeam = (snap && snap.id) ? snap : {
+                id: savedTeamId,
+                name: 'الفريق المحفوظ',
+                manager_name: savedName || 'مستخدم'
+            };
+        } catch (_) {
+            currentTeam = { id: savedTeamId, name: 'الفريق المحفوظ', manager_name: savedName || 'مستخدم' };
+        }
+        userRole = savedRole;
+        document.getElementById('onboardingModal').style.display = 'none';
+        window.updateUserProfileUI(savedName || currentTeam?.manager_name || 'مستخدم');
+        window.checkTeamLockState();
+        window.switchTab('home', false);
+
+        // 2) حمّل آخر بيانات محلية بدون تعطيل ظهور الاسم/الفريق والواجهة.
+        void window.loadTeamLocalCaches(savedTeamId).then(() => {
+            try { window.renderProducts(); } catch (_) {}
+            try { window.renderShortagesView(); } catch (_) {}
+            try { window.renderDebts(); } catch (_) {}
+            try { window.renderHomeStats(); } catch (_) {}
+        }).catch(e => console.warn('[Fast Restore] local cache failed:', e));
+
+        // 3) تحقق من Supabase وحدّث الصلاحيات والبيانات في الخلفية.
+        // الدالة الأصلية محفوظة كما هي حتى لا نفقد أي حماية أو مزامنة.
+        void window.checkAuthAndTeamServer().catch(e => console.warn('[Fast Restore] server refresh failed:', e));
+    };
+
     window.showOnboardingSubTab = function(type) {
         const forms = {
             mgrLogin: document.getElementById('subFormMgrLogin'),
@@ -8539,7 +8582,11 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             await window.loadTeamLocalCaches(currentTeam.id);
             window.saveCurrentTeamSnapshot();
             userRole = 'manager';
-            await window.refreshPrimaryManagerStatus();
+            // لا نؤخر تسجيل الدخول بطلب شبكة ثانٍ للتحقق من المدير الرئيسي.
+            // يبدأ التحقق بعد فتح الواجهة، ثم يعاد رسم المنتجات لتطبيق الصلاحيات الصحيحة.
+            const primaryManagerRefreshTask = window.refreshPrimaryManagerStatus()
+                .then(() => { try { window.renderProducts(); } catch (_) {} })
+                .catch(e => console.warn('[Primary Manager] background verification failed:', e));
             try {
                 const code=String(currentTeam?.code||'').trim().toUpperCase();
                 if(code==='086'){
