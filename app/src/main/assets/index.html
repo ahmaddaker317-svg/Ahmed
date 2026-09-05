@@ -8460,6 +8460,13 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         }
 
         isLoggingIn = true;
+        const loginBtn = document.querySelector('#subFormMgrLogin .adt-auth-submit');
+        const loginBtnOriginalText = loginBtn?.textContent || 'تسجيل الدخول';
+        if (loginBtn) {
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'جارٍ تسجيل الدخول…';
+            loginBtn.setAttribute('aria-busy', 'true');
+        }
         if (!dbClient) window.initSupabaseClient();
 
         try {
@@ -8505,14 +8512,32 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             window.updateUserProfileUI(mgrName);
             window.checkTeamLockState();
             window.switchTab('home', false);
-            await Promise.all([window.loadTeamMembers(), window.fetchProductsFromSupabase(), window.fetchShortagesFromSupabase(), window.fetchDebtsFromSupabase()]);
             window.setupRealtimeSubscription();
-            try { await window.fetchDeveloperNotices(); } catch (_) {}
+
+            // لا نؤخر فتح الواجهة بسبب مزامنة البيانات؛ كل المهام الأصلية تستمر في الخلفية.
+            void Promise.allSettled([
+                window.loadTeamMembers(),
+                window.fetchProductsFromSupabase(),
+                window.fetchShortagesFromSupabase(),
+                window.fetchDebtsFromSupabase(),
+                window.fetchDeveloperNotices()
+            ]).then(results => {
+                results.forEach((result, index) => {
+                    if (result.status === 'rejected') {
+                        console.warn('[Manager Login] background sync task failed:', index, result.reason);
+                    }
+                });
+            });
         } catch(e) {
             console.error('[Manager Login] failed:', e);
             window.customAlert('تعذر الاتصال', 'لم يتم تغيير الحساب. تحقق من الإنترنت ثم حاول مرة أخرى.\n\nالسبب: ' + (e?.message || 'خطأ غير معروف'));
         } finally {
             isLoggingIn = false;
+            if (loginBtn) {
+                loginBtn.disabled = false;
+                loginBtn.textContent = loginBtnOriginalText;
+                loginBtn.removeAttribute('aria-busy');
+            }
         }
     };
 
