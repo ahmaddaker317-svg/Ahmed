@@ -1,4 +1,4 @@
-# ADT Pro V141 — GitHub Ready
+# ADT Pro V142 — GitHub Ready
 
 مبنية مباشرة على V138 مع تعديل صلاحيات واجهة المنتجات فقط.
 
@@ -13,8 +13,11 @@
 
 ## مهم قبل الاختبار
 شغّل مرة واحدة في Supabase SQL Editor:
-`V141_PRIMARY_MANAGER_PRODUCT_CONTROL.sql`
+`V142_PRIMARY_MANAGER_PRODUCT_CONTROL.sql`
 
 ## البناء
 GitHub Actions يبني Debug APK ويخرجه باسم:
-`ADT-Pro-v141-APK`
+`ADT-Pro-v142-APK`
+
+
+V142: صلاحية can_edit_products الحالية هي صلاحية تعديل سعر البيع فقط لغير المدير الرئيسي. لا يحتاج عمود can_edit_sell_price. شغّل V142_PRIMARY_MANAGER_PRODUCT_CONTROL.sql.

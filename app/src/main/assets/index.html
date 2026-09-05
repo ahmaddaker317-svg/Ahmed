@@ -5877,7 +5877,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 <input id="permViewCost" type="checkbox"/>
 </div>
 <div class="perm-checkbox-row"><label for="permCreateInvoices">إنشاء الفواتير</label><input id="permCreateInvoices" type="checkbox"/></div>
-<div class="perm-checkbox-row"><label for="permEditSellPrice">تغيير سعر البيع</label><input id="permEditSellPrice" type="checkbox"/></div>
+
 </div>
 <button class="btn-primary" onclick="window.saveMemberPermissionsAction()" style="margin-bottom:6px;">حفظ الصلاحيات</button>
 <button class="btn-danger" onclick="window.kickCurrentMemberAction()" style="padding:7px; font-size:12px;">طرد العضو من الفريق</button>
@@ -6524,7 +6524,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     let currentTeam = null;
     let currentTeamMembers = [];
     let userRole = 'member';
-    let myPermissions = { can_edit_products:false, can_manage_shortages:false, can_edit_debts:false, can_audit:false, can_view_cost:false, can_create_invoices:false, can_edit_sell_price:false };
+    let myPermissions = { can_edit_products:false, can_manage_shortages:false, can_edit_debts:false, can_audit:false, can_view_cost:false, can_create_invoices:false};
     let isGhostMode = false;
     let activeMemberForPerms = null;
     let activeDevTeamForFeatures = null;
@@ -6605,7 +6605,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     };
     window.canEditProducts = function() {
         // في واجهة المنتجات: غير المدير الرئيسي لا يرى زر التعديل إلا عند تفعيل صلاحية تغيير سعر البيع.
-        return window.isDeveloperAccount() || window.isPrimaryManager() || !!myPermissions.can_edit_sell_price || isGhostMode;
+        return window.isDeveloperAccount() || window.isPrimaryManager() || !!myPermissions.can_edit_products || isGhostMode;
     };
     window.canManageShortages = function() {
         return window.isDeveloperAccount() || userRole === 'manager' || !!myPermissions.can_manage_shortages || isGhostMode;
@@ -6725,7 +6725,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     };
 
     window.canCreateInvoices = function() { return window.isDeveloperAccount() || userRole==='manager' || userRole==='sub_manager' || !!myPermissions.can_create_invoices || isGhostMode; };
-    window.canEditSellPrice = function() { return window.isDeveloperAccount() || userRole==='manager' || !!myPermissions.can_edit_sell_price || isGhostMode; };
+    window.canEditSellPrice = function() { return window.isDeveloperAccount() || window.isPrimaryManager() || !!myPermissions.can_edit_products || isGhostMode; };
     window.canCreateSuppliers = function() { return window.isDeveloperAccount() || userRole==='manager' || userRole==='sub_manager' || isGhostMode; };
     window.useManagerProductQuickSearch = function() {
         return userRole === 'manager' || window.isDeveloperAccount() || isGhostMode;
@@ -6739,8 +6739,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             can_edit_debts: !!m.can_edit_debts,
             can_audit: !!m.can_audit,
             can_view_cost: !!m.can_view_cost,
-            can_create_invoices: !!m.can_create_invoices,
-            can_edit_sell_price: !!m.can_edit_sell_price
+            can_create_invoices: !!m.can_create_invoices
         };
     };
 
@@ -8847,7 +8846,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             await window.loadTeamLocalCaches(currentTeam.id);
             window.saveCurrentTeamSnapshot();
             userRole = result.role || 'member';
-            myPermissions={can_edit_products:false,can_manage_shortages:false,can_edit_debts:false,can_audit:false,can_view_cost:false,can_create_invoices:false,can_edit_sell_price:false};
+            myPermissions={can_edit_products:false,can_manage_shortages:false,can_edit_debts:false,can_audit:false,can_view_cost:false,can_create_invoices:false};
 
             document.getElementById('onboardingModal').style.display = 'none';
             if ((result.status || 'pending') === 'approved') {
@@ -9042,7 +9041,6 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         setPerm('permAudit', activeMemberForPerms.can_audit === true);
         setPerm('permViewCost', activeMemberForPerms.can_view_cost === true);
         setPerm('permCreateInvoices', activeMemberForPerms.can_create_invoices === true);
-        setPerm('permEditSellPrice', activeMemberForPerms.can_edit_sell_price === true);
         window.openModalFront('memberPermissionsModal',10050);
     };
 
@@ -9056,8 +9054,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             can_edit_debts: !!document.getElementById('permEditDebts').checked,
             can_audit: !!document.getElementById('permAudit').checked,
             can_view_cost: !!document.getElementById('permViewCost').checked,
-            can_create_invoices: !!document.getElementById('permCreateInvoices').checked,
-            can_edit_sell_price: !!document.getElementById('permEditSellPrice').checked
+            can_create_invoices: !!document.getElementById('permCreateInvoices').checked
         };
         try {
             const { data, error } = await dbClient.rpc('adt_manager_member_action', {
@@ -9306,7 +9303,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             products=[];
             shortages=[];
             debts={customers:[],suppliers:[]};
-            myPermissions={can_edit_products:false,can_manage_shortages:false,can_edit_debts:false,can_audit:false,can_view_cost:false,can_create_invoices:false,can_edit_sell_price:false};
+            myPermissions={can_edit_products:false,can_manage_shortages:false,can_edit_debts:false,can_audit:false,can_view_cost:false,can_create_invoices:false};
             sessionStorage.removeItem('adt_ghost_origin_session_v2'); sessionStorage.removeItem('adt_ghost_origin_role_v2');
             try { if(window.Android&&typeof window.Android.reloadApp==='function') window.Android.reloadApp(); else location.href='index.html?logout='+Date.now(); } catch(_){ location.reload(); }
         }
@@ -9958,7 +9955,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             currentTeam = targetTeam;
             await window.loadTeamLocalCaches(currentTeam.id);
             userRole = 'manager';
-            myPermissions={can_edit_products:true,can_manage_shortages:true,can_edit_debts:true,can_audit:true,can_view_cost:true,can_create_invoices:true,can_edit_sell_price:true};
+            myPermissions={can_edit_products:true,can_manage_shortages:true,can_edit_debts:true,can_audit:true,can_view_cost:true,can_create_invoices:true};
             isGhostMode = true;
             document.body.classList.add('adt-ghost-mode');
             window.updateUserProfileUI(targetTeam.manager_name);
@@ -9993,7 +9990,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             const {data:origCtx,error}=await dbClient.rpc('adt_get_my_context',{p_team_id:originalId,p_user_id:getDeviceId()});
             if(error||!origCtx?.team||!origCtx?.member) throw error||new Error('ORIGINAL_CONTEXT_NOT_FOUND');
             const member=origCtx.member; currentTeam=origCtx.team; userRole=member.role||saved?.role||'member';
-            myPermissions={can_edit_products:!!member.can_edit_products,can_manage_shortages:!!member.can_manage_shortages,can_edit_debts:!!member.can_edit_debts,can_audit:!!member.can_audit,can_view_cost:!!member.can_view_cost,can_create_invoices:!!member.can_create_invoices,can_edit_sell_price:!!member.can_edit_sell_price};
+            myPermissions={can_edit_products:!!member.can_edit_products,can_manage_shortages:!!member.can_manage_shortages,can_edit_debts:!!member.can_edit_debts,can_audit:!!member.can_audit,can_view_cost:!!member.can_view_cost,can_create_invoices:!!member.can_create_invoices};
             const restoredName=String(saved?.userName||localStorage.getItem('atd_sales_user_name')||'عضو');
             localStorage.setItem('atd_sales_team_id',String(currentTeam.id)); localStorage.setItem('atd_sales_user_role',userRole); localStorage.setItem('atd_sales_user_name',restoredName);
             localStorage.removeItem('atd_original_team_id'); sessionStorage.removeItem('adt_ghost_origin_session_v2'); sessionStorage.removeItem('adt_ghost_origin_role_v2');

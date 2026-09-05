@@ -31,6 +31,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ADT-Pro-v141-APK
+          name: ADT-Pro-v142-APK
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
