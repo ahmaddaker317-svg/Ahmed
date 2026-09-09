@@ -43,3 +43,9 @@
 
 ## V170 launcher icon
 The Android launcher icon foreground was enlarged to fill the adaptive icon area and remove the large black outer ring.
+
+
+## v171
+تم تصغير أيقونة التطبيق قليلاً عن v170 مع الحفاظ على نفس التصميم.
+- versionCode 171
+- versionName 1.71.0

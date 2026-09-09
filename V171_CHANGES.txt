@@ -1,0 +1,7 @@
+ADT Stock v171
+
+- تصغير أيقونة التطبيق بنسبة بسيطة مقارنة بـ v170 حتى لا تكون ملاصقة للحواف.
+- الحفاظ على نفس تصميم ADT Stock والوهج الأزرق بدون تغيير الهوية.
+- تحديث كل أحجام Android launcher icons.
+- Android versionCode: 171
+- Android versionName: 1.71.0
