@@ -6068,7 +6068,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 <input id="permEditProducts" type="checkbox"/>
 </div>
 <div class="perm-checkbox-row">
-<label for="permManageShortages">عرض وإدارة النواقص</label>
+<label for="permManageShortages">عرض وإضافة النواقص</label>
 <input id="permManageShortages" type="checkbox"/>
 </div>
 <div class="perm-checkbox-row">
@@ -6084,6 +6084,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 <input id="permViewCost" type="checkbox"/>
 </div>
 <div class="perm-checkbox-row"><label for="permCreateInvoices">إنشاء الفواتير</label><input id="permCreateInvoices" type="checkbox"/></div>
+<div class="perm-checkbox-row"><label for="permManageDailySales">المبيعات اليومية (عرض وإضافة)</label><input id="permManageDailySales" type="checkbox"/></div>
 
 </div>
 <button class="btn-primary" onclick="window.saveMemberPermissionsAction()" style="margin-bottom:6px;">حفظ الصلاحيات</button>
@@ -6561,7 +6562,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 <div class="hub-icon-box"><svg class="svg-icon" viewbox="0 0 24 24"><path d="M3 5h18v14H3V5zm2 2v10h14V7H5zm2 2h6v2H7V9zm0 4h10v2H7v-2zm9-4h2v2h-2V9z"></path></svg></div>
 <div class="hub-card-info"><div class="hub-card-title">المبيعات اليومية</div><div class="hub-card-sub">تسجيل المبيعات بالتاريخ والوقت والتصفية الدورية</div><div class="hub-card-badge" id="hubDailySalesBadge" style="color:var(--primary);border-color:rgba(0,210,180,.35)">فتح المبيعات</div></div>
 </div>
-<div class="hub-card hub-card-team" onclick="window.openTeamModal()" style="grid-column:1/-1;">
+<div class="hub-card hub-card-team" id="hubTeamCard" onclick="window.openTeamModal()" style="grid-column:1/-1;">
 <div class="hub-icon-box"><svg class="svg-icon" viewbox="0 0 24 24"><path d="M16 11a3 3 0 1 0-3-3 3 3 0 0 0 3 3zM8 11a3 3 0 1 0-3-3 3 3 0 0 0 3 3zm0 2c-3 0-6 1.5-6 4v2h12v-2c0-2.5-3-4-6-4zm8 0c-.7 0-1.4.1-2 .2 1.3.9 2 2.2 2 3.8v2h6v-2c0-2.5-3-4-6-4z"></path></svg></div>
 <div class="hub-card-info"><div class="hub-card-title">فريقي والصلاحيات</div><div class="hub-card-sub">إدارة أعضاء الفريق والصلاحيات والأدوار</div><div class="hub-card-badge" style="color:#ffbf00;border-color:rgba(255,191,0,.35)">إدارة الفريق</div></div>
 </div>
@@ -6810,7 +6811,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     let currentTeam = null;
     let currentTeamMembers = [];
     let userRole = 'member';
-    let myPermissions = { can_edit_products:false, can_manage_shortages:false, can_edit_debts:false, can_audit:false, can_view_cost:false, can_create_invoices:false};
+    let myPermissions = { can_edit_products:false, can_manage_shortages:false, can_edit_debts:false, can_audit:false, can_view_cost:false, can_create_invoices:false, can_manage_daily_sales:false};
     let isGhostMode = false;
     let activeMemberForPerms = null;
     let activeDevTeamForFeatures = null;
@@ -7011,7 +7012,9 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     };
 
     window.canCreateInvoices = function() { return window.isDeveloperAccount() || userRole==='manager' || userRole==='sub_manager' || !!myPermissions.can_create_invoices || isGhostMode; };
-    window.canManageDailySales = function() { return window.isDeveloperAccount() || userRole==='manager' || isGhostMode; };
+    window.canManageDailySales = function() { return window.isDeveloperAccount() || userRole==='manager' || !!myPermissions.can_manage_daily_sales || isGhostMode; };
+    window.canSettleDailySales = function() { return window.isDeveloperAccount() || userRole==='manager' || isGhostMode; };
+    window.canRemoveShortages = function() { return window.isDeveloperAccount() || userRole==='manager' || isGhostMode; };
     window.canEditSellPrice = function() { return window.isDeveloperAccount() || window.isPrimaryManager() || !!myPermissions.can_edit_products || isGhostMode; };
     window.canCreateSuppliers = function() { return window.isDeveloperAccount() || userRole==='manager' || userRole==='sub_manager' || isGhostMode; };
     window.useManagerProductQuickSearch = function() {
@@ -7026,7 +7029,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             can_edit_debts: !!m.can_edit_debts,
             can_audit: !!m.can_audit,
             can_view_cost: !!m.can_view_cost,
-            can_create_invoices: !!m.can_create_invoices
+            can_create_invoices: !!m.can_create_invoices,
+            can_manage_daily_sales: !!m.can_manage_daily_sales
         };
     };
 
@@ -7043,7 +7047,12 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         setCardVisible('hubRetailAuditCard', auditAllowed);
         setCardVisible('hubDebtsCard', debtsAllowed);
         setCardVisible('hubShortagesCard', shortagesAllowed);
-        setCardVisible('hubDailySalesCard', dailySalesAllowed);
+        // زر المبيعات اليومية يظل ظاهراً للجميع؛ الدخول يحتاج صلاحية مفعلة.
+        setCardVisible('hubDailySalesCard', true);
+        // إدارة الفريق لا تظهر في الواجهة الرئيسية للأعضاء أو المدير المساعد.
+        setCardVisible('hubTeamCard', userRole === 'manager' || window.isDeveloperAccount() || isGhostMode);
+        const dailyBadge=document.getElementById('hubDailySalesBadge');
+        if (dailyBadge && !dailySalesAllowed) dailyBadge.textContent='تحتاج صلاحية';
 
         const deniedCurrentPage =
             (currentTab === 'audit' && !auditAllowed) ||
@@ -8673,7 +8682,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             window.customAlert('صلاحية مقفلة', 'واجهة النواقص مخفية عن هذا الحساب. اطلب تفعيل صلاحيتها من المدير.');
             tabName = 'home';
         } else if (tabName === 'dailySales' && !window.canManageDailySales()) {
-            window.customAlert('صلاحية مقفلة', 'المبيعات اليومية متاحة للمدير الرئيسي فقط.');
+            window.customAlert('صلاحية مقفلة', 'المبيعات اليومية تحتاج تفعيل صلاحيتها من مدير الفريق.');
             tabName = 'home';
         }
         currentTab = tabName;
@@ -9369,7 +9378,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             await window.loadTeamLocalCaches(currentTeam.id);
             window.saveCurrentTeamSnapshot();
             userRole = result.role || 'member';
-            myPermissions={can_edit_products:false,can_manage_shortages:false,can_edit_debts:false,can_audit:false,can_view_cost:false,can_create_invoices:false};
+            myPermissions={can_edit_products:false,can_manage_shortages:false,can_edit_debts:false,can_audit:false,can_view_cost:false,can_create_invoices:false,can_manage_daily_sales:false};
 
             document.getElementById('onboardingModal').style.display = 'none';
             if ((result.status || 'pending') === 'approved') {
@@ -9566,6 +9575,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         setPerm('permAudit', activeMemberForPerms.can_audit === true);
         setPerm('permViewCost', activeMemberForPerms.can_view_cost === true);
         setPerm('permCreateInvoices', activeMemberForPerms.can_create_invoices === true);
+        setPerm('permManageDailySales', activeMemberForPerms.can_manage_daily_sales === true);
         window.openModalFront('memberPermissionsModal',10050);
     };
 
@@ -9579,7 +9589,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             can_edit_debts: !!document.getElementById('permEditDebts').checked,
             can_audit: !!document.getElementById('permAudit').checked,
             can_view_cost: !!document.getElementById('permViewCost').checked,
-            can_create_invoices: !!document.getElementById('permCreateInvoices').checked
+            can_create_invoices: !!document.getElementById('permCreateInvoices').checked,
+            can_manage_daily_sales: !!document.getElementById('permManageDailySales').checked
         };
         try {
             const { data, error } = await dbClient.rpc('adt_manager_member_action', {
@@ -9828,7 +9839,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             products=[];
             shortages=[];
             debts={customers:[],suppliers:[]};
-            myPermissions={can_edit_products:false,can_manage_shortages:false,can_edit_debts:false,can_audit:false,can_view_cost:false,can_create_invoices:false};
+            myPermissions={can_edit_products:false,can_manage_shortages:false,can_edit_debts:false,can_audit:false,can_view_cost:false,can_create_invoices:false,can_manage_daily_sales:false};
             sessionStorage.removeItem('adt_ghost_origin_session_v2'); sessionStorage.removeItem('adt_ghost_origin_role_v2');
             try { if(window.Android&&typeof window.Android.reloadApp==='function') window.Android.reloadApp(); else location.href='index.html?logout='+Date.now(); } catch(_){ location.reload(); }
         }
@@ -10509,7 +10520,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             currentTeam = targetTeam;
             await window.loadTeamLocalCaches(currentTeam.id);
             userRole = 'manager';
-            myPermissions={can_edit_products:true,can_manage_shortages:true,can_edit_debts:true,can_audit:true,can_view_cost:true,can_create_invoices:true};
+            myPermissions={can_edit_products:true,can_manage_shortages:true,can_edit_debts:true,can_audit:true,can_view_cost:true,can_create_invoices:true,can_manage_daily_sales:true};
             isGhostMode = true;
             document.body.classList.add('adt-ghost-mode');
             window.updateUserProfileUI(targetTeam.manager_name);
@@ -10544,7 +10555,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             const {data:origCtx,error}=await dbClient.rpc('adt_get_my_context',{p_team_id:originalId,p_user_id:getDeviceId()});
             if(error||!origCtx?.team||!origCtx?.member) throw error||new Error('ORIGINAL_CONTEXT_NOT_FOUND');
             const member=origCtx.member; currentTeam=origCtx.team; userRole=member.role||saved?.role||'member';
-            myPermissions={can_edit_products:!!member.can_edit_products,can_manage_shortages:!!member.can_manage_shortages,can_edit_debts:!!member.can_edit_debts,can_audit:!!member.can_audit,can_view_cost:!!member.can_view_cost,can_create_invoices:!!member.can_create_invoices};
+            myPermissions={can_edit_products:!!member.can_edit_products,can_manage_shortages:!!member.can_manage_shortages,can_edit_debts:!!member.can_edit_debts,can_audit:!!member.can_audit,can_view_cost:!!member.can_view_cost,can_create_invoices:!!member.can_create_invoices,can_manage_daily_sales:!!member.can_manage_daily_sales};
             const restoredName=String(saved?.userName||localStorage.getItem('atd_sales_user_name')||'عضو');
             localStorage.setItem('atd_sales_team_id',String(currentTeam.id)); localStorage.setItem('atd_sales_user_role',userRole); localStorage.setItem('atd_sales_user_name',restoredName);
             localStorage.removeItem('atd_original_team_id'); sessionStorage.removeItem('adt_ghost_origin_session_v2'); sessionStorage.removeItem('adt_ghost_origin_role_v2');
@@ -11587,7 +11598,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             return;
         }
 
-        const canShort = window.canManageShortages();
+        const canShort = window.canRemoveShortages();
 
         container.innerHTML = list.map(s => `
             <div class="shortage-item-row">
@@ -11694,8 +11705,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             return;
         }
 
-        if (!window.canManageShortages()) {
-            window.customAlert('صلاحية مقفلة', 'ليس لديك صلاحية لتعديل النواقص.');
+        if (!window.canRemoveShortages()) {
+            window.customAlert('غير مسموح', 'حذف الأصناف من النواقص متاح للمدير فقط.');
             return;
         }
 
@@ -13508,10 +13519,12 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     const currentList = document.getElementById('dailySalesCurrentList');
     const settlementList = document.getElementById('dailySalesSettlementsList');
     const badge = document.getElementById('hubDailySalesBadge');
+    const settleBtn = document.getElementById('btnSettleDailySales');
+    if (settleBtn) settleBtn.style.display = window.canSettleDailySales?.() ? '' : 'none';
     if (totalEl) totalEl.textContent = window.formatMoney ? window.formatMoney(total) : total.toFixed(2);
     if (countEl) countEl.textContent = current.length + (current.length === 1 ? ' عملية' : ' عمليات');
     if (lastSettlementEl) lastSettlementEl.textContent = settlements.length ? window.formatDailySaleDateTime(settlements[0].settled_at) : 'لا توجد بعد';
-    if (badge) badge.textContent = total > 0 ? (window.formatMoney ? window.formatMoney(total) : total.toFixed(2)) : 'فتح المبيعات';
+    if (badge) badge.textContent = window.canManageDailySales?.() ? (total > 0 ? (window.formatMoney ? window.formatMoney(total) : total.toFixed(2)) : 'فتح المبيعات') : 'تحتاج صلاحية';
     if (currentList) {
       currentList.innerHTML = current.length ? current.map(row => {
         const note = String(row.note || '').trim();
@@ -13547,7 +13560,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     } catch(e) {
       console.error('[Daily Sales] fetch failed:',e);
       const msg=String(e?.message||'');
-      if (msg.includes('NOT_ALLOWED')) window.customAlert?.('غير مسموح','المبيعات اليومية متاحة للمدير الرئيسي فقط.');
+      if (msg.includes('NOT_ALLOWED')) window.customAlert?.('غير مسموح','صلاحية المبيعات اليومية غير مفعلة لهذا الحساب.');
       else if (msg.toLowerCase().includes('adt_daily_sales_fetch')) window.customAlert?.('يلزم تحديث قاعدة البيانات','شغّل ملف SQL الخاص بميزة المبيعات اليومية مرة واحدة في Supabase.');
       else window.customAlert?.('تعذر تحميل المبيعات','حدث خطأ أثناء تحميل سجل المبيعات اليومية.');
       return false;
@@ -13556,7 +13569,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
   window.addDailySale = async function(){
     if (window.__adtDailySalesBusy) return;
-    if (!window.canManageDailySales?.()) { window.customAlert?.('غير مسموح','المبيعات اليومية متاحة للمدير الرئيسي فقط.'); return; }
+    if (!window.canManageDailySales?.()) { window.customAlert?.('غير مسموح','صلاحية المبيعات اليومية غير مفعلة لهذا الحساب.'); return; }
     const amountInput=document.getElementById('dailySalesAmountInput');
     const noteInput=document.getElementById('dailySalesNoteInput');
     const amount=Number(amountInput?.value||0);
@@ -13579,7 +13592,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     }catch(e){
       console.error('[Daily Sales] add failed:',e);
       const msg=String(e?.message||'');
-      if(msg.includes('NOT_ALLOWED')) window.customAlert?.('غير مسموح','المبيعات اليومية متاحة للمدير الرئيسي فقط.');
+      if(msg.includes('NOT_ALLOWED')) window.customAlert?.('غير مسموح','صلاحية المبيعات اليومية غير مفعلة لهذا الحساب.');
       else window.customAlert?.('تعذر تسجيل المبيعات','لم يتم حفظ العملية. تحقق من الاتصال أو من تشغيل ملف SQL.');
     }finally{
       window.__adtDailySalesBusy=false;
@@ -13589,7 +13602,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
   window.settleDailySales = async function(){
     if (window.__adtDailySalesBusy) return;
-    if (!window.canManageDailySales?.()) { window.customAlert?.('غير مسموح','المبيعات اليومية متاحة للمدير الرئيسي فقط.'); return; }
+    if (!window.canSettleDailySales?.()) { window.customAlert?.('غير مسموح','تصفية المبيعات متاحة للمدير الرئيسي فقط.'); return; }
     const total=Number(window.__adtDailySalesData?.current_total||0);
     if(total<=0){window.customAlert?.('لا توجد مبيعات','لا يوجد إجمالي حالي لتصفيته.');return;}
     const ok=await window.showAppConfirm?.({

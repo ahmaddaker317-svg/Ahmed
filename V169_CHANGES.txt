@@ -1,0 +1,27 @@
+ADT Stock V169
+================
+
+1. Daily Sales permissions
+- Daily Sales home card is visible to all users.
+- Added member permission: can_manage_daily_sales.
+- Allowed members can view and add daily sales.
+- Settlement/reset remains main-manager only.
+
+2. Home team card
+- Team/Permissions card is hidden on the home screen for members and sub-managers.
+- Main manager/developer still sees it.
+
+3. Shortages
+- Member shortage permission is now used for viewing and adding shortages.
+- The “تم التوفير” delete button is hidden from members.
+- Server-side adt_shortage_remove is restricted to the main manager/developer only.
+
+4. Supabase
+- Added V169_MEMBER_SALES_SHORTAGES_PERMISSIONS.sql.
+- Added can_manage_daily_sales to team_members.
+- Updated permission save/read RPCs and daily sales RPCs.
+
+5. Android / GitHub
+- versionCode: 169
+- versionName: 1.69.0
+- Artifact: ADT-Stock-v169-APK
