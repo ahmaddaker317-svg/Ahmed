@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "ADTPro"
+rootProject.name = "ADTStock"
 include(":app")

@@ -5,6 +5,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -24,7 +27,7 @@ public class ADTFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage msg) {
         super.onMessageReceived(msg);
 
-        String title = "ADT Pro";
+        String title = "ADT Stock";
         String body = "تم تحديث بيانات منتج";
 
         if (msg.getNotification() != null) {
@@ -35,12 +38,22 @@ public class ADTFirebaseMessagingService extends FirebaseMessagingService {
         if (msg.getData().containsKey("body")) body = msg.getData().get("body");
 
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         if (Build.VERSION.SDK_INT >= 26) {
             NotificationChannel ch = new NotificationChannel(
-                    CHANNEL_ID, "تحديثات الأسعار", NotificationManager.IMPORTANCE_HIGH);
-            ch.setDescription("إشعارات تعديل أسعار المنتجات");
+                    CHANNEL_ID, "إشعارات ADT Stock", NotificationManager.IMPORTANCE_HIGH);
+            ch.setDescription("إشعارات تعديل الأسعار والتنبيهات المهمة");
             ch.enableLights(true);
             ch.setLightColor(Color.CYAN);
+            ch.enableVibration(true);
+            ch.setVibrationPattern(new long[]{0, 280, 140, 280});
+            ch.setShowBadge(true);
+            ch.setLockscreenVisibility(android.app.Notification.VISIBILITY_PUBLIC);
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
+            ch.setSound(soundUri, audioAttributes);
             nm.createNotificationChannel(ch);
         }
 
@@ -61,7 +74,13 @@ public class ADTFirebaseMessagingService extends FirebaseMessagingService {
          .setStyle(new android.app.Notification.BigTextStyle().bigText(body))
          .setAutoCancel(true)
          .setContentIntent(pi)
-         .setPriority(android.app.Notification.PRIORITY_HIGH);
+         .setPriority(android.app.Notification.PRIORITY_HIGH)
+         .setCategory(android.app.Notification.CATEGORY_MESSAGE)
+         .setVisibility(android.app.Notification.VISIBILITY_PUBLIC)
+         .setColor(Color.rgb(0, 210, 180))
+         .setDefaults(android.app.Notification.DEFAULT_ALL)
+         .setWhen(System.currentTimeMillis())
+         .setShowWhen(true);
 
         nm.notify((int)(System.currentTimeMillis() & 0x7fffffff), b.build());
     }

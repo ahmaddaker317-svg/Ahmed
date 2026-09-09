@@ -1,0 +1,29 @@
+ADT Stock V145
+================
+
+1. App identity
+- Visible app name changed from ADT Pro to ADT Stock.
+- Android package remains com.adt.pro for Firebase/install compatibility.
+- Transparent ADT Stock logo added to launcher, header, login, about screen and PDF rendering.
+
+2. Startup and connectivity
+- Native status/notch area now uses the exact app-header color #030910.
+- Local HTML and cached session render before network initialization.
+- Supabase SDK and web font load after first paint.
+- Added app-designed offline state and retry flow backed by Android connectivity status.
+
+3. UI fixes
+- Custom in-app subscription-duration picker.
+- Cloud recycle restore now asks for confirmation above the recycle window.
+- Product/audit floating search buttons use the solid app gradient.
+- Added read-only product details for members; cost is shown only with can_view_cost.
+
+4. Notifications
+- Original Firebase service/channel/edge-function route retained.
+- Price-save flow calls the native adt-send-price-push route again.
+- High-importance channel includes sound, vibration, public lock-screen visibility and badge support.
+
+5. Security
+- V142 primary-manager product protection remains unchanged.
+- No new SQL is required for V145.
+- Google login is intentionally deferred until real OAuth credentials and team-membership mapping are supplied.

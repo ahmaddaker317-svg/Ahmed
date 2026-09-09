@@ -1,0 +1,38 @@
+ADT Stock V168
+================
+
+1. Latest web app
+- Replaced the Android WebView asset with the latest ADT Stock V168 HTML.
+- Preserves the Android package com.adt.pro, Firebase configuration, native share/download hooks, file import, and notification service.
+
+2. Branding
+- Updated the app HTML to the current transparent ADT Stock header logo.
+- Kept the standalone transparent logo asset in app/src/main/assets/adt_stock_logo.png.
+
+3. Login
+- Unified login flow supports the main manager and approved members from the same login screen.
+- Member login uses phone + team code + team password.
+- V165_MEMBER_UNIFIED_LOGIN.sql is included and must be applied once if not already installed.
+
+4. Audit improvements
+- Search state is cleared when leaving/switching audit interfaces.
+- Physical inventory additions render immediately while server save completes safely in the background.
+
+5. Daily sales
+- Added the Daily Sales section with amount, timestamp, note, current total and settlement history.
+- Settlement closes the current cycle and starts a new total from zero while preserving previous settlement records.
+- V166_DAILY_SALES.sql is included and must be applied once if not already installed.
+- Daily Sales UI was polished in V167.
+
+6. Home layout
+- Main buttons are ordered as requested:
+  Products + Recently Modified Products
+  Debts + Shortages
+  Physical Inventory + Retail Audit
+  Invoices + Daily Sales
+  Team/Permissions on a full-width final row.
+
+7. Android / GitHub
+- Android versionCode: 168
+- Android versionName: 1.68.0
+- GitHub Actions artifact: ADT-Stock-v168-APK

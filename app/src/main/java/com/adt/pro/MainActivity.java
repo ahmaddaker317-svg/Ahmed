@@ -9,6 +9,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -53,25 +58,26 @@ public class MainActivity extends Activity {
     private byte[] pendingFileBytes;
     private String pendingFileName;
     private String pendingFileMime;
+    private ConnectivityManager.NetworkCallback networkCallback;
+    private boolean nativeServicesInitialized = false;
+    private static final int APP_HEADER_COLOR = Color.rgb(3, 9, 16);
 
     @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getWindow().setStatusBarColor(Color.BLACK);
-        getWindow().setNavigationBarColor(Color.BLACK);
+        getWindow().setStatusBarColor(APP_HEADER_COLOR);
+        getWindow().setNavigationBarColor(APP_HEADER_COLOR);
 
         if (Build.VERSION.SDK_INT >= 30) {
             try { getWindow().setDecorFitsSystemWindows(true); } catch (Exception ignored) {}
         }
-        createPriceNotificationChannel();
-
         webView = new WebView(this);
-        webView.setBackgroundColor(Color.BLACK);
+        webView.setBackgroundColor(APP_HEADER_COLOR);
 
         FrameLayout root = new FrameLayout(this);
-        root.setBackgroundColor(Color.BLACK);
+        root.setBackgroundColor(APP_HEADER_COLOR);
         int topInset = Build.VERSION.SDK_INT >= 35 ? getStatusBarHeightPx() : 0;
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -125,6 +131,8 @@ public class MainActivity extends Activity {
                 super.onPageFinished(view, url);
                 deliverTokenToWeb();
                 installNativePageHooks();
+                notifyNetworkStateToWeb();
+                view.post(MainActivity.this::startDeferredNativeServices);
             }
 
             @Override
@@ -159,11 +167,18 @@ public class MainActivity extends Activity {
             }
         });
 
+        // أول Render للواجهة المحلية يبدأ قبل أي تهيئة خارجية أو طلب صلاحيات.
+        webView.loadUrl(HOME_URL);
+    }
+
+    private void startDeferredNativeServices() {
+        if (nativeServicesInitialized || isFinishing()) return;
+        nativeServicesInitialized = true;
+        createPriceNotificationChannel();
         requestNotificationPermission();
         loadStoredToken();
         refreshFcmToken();
-
-        webView.loadUrl(HOME_URL);
+        registerConnectivityCallback();
     }
 
     private String resolveFileChooserMime(WebChromeClient.FileChooserParams params) {
@@ -251,7 +266,7 @@ public class MainActivity extends Activity {
                     return;
                 }
                 pendingFileBytes = bytes;
-                pendingFileName = safeFileName(fileName, "ADT_Pro_File.json");
+                pendingFileName = safeFileName(fileName, "ADT_Stock_File.json");
                 pendingFileMime = safeMime(mimeType);
                 Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -292,12 +307,59 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= 26) {
             android.app.NotificationManager nm = (android.app.NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             android.app.NotificationChannel ch = new android.app.NotificationChannel(
-                    "adt_price_updates", "تحديثات ADT Pro", android.app.NotificationManager.IMPORTANCE_HIGH);
+                    "adt_price_updates", "إشعارات ADT Stock", android.app.NotificationManager.IMPORTANCE_HIGH);
             ch.setDescription("إشعارات تحديث الأسعار والتنبيهات المهمة");
             ch.enableVibration(true);
+            ch.setVibrationPattern(new long[]{0, 280, 140, 280});
             ch.enableLights(true);
             ch.setLightColor(Color.CYAN);
+            ch.setShowBadge(true);
+            ch.setLockscreenVisibility(android.app.Notification.VISIBILITY_PUBLIC);
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
+            ch.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), audioAttributes);
             nm.createNotificationChannel(ch);
+        }
+    }
+
+    private boolean hasInternetConnection() {
+        try {
+            ConnectivityManager manager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            if (manager == null) return false;
+            Network network = manager.getActiveNetwork();
+            if (network == null) return false;
+            NetworkCapabilities capabilities = manager.getNetworkCapabilities(network);
+            return capabilities != null
+                    && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private void notifyNetworkStateToWeb() {
+        if (webView == null) return;
+        final boolean online = hasInternetConnection();
+        webView.post(() -> webView.evaluateJavascript(
+                "if(window.setNetworkConnectionState){window.setNetworkConnectionState(" + online + ");}", null));
+    }
+
+    private void registerConnectivityCallback() {
+        if (networkCallback != null) return;
+        try {
+            ConnectivityManager manager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            if (manager == null) return;
+            networkCallback = new ConnectivityManager.NetworkCallback() {
+                @Override public void onAvailable(Network network) { notifyNetworkStateToWeb(); }
+                @Override public void onLost(Network network) { notifyNetworkStateToWeb(); }
+                @Override public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) { notifyNetworkStateToWeb(); }
+            };
+            manager.registerDefaultNetworkCallback(networkCallback);
+            notifyNetworkStateToWeb();
+        } catch (Exception ignored) {
+            networkCallback = null;
         }
     }
 
@@ -341,28 +403,44 @@ public class MainActivity extends Activity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQ_NOTIFICATIONS &&
                 (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED)) {
-            Toast.makeText(this, "فعّل إشعارات ADT Pro من إعدادات الهاتف لاستقبالها خارج التطبيق", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "فعّل إشعارات ADT Stock من إعدادات الهاتف لاستقبالها خارج التطبيق", Toast.LENGTH_LONG).show();
         }
     }
 
     private void showOfflinePage() {
         String html = "<!doctype html><html dir='rtl'><head><meta name='viewport' content='width=device-width,initial-scale=1'>"
-                + "<style>html,body{margin:0;background:#070A12;color:#fff;height:100%;font-family:sans-serif}"
-                + "body{display:flex;align-items:center;justify-content:center;text-align:center}.box{padding:28px}"
-                + "h2{font-size:24px;margin:0 0 12px}p{color:#8E9BAE;font-size:16px;line-height:1.8}"
-                + "button{background:#00D2B4;color:#00110f;border:0;border-radius:14px;padding:13px 28px;font-weight:700;font-size:16px}</style></head>"
-                + "<body><div class='box'><h2>لا يوجد اتصال بالإنترنت</h2>"
-                + "<p>تحقق من اتصال الإنترنت ثم حاول مرة أخرى.</p>"
-                + "<button onclick='location.reload()'>إعادة المحاولة</button></div></body></html>";
+                + "<style>*{box-sizing:border-box}html,body{margin:0;background:#030910;color:#fff;height:100%;font-family:sans-serif}"
+                + "body{display:flex;align-items:center;justify-content:center;text-align:center;padding:18px}.box{width:min(92vw,360px);padding:25px 20px;background:linear-gradient(180deg,#0b1725,#07111d);border:1.5px solid #00d2b4;border-radius:22px;box-shadow:0 22px 70px #000}"
+                + ".icon{width:58px;height:58px;margin:0 auto 13px;border-radius:18px;display:grid;place-items:center;background:#0b292a;border:1px solid #16796f;color:#00d2b4;font-size:27px;font-weight:900}"
+                + "h2{font-size:22px;margin:0 0 9px}p{color:#8E9BAE;font-size:14px;line-height:1.8;margin:0 0 16px}"
+                + "button{width:100%;background:linear-gradient(135deg,#00f2c3,#00b894);color:#03110f;border:0;border-radius:13px;padding:14px;font-weight:900;font-size:15px}</style></head>"
+                + "<body><div class='box'><div class='icon'>!</div><h2>أنت غير متصل بالإنترنت</h2>"
+                + "<p>تحقق من بيانات الهاتف أو شبكة Wi‑Fi، ثم حاول مرة أخرى.</p>"
+                + "<button onclick='location.href=\"" + HOME_URL + "\"'>إعادة المحاولة</button></div></body></html>";
         webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if (!nativeServicesInitialized) return;
         loadStoredToken();
         refreshFcmToken();
         deliverTokenToWeb();
+        notifyNetworkStateToWeb();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (networkCallback != null) {
+            try {
+                ConnectivityManager manager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+                if (manager != null) manager.unregisterNetworkCallback(networkCallback);
+            } catch (Exception ignored) {}
+            networkCallback = null;
+        }
+        if (webView != null) webView.destroy();
+        super.onDestroy();
     }
 
     @Override
@@ -403,7 +481,7 @@ public class MainActivity extends Activity {
         String js = "(function(){try{"
                 + "var d=document.getElementById('sidebarDrawer');if(d&&d.classList.contains('active')){"
                 + "if(window.closeSideMenu)window.closeSideMenu();else d.classList.remove('active');return true;}"
-                + "var blocked={appLockModal:1,teamSuspendedModal:1,onboardingModal:1,subscriptionExpiredModal:1};"
+                + "var blocked={appLockModal:1,teamSuspendedModal:1,onboardingModal:1,subscriptionExpiredModal:1,offlineConnectionModal:1};"
                 + "var list=Array.prototype.slice.call(document.querySelectorAll('.modal')).filter(function(m){"
                 + "return !blocked[m.id]&&getComputedStyle(m).display!=='none';}).sort(function(a,b){"
                 + "return (parseInt(getComputedStyle(b).zIndex,10)||0)-(parseInt(getComputedStyle(a).zIndex,10)||0);});"
@@ -425,6 +503,16 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public String getFirebaseToken() {
             return getFcmToken();
+        }
+
+        @JavascriptInterface
+        public boolean isNetworkAvailable() {
+            return hasInternetConnection();
+        }
+
+        @JavascriptInterface
+        public void retryInternetConnection() {
+            runOnUiThread(MainActivity.this::notifyNetworkStateToWeb);
         }
 
         @JavascriptInterface
@@ -514,7 +602,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void sharePdfBase64(String base64, String fileName) {
             try {
-                String safeName = safeFileName(fileName, "ADT_Pro.pdf");
+                String safeName = safeFileName(fileName, "ADT_Stock.pdf");
                 if (!safeName.toLowerCase().endsWith(".pdf")) safeName += ".pdf";
                 byte[] bytes = Base64.decode(base64 == null ? "" : base64, Base64.DEFAULT);
                 if (bytes.length == 0) throw new IllegalArgumentException("EMPTY_PDF");
@@ -543,7 +631,7 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void savePdfBase64(String base64, String fileName) {
-            String safeName = safeFileName(fileName, "ADT_Pro.pdf");
+            String safeName = safeFileName(fileName, "ADT_Stock.pdf");
             if (!safeName.toLowerCase().endsWith(".pdf")) safeName += ".pdf";
             requestNativeFileSave(base64, safeName, "application/pdf");
         }
