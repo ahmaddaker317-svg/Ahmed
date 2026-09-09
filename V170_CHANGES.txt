@@ -1,0 +1,13 @@
+ADT Stock V170
+================
+
+1. Android launcher icon
+- Enlarged the existing ADT Stock launcher artwork itself without redesigning it.
+- Removed the oversized transparent margin around the adaptive foreground.
+- The logo now fills the Android launcher mask much better and no longer leaves the large black ring around it.
+- Updated all legacy mipmap launcher sizes for consistency.
+
+2. Android / GitHub
+- versionCode: 170
+- versionName: 1.70.0
+- Artifact: ADT-Stock-v170-APK

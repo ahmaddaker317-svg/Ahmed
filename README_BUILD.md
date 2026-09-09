@@ -39,3 +39,7 @@
 سيبني Debug APK ويرفع Artifact باسم:
 
 `ADT-Stock-v169-APK`
+
+
+## V170 launcher icon
+The Android launcher icon foreground was enlarged to fill the adaptive icon area and remove the large black outer ring.
