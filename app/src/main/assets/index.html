@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html dir="rtl" lang="ar" style="background-color: #030910 !important; color: #FFFFFF !important; color-scheme: dark;">
+<html class="adt-startup-lock" dir="rtl" lang="ar" style="background-color: #030910 !important; color: #FFFFFF !important; color-scheme: dark;">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
@@ -9,6 +9,15 @@
 <title>ADT Stock - مبيعات أسهل وإدارة أفضل</title>
 
 <style id="adt-core-styles">
+/* V176 Startup Lock: لا تسمح بظهور الرئيسية أو تسجيل الدخول قبل تحديد شاشة البداية الصحيحة. */
+html.adt-startup-lock, html.adt-startup-lock body {
+  background:#030910 !important;
+}
+html.adt-startup-lock #mainAppShellContainer,
+html.adt-startup-lock #onboardingModal,
+html.adt-startup-lock #adtIntroModal {
+  visibility:hidden !important;
+}
 ::-webkit-scrollbar {
   display: none !important;
 }
@@ -8819,7 +8828,9 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             await window.loadSupabaseSdkDeferred();
             window.setNetworkConnectionState(true);
             window.tryCaptureNativePushToken().catch(()=>{});
-            await window.checkAuthAndTeamServer();
+            // V175: المزامنة الخلفية لا تغيّر الصفحة التي فتحها المستخدم.
+            // كان الاستدعاء بدون preserveCurrentTab يعيد المستخدم للرئيسية بعد اكتمال التحديث.
+            await window.checkAuthAndTeamServer({ preserveCurrentTab:true });
         } catch (error) {
             console.warn('[Startup] cloud sync deferred:', error?.message || error);
         }
@@ -9215,6 +9226,23 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         }
     };
 
+    // V176: حرر Splash النظام فقط بعد تجهيز شاشة البداية الصحيحة فعلياً.
+    window.__adtStartupSurfaceReleased = false;
+    window.releaseStartupSurface = function(){
+        const finish = () => {
+            try { document.documentElement.classList.remove('adt-startup-lock'); } catch(_) {}
+            if (window.__adtStartupSurfaceReleased) return;
+            window.__adtStartupSurfaceReleased = true;
+            try {
+                if (window.Android && typeof window.Android.markStartupReady === 'function') {
+                    window.Android.markStartupReady();
+                }
+            } catch(_) {}
+        };
+        try { requestAnimationFrame(() => requestAnimationFrame(finish)); }
+        catch(_) { setTimeout(finish, 0); }
+    };
+
     // V174: اختيار اللغة أولاً، ثم البلد/العملة، ثم التعريف الإجباري قبل تسجيل الدخول.
     window.adtAuthLanguage = localStorage.getItem('adt_app_language_v173') || 'ar';
     window.adtIntroStage = 'language';
@@ -9289,13 +9317,13 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         const foot=document.getElementById('adtIntroFooter');
         if(window.adtIntroStage==='language'){
             modal.querySelector('[data-intro-step="language"]')?.classList.add('active');
-            if(foot)foot.style.display='none'; return;
+            if(foot)foot.style.display='none'; window.releaseStartupSurface?.(); return;
         }
         if(window.adtIntroStage==='country'){
             modal.querySelector('[data-intro-step="country"]')?.classList.add('active');
             if(foot)foot.style.display='none';
             const search=document.getElementById('adtCountrySearch'); if(search)search.value='';
-            window.renderIntroCountries(''); return;
+            window.renderIntroCountries(''); window.releaseStartupSurface?.(); return;
         }
         const target=modal.querySelector(`[data-intro-step="${window.adtIntroIndex}"]`); if(target)target.classList.add('active');
         const copy=(window.adtIntroCopy[window.adtAuthLanguage]||window.adtIntroCopy.ar)[window.adtIntroIndex]||window.adtIntroCopy.ar[0];
@@ -9304,6 +9332,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         if(foot)foot.style.display='block';
         modal.querySelectorAll('.adt-intro-dots span').forEach((d,i)=>d.classList.toggle('active',i===window.adtIntroIndex));
         const btn=document.getElementById('adtIntroNextBtn'); if(btn)btn.textContent=(window.adtIntroIndex===2)?(window.adtAuthLanguage==='en'?'Get started':'ابدأ الآن'):(window.adtAuthLanguage==='en'?'Next':'التالي');
+        window.releaseStartupSurface?.();
     };
     window.startMandatoryIntro = function(){
         window.__adtLoginIntroPassed=false;
@@ -9374,7 +9403,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
     // التحقق من الفريق وتسجيل الدخول وشاشة الانتظار
     window.checkAuthAndTeamServer = async function(options = {}) {
-        const preserveCurrentTab = !!options.preserveCurrentTab;
+        const preserveCurrentTab = options.preserveCurrentTab !== false;
         if (localStorage.getItem('atd_sales_signed_out') === 'true') { window.showAuthAfterMandatoryIntro(); return; }
         const savedTeamId=localStorage.getItem('atd_sales_team_id');
         const savedRole=localStorage.getItem('atd_sales_user_role');
@@ -9382,7 +9411,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         if (!dbClient) {
             if (savedTeamId) {
                 try { const snap=JSON.parse(localStorage.getItem(`atd_team_snapshot__${savedTeamId}`)||'null'); currentTeam=snap&&snap.id?snap:{id:savedTeamId,name:'الفريق المحفوظ',manager_name:savedName||'مستخدم'}; } catch(_){ currentTeam={id:savedTeamId,name:'الفريق المحفوظ',manager_name:savedName||'مستخدم'}; }
-                userRole=savedRole||'member'; await window.loadTeamLocalCaches(savedTeamId); document.getElementById('onboardingModal').style.display='none'; window.updateUserProfileUI(savedName); window.renderProducts(); window.renderShortagesView(); window.renderDebts(); window.renderHomeStats(); if (!preserveCurrentTab) window.switchTab('home',false);
+                userRole=savedRole||'member'; await window.loadTeamLocalCaches(savedTeamId); document.getElementById('onboardingModal').style.display='none'; window.updateUserProfileUI(savedName); window.renderProducts(); window.renderShortagesView(); window.renderDebts(); window.renderHomeStats(); if (!preserveCurrentTab) window.switchTab('home',false); window.releaseStartupSurface?.();
             } else window.showAuthAfterMandatoryIntro();
             return;
         }
@@ -9410,7 +9439,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
                 return;
             }
             const m=ctx.member;
-            if (m.status==='pending' && m.role!=='manager') { document.getElementById('onboardingModal').style.display='none'; document.getElementById('pendingApprovalModal').style.display='flex'; return; }
+            if (m.status==='pending' && m.role!=='manager') { document.getElementById('onboardingModal').style.display='none'; document.getElementById('pendingApprovalModal').style.display='flex'; window.releaseStartupSurface?.(); return; }
             if (m.status!=='approved' && m.role!=='manager') { window.showAuthAfterMandatoryIntro(); return; }
             document.getElementById('pendingApprovalModal').style.display='none';
             currentTeam=ctx.team; userRole=m.role||savedRole||'member';
@@ -9438,7 +9467,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             window.checkTeamLockState(); window.updateUserProfileUI(localStorage.getItem('atd_sales_user_name')||(currentTeam.manager_name||'عضو'));
             await Promise.all([window.loadTeamMembers(),window.fetchProductsFromSupabase(),window.fetchShortagesFromSupabase(),window.fetchDebtsFromSupabase()]);
             window.checkWeeklyDebtReminder();
-            window.setupRealtimeSubscription(); try{await dbClient.rpc('adt_touch_team',{p_team_id:String(currentTeam.id),p_user_id:getDeviceId()});}catch(_){} try{await window.fetchDeveloperNotices();}catch(_){} if (!preserveCurrentTab) window.switchTab('home',false);
+            window.setupRealtimeSubscription(); try{await dbClient.rpc('adt_touch_team',{p_team_id:String(currentTeam.id),p_user_id:getDeviceId()});}catch(_){} try{await window.fetchDeveloperNotices();}catch(_){} if (!preserveCurrentTab) window.switchTab('home',false); window.releaseStartupSurface?.();
         } catch(e) {
             console.error('[Auth] secure context failed:',e);
             // فشل الإنترنت/الخادم لا يعني تسجيل خروج. استخدم الجلسة المحلية المحفوظة.
@@ -9455,6 +9484,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
                 window.updateUserProfileUI(savedName);
                 window.renderProducts(); window.renderShortagesView(); window.renderDebts(); window.renderHomeStats();
                 if (!preserveCurrentTab) window.switchTab('home',false);
+                window.releaseStartupSurface?.();
             } else {
                 window.showAuthAfterMandatoryIntro();
             }
@@ -9490,6 +9520,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         window.updateUserProfileUI(savedName || currentTeam?.manager_name || 'مستخدم');
         window.checkTeamLockState();
         window.switchTab('home', false);
+        window.releaseStartupSurface?.();
 
         // 2) حمّل آخر بيانات محلية بدون تعطيل ظهور الاسم/الفريق والواجهة.
         void window.loadTeamLocalCaches(savedTeamId).then(() => {
@@ -14066,6 +14097,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             }, 0));
         } catch(e) {
             window.switchTab('home', false);
+            window.releaseStartupSurface?.();
         }
     });
     window.addEventListener('load',()=>{const x=document.getElementById('adtSplashScreen');if(x)x.remove();});</script>

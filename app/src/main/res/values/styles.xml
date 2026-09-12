@@ -8,4 +8,11 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:colorAccent">@color/adt_teal</item>
     </style>
+
+    <style name="Theme.ADTPro.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/adt_black</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <item name="windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
+        <item name="postSplashScreenTheme">@style/Theme.ADTPro</item>
+    </style>
 </resources>

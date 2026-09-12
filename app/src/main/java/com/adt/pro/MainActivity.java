@@ -43,6 +43,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import android.app.Activity;
 import androidx.core.content.FileProvider;
+import androidx.core.splashscreen.SplashScreen;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -64,10 +65,15 @@ public class MainActivity extends Activity {
     private ConnectivityManager.NetworkCallback networkCallback;
     private boolean nativeServicesInitialized = false;
     private static final int APP_HEADER_COLOR = Color.rgb(3, 9, 16);
+    private volatile boolean firstWebFrameReady = false;
 
     @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // V176: أبقِ Splash النظام ظاهرة حتى يعلن HTML أن شاشة البداية الصحيحة أصبحت جاهزة.
+        // بهذا لا تظهر الرئيسية لحظةً قبل اختيار اللغة/التعريف ولا توجد شاشة سوداء بينهما.
+        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+        splashScreen.setKeepOnScreenCondition(() -> !firstWebFrameReady);
         super.onCreate(savedInstanceState);
 
         getWindow().setStatusBarColor(APP_HEADER_COLOR);
@@ -134,11 +140,15 @@ public class MainActivity extends Activity {
             @Override
             public void onPageCommitVisible(WebView view, String url) {
                 super.onPageCommitVisible(view, url);
+                // لا نزيل Splash هنا: أول Frame قد يكون الرئيسية قبل أن يحسم JavaScript مسار البداية.
+                // الإزالة تتم من Android.markStartupReady() بعد تجهيز Intro أو الواجهة الرئيسية الصحيحة.
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                // حماية أخيرة فقط: لو حدث خطأ JavaScript غير متوقع لا نترك Splash معلقة للأبد.
+                view.postDelayed(() -> { if (!firstWebFrameReady) firstWebFrameReady = true; }, 7000);
                 deliverTokenToWeb();
                 installNativePageHooks();
                 notifyNetworkStateToWeb();
@@ -153,7 +163,10 @@ public class MainActivity extends Activity {
 
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                if (request.isForMainFrame()) showOfflinePage();
+                if (request.isForMainFrame()) {
+                    firstWebFrameReady = true;
+                    showOfflinePage();
+                }
             }
         });
 
@@ -535,6 +548,11 @@ public class MainActivity extends Activity {
     }
 
     public class NativeBridge {
+        @JavascriptInterface
+        public void markStartupReady() {
+            runOnUiThread(() -> firstWebFrameReady = true);
+        }
+
         @JavascriptInterface
         public String getFcmToken() {
             return fcmToken == null ? "" : fcmToken;

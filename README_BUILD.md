@@ -1,3 +1,5 @@
+ADT Stock v176 - UI Stability + Splash Fix
+
 # ADT Stock V169 — GitHub Ready
 
 هذه النسخة مبنية على مشروع V168 مع إضافة نظام صلاحيات المبيعات اليومية وتقييد حذف النواقص، مع الحفاظ على مشروع Android وFirebase والحزمة `com.adt.pro`.
@@ -54,5 +56,5 @@ The Android launcher icon foreground was enlarged to fill the adaptive icon area
 V173 SQL: run V173_BUY_PRICE_HISTORY.sql once in Supabase to enable purchase-price history.
 
 
-## v174
+## v176
 اختيار اللغة -> اختيار البلد/العملة -> التعريف الإجباري -> تسجيل الدخول. لا يحتاج SQL إضافي فوق V173_BUY_PRICE_HISTORY.sql.
