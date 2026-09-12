@@ -43,13 +43,16 @@ public class ADTFirebaseMessagingService extends FirebaseMessagingService {
         String oldSellPrice = msg.getData().get("old_sell_price");
         String newSellPrice = msg.getData().get("new_sell_price");
         String changeType = msg.getData().get("change_type");
+        String currencySymbol = msg.getData().get("currency_symbol");
+        if (currencySymbol == null || currencySymbol.trim().isEmpty()) currencySymbol = "د.ل";
         if ("sell_price".equals(changeType)
                 && actorName != null && !actorName.trim().isEmpty()
                 && productName != null && !productName.trim().isEmpty()
                 && oldSellPrice != null && !oldSellPrice.trim().isEmpty()
                 && newSellPrice != null && !newSellPrice.trim().isEmpty()) {
             body = "قام " + actorName.trim() + " بتغيير سعر بيع «" + productName.trim()
-                    + "» من " + oldSellPrice.trim() + " د.ل إلى " + newSellPrice.trim() + " د.ل";
+                    + "» من " + oldSellPrice.trim() + " " + currencySymbol.trim()
+                    + " إلى " + newSellPrice.trim() + " " + currencySymbol.trim();
         }
 
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

@@ -64,7 +64,6 @@ public class MainActivity extends Activity {
     private ConnectivityManager.NetworkCallback networkCallback;
     private boolean nativeServicesInitialized = false;
     private static final int APP_HEADER_COLOR = Color.rgb(3, 9, 16);
-    private FrameLayout nativeSplashOverlay;
 
     @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface"})
     @Override
@@ -90,19 +89,7 @@ public class MainActivity extends Activity {
         lp.topMargin = topInset;
         root.addView(webView, lp);
 
-        // V172: غطاء Native بسيط فوق الـ WebView يمنع الوميض الأسود قبل ظهور HTML.
-        nativeSplashOverlay = new FrameLayout(this);
-        nativeSplashOverlay.setBackgroundColor(APP_HEADER_COLOR);
-        ImageView splashLogo = new ImageView(this);
-        splashLogo.setImageResource(R.drawable.ic_splash_logo);
-        splashLogo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        FrameLayout.LayoutParams splashLogoLp = new FrameLayout.LayoutParams(dpToPx(148), dpToPx(148));
-        splashLogoLp.gravity = Gravity.CENTER;
-        nativeSplashOverlay.addView(splashLogo, splashLogoLp);
-        root.addView(nativeSplashOverlay, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-        ));
+        // V173: نعتمد على Splash النظام فقط لتجنب ظهور الشعار بحجمين مختلفين.
         setContentView(root);
 
         WebSettings s = webView.getSettings();
@@ -147,13 +134,11 @@ public class MainActivity extends Activity {
             @Override
             public void onPageCommitVisible(WebView view, String url) {
                 super.onPageCommitVisible(view, url);
-                hideNativeSplash();
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                hideNativeSplash();
                 deliverTokenToWeb();
                 installNativePageHooks();
                 notifyNetworkStateToWeb();
@@ -200,17 +185,6 @@ public class MainActivity extends Activity {
         return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 
-    private void hideNativeSplash() {
-        final FrameLayout splash = nativeSplashOverlay;
-        if (splash == null || splash.getParent() == null) return;
-        splash.animate().alpha(0f).setDuration(140).withEndAction(() -> {
-            try {
-                ViewGroup parent = (ViewGroup) splash.getParent();
-                if (parent != null) parent.removeView(splash);
-            } catch (Exception ignored) {}
-            if (nativeSplashOverlay == splash) nativeSplashOverlay = null;
-        }).start();
-    }
 
     private void startDeferredNativeServices() {
         if (nativeServicesInitialized || isFinishing()) return;
@@ -680,6 +654,37 @@ public class MainActivity extends Activity {
                 dispatchPricePush(payload);
             } catch (Exception error) {
                 android.util.Log.e("ADT_PUSH", "V172 payload build failed", error);
+            }
+        }
+
+        @JavascriptInterface
+        public void triggerPricePushV174(String teamId, String actorUserId, String actorName, String productName, String oldSellPrice, String newSellPrice, String changeType, String currencySymbol) {
+            if (teamId == null || actorUserId == null || teamId.trim().isEmpty() || actorUserId.trim().isEmpty()) return;
+            try {
+                String safeActor = actorName == null || actorName.trim().isEmpty() ? "مستخدم" : actorName.trim();
+                String safeProduct = productName == null ? "" : productName.trim();
+                String safeOld = oldSellPrice == null ? "" : oldSellPrice.trim();
+                String safeNew = newSellPrice == null ? "" : newSellPrice.trim();
+                String safeType = changeType == null ? "price_change" : changeType.trim();
+                String safeCurrency = currencySymbol == null || currencySymbol.trim().isEmpty() ? "د.ل" : currencySymbol.trim();
+
+                JSONObject payload = new JSONObject()
+                        .put("team_id", teamId)
+                        .put("actor_user_id", actorUserId)
+                        .put("actor_name", safeActor)
+                        .put("product_name", safeProduct)
+                        .put("old_sell_price", safeOld)
+                        .put("new_sell_price", safeNew)
+                        .put("change_type", safeType)
+                        .put("currency_symbol", safeCurrency)
+                        .put("title", "ADT Stock");
+
+                if ("sell_price".equals(safeType) && !safeProduct.isEmpty() && !safeOld.isEmpty() && !safeNew.isEmpty()) {
+                    payload.put("body", "قام " + safeActor + " بتغيير سعر بيع «" + safeProduct + "» من " + safeOld + " " + safeCurrency + " إلى " + safeNew + " " + safeCurrency);
+                }
+                dispatchPricePush(payload);
+            } catch (Exception error) {
+                android.util.Log.e("ADT_PUSH", "V174 payload build failed", error);
             }
         }
 

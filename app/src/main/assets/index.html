@@ -5613,6 +5613,38 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 @media(max-width:360px){#pageDailySales .daily-sales-summary-value{font-size:28px}#pageDailySales .daily-sales-add-btn{min-width:78px;padding:0 10px}#pageDailySales .daily-sales-section-side{max-width:52%}}
 </style>
 
+
+<style id="adtV173Styles">
+/* V173 — بداية موحدة، تعريف إجباري، وكروت أكثر إحكاماً */
+.adt-intro-modal{position:fixed;inset:0;z-index:31000;background:#030910;align-items:center;justify-content:center;padding:18px;overflow:auto}
+.adt-intro-shell{width:min(100%,420px);min-height:520px;border:1px solid rgba(0,210,180,.22);border-radius:24px;background:linear-gradient(160deg,#09111c,#050b12 72%);box-shadow:0 24px 70px rgba(0,0,0,.45);padding:22px 18px 18px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.adt-intro-shell:before{content:"";position:absolute;width:220px;height:220px;border-radius:50%;background:rgba(0,210,180,.08);filter:blur(35px);top:-100px;left:-80px;pointer-events:none}
+.adt-intro-logo{height:72px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;position:relative;z-index:1}.adt-intro-logo img{max-width:190px!important;max-height:64px!important;object-fit:contain!important}
+.adt-intro-step{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;z-index:1}.adt-intro-step.active{display:flex}
+.adt-intro-kicker{font-size:12px;color:var(--accent-teal);font-weight:1000;letter-spacing:.6px;margin-bottom:8px}.adt-intro-step h2{font-size:24px;color:#fff;margin:0 0 9px;font-weight:1000}.adt-intro-step p{font-size:12px;line-height:1.9;color:var(--text-muted);max-width:310px;margin:0 auto}
+.adt-language-grid{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}.adt-language-card{min-height:104px;border:1px solid rgba(0,210,180,.28);border-radius:16px;background:rgba(11,22,34,.92);color:#fff;padding:14px 10px;display:flex;flex-direction:column;gap:7px;align-items:center;justify-content:center;font-family:inherit;cursor:pointer}.adt-language-card strong{font-size:16px;color:#fff}.adt-language-card span{font-size:10px;color:var(--text-muted)}.adt-language-card:active{transform:scale(.98);border-color:var(--accent-teal)}
+.adt-country-step{justify-content:flex-start!important;padding-top:14px}.adt-country-search-wrap{width:100%;margin:14px 0 9px;position:relative}.adt-country-search{width:100%;min-height:44px;border:1px solid #1c3043;border-radius:13px;background:#09131e;color:#fff;padding:0 13px;font:800 12px inherit;outline:none;box-sizing:border-box}.adt-country-search:focus{border-color:var(--accent-teal);box-shadow:0 0 0 3px rgba(0,210,180,.08)}.adt-country-list{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px;max-height:260px;overflow:auto;padding:2px 1px 4px;scrollbar-width:thin}.adt-country-card{min-height:58px;border:1px solid #182b3d;border-radius:12px;background:#0a1520;color:#fff;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:inherit;cursor:pointer;text-align:inherit}.adt-country-card:active,.adt-country-card.active{border-color:var(--accent-teal);background:rgba(0,210,180,.08)}.adt-country-card span{min-width:0;display:flex;flex-direction:column;gap:2px}.adt-country-card b{font-size:10.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.adt-country-card small{font-size:7.8px;color:#768aa0}.adt-country-card strong{font-size:11px;color:var(--accent-teal);white-space:nowrap}.adt-country-empty{grid-column:1/-1;padding:22px 8px;text-align:center;color:var(--text-muted);font-size:10px;font-weight:800;border:1px dashed #203247;border-radius:12px}@media(max-width:360px){.adt-country-list{grid-template-columns:1fr}.adt-country-card{min-height:52px}}
+.adt-intro-icon{width:78px;height:78px;border-radius:22px;border:1px solid rgba(0,210,180,.35);background:rgba(0,210,180,.08);display:flex;align-items:center;justify-content:center;margin-bottom:22px;box-shadow:0 0 30px rgba(0,210,180,.08)}.adt-intro-icon svg{width:38px;height:38px;fill:var(--accent-teal)}
+.adt-intro-footer{position:relative;z-index:1;margin-top:16px}.adt-intro-dots{display:flex;justify-content:center;gap:6px;margin-bottom:12px}.adt-intro-dots span{width:7px;height:7px;border-radius:99px;background:#334155;transition:.2s}.adt-intro-dots span.active{width:20px;background:var(--accent-teal)}.adt-intro-next{min-height:46px;font-size:13px!important;border-radius:13px!important;margin:0!important}
+
+/* الجرد: الكارت أصغر وزر الحذف يظل داخل حدود الكارت */
+#auditList .audit-display-card{box-sizing:border-box!important;width:100%!important;grid-template-columns:minmax(0,1fr) 64px 78px 46px!important;gap:5px!important;padding:7px 8px!important;margin-bottom:6px!important;border-radius:11px!important;overflow:hidden!important}
+#auditList .audit-display-card .prod-name-title{font-size:11.6px!important;line-height:1.25!important}
+#auditList .audit-display-card .audit-buy-inline,#auditList .audit-display-card .audit-qty-col,#auditList .audit-display-card .audit-total-col{font-size:8.4px!important;line-height:1.15!important;min-width:0!important}
+#auditList .audit-display-card .audit-buy-inline strong,#auditList .audit-display-card .audit-qty-col strong,#auditList .audit-display-card .audit-total-col strong{font-size:12px!important;margin-top:2px!important;white-space:nowrap!important}
+#auditList .audit-delete-btn{box-sizing:border-box!important;width:46px!important;min-width:46px!important;height:30px!important;padding:0 3px!important;border-radius:8px!important;font-size:8.2px!important;gap:2px!important;overflow:hidden!important}
+#auditList .audit-delete-btn .svg-icon{width:12px!important;height:12px!important;flex:0 0 12px!important}
+@media(max-width:360px){#auditList .audit-display-card{grid-template-columns:minmax(0,1fr) 55px 68px 40px!important;gap:4px!important;padding:6px!important}#auditList .audit-delete-btn{width:40px!important;min-width:40px!important}#auditList .audit-delete-btn span{display:none!important}}
+
+/* المنتجات: نفس المعلومات في مساحة أقل */
+#productsList .product-card-classic.adt-v12-product{min-height:60px!important;padding:6px 7px!important;margin-bottom:5px!important;gap:5px!important;grid-template-columns:minmax(0,1fr) 29px!important;border-radius:10px!important}
+#productsList .adt-v12-product .prod-info-center{grid-template-columns:minmax(0,1.5fr) 64px 64px!important;gap:1px 5px!important}
+#productsList .adt-v12-product .prod-name-title{font-size:11.2px!important;line-height:1.25!important}
+#productsList .adt-v12-buy{font-size:8.2px!important;line-height:1.25!important}#productsList .adt-v12-sell{font-size:8.7px!important;line-height:1.25!important}#productsList .adt-v12-meta{font-size:7.2px!important}#productsList .adt-v12-profit{font-size:7px!important;padding:1px 4px!important}
+#productsList .adt-product-actions{gap:3px!important}#productsList .adt-product-action-btn{width:27px!important;height:27px!important;min-width:27px!important;padding:5px!important;border-radius:7px!important}
+
+.adt-buy-history-box{padding:15px!important}.adt-buy-history-head{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:10px}.adt-buy-history-head small{font-size:9px;color:var(--accent-teal);font-weight:900}.adt-buy-history-head h3{margin:2px 0 0;font-size:15px;color:#fff}.adt-buy-history-list{display:flex;flex-direction:column;gap:7px;max-height:55vh;overflow:auto;margin-bottom:10px}.adt-buy-history-row{border:1px solid #1c2d3f;border-radius:11px;background:#0c1521;padding:9px 10px}.adt-buy-history-prices{display:flex;align-items:center;justify-content:space-between;gap:8px}.adt-buy-history-prices strong{color:#fff;font-size:12px}.adt-buy-history-prices .arrow{color:var(--accent-teal);font-weight:1000}.adt-buy-history-meta{margin-top:5px;font-size:8.5px;color:var(--text-muted);display:flex;justify-content:space-between;gap:7px;flex-wrap:wrap}
+</style>
 </head>
 <body style="background-color: #070A12 !important; color: #FFFFFF !important;">
 <!-- شريط الإشعار العلوي الذكي -->
@@ -5986,45 +6018,83 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 <button class="btn-secondary" onclick="window.closeModal('aboutDevModal')">إغلاق</button>
 </div>
 </div>
+<!-- V174: اختيار اللغة ثم البلد/العملة ثم التعريف الإجباري قبل تسجيل الدخول -->
+<div class="adt-intro-modal no-print" id="adtIntroModal" style="display:none;">
+  <div class="adt-intro-shell" id="adtIntroShell" dir="rtl">
+    <div class="adt-intro-logo" id="adtIntroLogoHost"></div>
+    <section class="adt-intro-step active" data-intro-step="language">
+      <div class="adt-intro-kicker">ADT Stock</div>
+      <h2 id="adtIntroLanguageTitle">اختر اللغة</h2>
+      <p id="adtIntroLanguageSub">اختر لغة البداية قبل الدخول إلى التطبيق</p>
+      <div class="adt-language-grid">
+        <button type="button" class="adt-language-card" onclick="window.selectIntroLanguage('ar')"><strong>العربية</strong><span>متابعة بالعربية</span></button>
+        <button type="button" class="adt-language-card" onclick="window.selectIntroLanguage('en')"><strong>English</strong><span>Continue in English</span></button>
+      </div>
+    </section>
+    <section class="adt-intro-step adt-country-step" data-intro-step="country">
+      <div class="adt-intro-kicker">ADT Stock</div>
+      <h2 id="adtIntroCountryTitle">اختر البلد</h2>
+      <p id="adtIntroCountrySub">سيتم ضبط عملة التطبيق تلقائياً حسب البلد</p>
+      <div class="adt-country-search-wrap"><input id="adtCountrySearch" class="adt-country-search" type="search" autocomplete="off" placeholder="ابحث عن البلد" oninput="window.renderIntroCountries(this.value)"></div>
+      <div class="adt-country-list" id="adtCountryList"></div>
+    </section>
+    <section class="adt-intro-step" data-intro-step="0">
+      <div class="adt-intro-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v4H4V4zm0 6h7v10H4V10zm9 0h7v4h-7v-4zm0 6h7v4h-7v-4z"/></svg></div>
+      <h2 data-intro-title></h2><p data-intro-text></p>
+    </section>
+    <section class="adt-intro-step" data-intro-step="1">
+      <div class="adt-intro-icon"><svg viewBox="0 0 24 24"><path d="M3 3h18v2H3V3zm2 4h14v14H5V7zm3 3v8h2v-8H8zm4 3v5h2v-5h-2zm4-2v7h2v-7h-2z"/></svg></div>
+      <h2 data-intro-title></h2><p data-intro-text></p>
+    </section>
+    <section class="adt-intro-step" data-intro-step="2">
+      <div class="adt-intro-icon"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 1 5 5c0 1.1-.36 2.12-.97 2.94A7.5 7.5 0 0 1 21 17v3H3v-3a7.5 7.5 0 0 1 4.97-7.06A4.96 4.96 0 0 1 7 7a5 5 0 0 1 5-5zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm0 8c-3.86 0-7 2.24-7 5v1h14v-1c0-2.76-3.14-5-7-5z"/></svg></div>
+      <h2 data-intro-title></h2><p data-intro-text></p>
+    </section>
+    <div class="adt-intro-footer" id="adtIntroFooter" style="display:none;">
+      <div class="adt-intro-dots"><span></span><span></span><span></span></div>
+      <button class="btn-primary adt-intro-next" id="adtIntroNextBtn" type="button" onclick="window.nextMandatoryIntro()">التالي</button>
+    </div>
+  </div>
+</div>
 <!-- شباك الانضمام وإنشاء الفريق وتسجيل الدخول -->
 <div class="modal no-print adt-auth-modal" id="onboardingModal" style="background:rgba(3,8,15,.985);">
 <div class="modal-box adt-auth-box">
 <div class="adt-auth-brand">
 <div class="adt-auth-logo-host" id="adtAuthLogoHost"></div>
-<h2>تسجيل الدخول</h2>
-<p>مرحباً بك، يرجى تسجيل الدخول للمتابعة</p>
+<h2 id="authLoginTitle">تسجيل الدخول</h2>
+<p id="authLoginSubtitle">مرحباً بك، يرجى تسجيل الدخول للمتابعة</p>
 </div>
 <div class="adt-auth-tabs" id="onboardingTabsRow">
-<button class="btn-filter-pill active" id="tabBtnMgrLogin" onclick="window.showOnboardingSubTab('mgrLogin')">تسجيل الدخول</button>
-<button class="btn-filter-pill" id="tabBtnNewTeam" onclick="window.showOnboardingSubTab('newTeam')">إنشاء فريق</button>
-<button class="btn-filter-pill" id="tabBtnJoinTeam" onclick="window.showOnboardingSubTab('joinTeam')">انضمام</button>
+<button class="btn-filter-pill active" id="tabBtnMgrLogin" data-auth-tab="login" onclick="window.showOnboardingSubTab('mgrLogin')">تسجيل الدخول</button>
+<button class="btn-filter-pill" id="tabBtnNewTeam" data-auth-tab="new" onclick="window.showOnboardingSubTab('newTeam')">إنشاء فريق</button>
+<button class="btn-filter-pill" id="tabBtnJoinTeam" data-auth-tab="join" onclick="window.showOnboardingSubTab('joinTeam')">انضمام</button>
 </div>
 <div class="onboarding-subform adt-auth-form active" id="subFormMgrLogin">
 <div class="adt-auth-field">
-<label>رقم الهاتف</label>
+<label id="authPhoneLabel">رقم الهاتف</label>
 <div class="adt-auth-input-wrap">
 <input autocomplete="tel" class="input-field" dir="ltr" id="mgrLoginPhoneInput" inputmode="tel" placeholder="09xxxxxxxxx" type="tel"/>
 </div>
 </div>
 <div class="adt-auth-field">
-<label>كود الفريق <span style="color:var(--text-muted);font-size:9px;font-weight:700;">(للعضو — اختياري للمدير)</span></label>
-<div class="adt-auth-input-wrap">
-<input autocomplete="off" class="input-field" dir="ltr" id="mgrLoginTeamCodeInput" placeholder="أدخل كود الفريق إذا كنت عضواً" style="text-transform:uppercase;font-weight:800;" type="text"/>
-</div>
-</div>
-<div class="adt-auth-field">
-<label>كلمة سر الفريق</label>
+<label id="authPasswordLabel">كلمة سر الفريق</label>
 <div class="adt-auth-input-wrap has-side-control">
-<input autocomplete="current-password" class="input-field" id="mgrLoginPassInput" onkeydown="if(event.key==='Enter'||event.keyCode===13){ event.preventDefault(); window.handleManagerLogin(); }" placeholder="••••••••" type="password"/>
+<input autocomplete="current-password" class="input-field" id="mgrLoginPassInput" onkeydown="if(event.key==='Enter'||event.keyCode===13){ event.preventDefault(); document.getElementById('mgrLoginTeamCodeInput')?.focus(); }" placeholder="••••••••" type="password"/>
 <button class="adt-auth-eye" onclick="window.toggleAuthPassword('mgrLoginPassInput',this)" type="button">◉</button>
 </div>
 </div>
-<label class="adt-auth-remember"><input id="adtRememberManager" type="checkbox" checked/> <span>تذكرني</span></label>
-<div style="margin:-2px 0 8px;color:var(--text-muted);font-size:9.5px;font-weight:700;line-height:1.6;text-align:right;">المدير يترك كود الفريق فارغاً، والعضو المعتمد يكتبه لتسجيل الدخول مباشرة.</div>
-<button class="btn-primary adt-auth-submit" onclick="window.handleManagerLogin()">تسجيل الدخول</button>
+<div class="adt-auth-field">
+<label id="authTeamCodeLabel">كود الفريق <span style="color:var(--text-muted);font-size:9px;font-weight:700;">(للعضو — اختياري للمدير)</span></label>
+<div class="adt-auth-input-wrap">
+<input autocomplete="off" class="input-field" dir="ltr" id="mgrLoginTeamCodeInput" onkeydown="if(event.key==='Enter'||event.keyCode===13){ event.preventDefault(); window.handleManagerLogin(); }" placeholder="أدخل كود الفريق إذا كنت عضواً" style="text-transform:uppercase;font-weight:800;" type="text"/>
+</div>
+</div>
+<label class="adt-auth-remember"><input id="adtRememberManager" type="checkbox" checked/> <span id="authRememberLabel">تذكرني</span></label>
+<div id="authLoginHint" style="margin:-2px 0 8px;color:var(--text-muted);font-size:9.5px;font-weight:700;line-height:1.6;text-align:right;">المدير يترك كود الفريق فارغاً، والعضو المعتمد يكتبه لتسجيل الدخول مباشرة.</div>
+<button class="btn-primary adt-auth-submit" id="authLoginSubmit" onclick="window.handleManagerLogin()">تسجيل الدخول</button>
 <div class="adt-auth-links">
-<button onclick="window.showOnboardingSubTab('newTeam')" type="button">إنشاء فريق جديد</button>
-<button onclick="window.showOnboardingSubTab('joinTeam')" type="button">الانضمام لفريق</button>
+<button id="authCreateLink" onclick="window.showOnboardingSubTab('newTeam')" type="button">إنشاء فريق جديد</button>
+<button id="authJoinLink" onclick="window.showOnboardingSubTab('joinTeam')" type="button">الانضمام لفريق</button>
 </div>
 </div>
 <div class="onboarding-subform adt-auth-form" id="subFormNewTeam">
@@ -6210,9 +6280,22 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 <div class="adt-product-view-cell"><span>عدد القطع</span><strong id="productViewPackQty">1</strong></div>
 <div class="adt-product-view-cell primary"><span>سعر بيع القطعة</span><strong id="productViewPiecePrice">0.00</strong></div>
 </div>
-<div id="productViewSupplier" style="padding:9px 11px;border-radius:10px;border:1px solid var(--border);background:var(--input-bg);color:var(--text-muted);font-size:10px;text-align:right;margin-bottom:10px;"></div>
+<div id="productViewSupplier" style="padding:9px 11px;border-radius:10px;border:1px solid var(--border);background:var(--input-bg);color:var(--text-muted);font-size:10px;text-align:right;margin-bottom:8px;"></div>
+<button class="btn-secondary adt-buy-history-open" id="productViewBuyHistoryBtn" onclick="window.openBuyPriceHistoryFromView()" style="display:none;margin-bottom:7px;border-color:rgba(0,210,180,.38);color:var(--accent-teal);">سجل سعر الشراء</button>
 <button class="btn-secondary" onclick="window.closeModal('productViewModal')">إغلاق</button>
 </div>
+</div>
+
+<!-- V173: سجل سعر الشراء للمدير الرئيسي -->
+<div class="modal no-print" id="buyPriceHistoryModal" style="display:none;z-index:18000;">
+  <div class="modal-box adt-buy-history-box" style="max-width:390px;">
+    <div class="adt-buy-history-head">
+      <div><small>سجل سعر الشراء</small><h3 id="buyPriceHistoryProductName">الصنف</h3></div>
+      <button aria-label="إغلاق" class="btn-drawer-close" onclick="window.closeModal('buyPriceHistoryModal')"></button>
+    </div>
+    <div id="buyPriceHistoryList" class="adt-buy-history-list"></div>
+    <button class="btn-secondary" onclick="window.closeModal('buyPriceHistoryModal')">إغلاق</button>
+  </div>
 </div>
 <!-- نافذة اختيار المورد الداكنة الفاخرة (Dark Custom Supplier Picker) -->
 <div class="modal no-print" id="supplierPickerModal" style="display:none; z-index:9999;">
@@ -6606,7 +6689,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
       <div class="daily-sales-summary-label">إجمالي الدورة الحالية</div>
       <div class="daily-sales-live-badge">● مفتوحة الآن</div>
     </div>
-    <div class="daily-sales-summary-value" id="dailySalesCurrentTotal">0.00 د.ل</div>
+    <div class="daily-sales-summary-value" id="dailySalesCurrentTotal">0.00 <span class="app-currency-symbol">د.ل</span></div>
     <div class="daily-sales-meta">
       <div class="daily-sales-meta-item">
         <div class="daily-sales-meta-label">العمليات الحالية</div>
@@ -7004,30 +7087,283 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             return !!(window.isDeveloperAccount() && !isGhostMode && id === activeId);
         } catch(_) { return false; }
     };
-    window.ADT_ARAB_CURRENCIES = [
-      {country:'ليبيا',code:'LYD',symbol:'د.ل'},{country:'مصر',code:'EGP',symbol:'ج.م'},{country:'السعودية',code:'SAR',symbol:'ر.س'},{country:'الإمارات',code:'AED',symbol:'د.إ'},
-      {country:'الكويت',code:'KWD',symbol:'د.ك'},{country:'قطر',code:'QAR',symbol:'ر.ق'},{country:'البحرين',code:'BHD',symbol:'د.ب'},{country:'عُمان',code:'OMR',symbol:'ر.ع'},
-      {country:'الأردن',code:'JOD',symbol:'د.أ'},{country:'العراق',code:'IQD',symbol:'د.ع'},{country:'سوريا',code:'SYP',symbol:'ل.س'},{country:'لبنان',code:'LBP',symbol:'ل.ل'},
-      {country:'السودان',code:'SDG',symbol:'ج.س'},{country:'تونس',code:'TND',symbol:'د.ت'},{country:'الجزائر',code:'DZD',symbol:'د.ج'},{country:'المغرب',code:'MAD',symbol:'د.م'},
-      {country:'اليمن',code:'YER',symbol:'ر.ي'},{country:'موريتانيا',code:'MRU',symbol:'أ.م'},{country:'جيبوتي',code:'DJF',symbol:'ف.ج'},{country:'جزر القمر',code:'KMF',symbol:'ف.ق'},
-      {country:'الصومال',code:'SOS',symbol:'ش.ص'},{country:'فلسطين',code:'ILS',symbol:'₪'}
+    // V174: البلد يحدد العملة تلقائياً، مع الاحتفاظ بإمكانية تغيير العملة لاحقاً من الإعدادات.
+    window.ADT_COUNTRY_CURRENCIES = [
+      {iso:"LY",country:"ليبيا",countryEn:"Libya",code:"LYD",symbol:"د.ل"},
+      {iso:"EG",country:"مصر",countryEn:"Egypt",code:"EGP",symbol:"ج.م"},
+      {iso:"SA",country:"المملكة العربية السعودية",countryEn:"Saudi Arabia",code:"SAR",symbol:"ر.س"},
+      {iso:"AE",country:"الإمارات العربية المتحدة",countryEn:"United Arab Emirates",code:"AED",symbol:"د.إ"},
+      {iso:"KW",country:"الكويت",countryEn:"Kuwait",code:"KWD",symbol:"د.ك"},
+      {iso:"QA",country:"قطر",countryEn:"Qatar",code:"QAR",symbol:"ر.ق"},
+      {iso:"BH",country:"البحرين",countryEn:"Bahrain",code:"BHD",symbol:"د.ب"},
+      {iso:"OM",country:"عُمان",countryEn:"Oman",code:"OMR",symbol:"ر.ع"},
+      {iso:"JO",country:"الأردن",countryEn:"Jordan",code:"JOD",symbol:"د.أ"},
+      {iso:"IQ",country:"العراق",countryEn:"Iraq",code:"IQD",symbol:"د.ع"},
+      {iso:"SY",country:"سوريا",countryEn:"Syria",code:"SYP",symbol:"ل.س"},
+      {iso:"LB",country:"لبنان",countryEn:"Lebanon",code:"LBP",symbol:"ل.ل"},
+      {iso:"SD",country:"السودان",countryEn:"Sudan",code:"SDG",symbol:"ج.س"},
+      {iso:"TN",country:"تونس",countryEn:"Tunisia",code:"TND",symbol:"د.ت"},
+      {iso:"DZ",country:"الجزائر",countryEn:"Algeria",code:"DZD",symbol:"د.ج"},
+      {iso:"MA",country:"المغرب",countryEn:"Morocco",code:"MAD",symbol:"د.م"},
+      {iso:"YE",country:"اليمن",countryEn:"Yemen",code:"YER",symbol:"ر.ي"},
+      {iso:"MR",country:"موريتانيا",countryEn:"Mauritania",code:"MRU",symbol:"أ.م"},
+      {iso:"DJ",country:"جيبوتي",countryEn:"Djibouti",code:"DJF",symbol:"ف.ج"},
+      {iso:"KM",country:"جزر القمر",countryEn:"Comoros",code:"KMF",symbol:"ف.ق"},
+      {iso:"SO",country:"الصومال",countryEn:"Somalia",code:"SOS",symbol:"ش.ص"},
+      {iso:"PS",country:"الأراضي الفلسطينية",countryEn:"Palestinian Territories",code:"ILS",symbol:"₪"},
+      {iso:"TR",country:"تركيا",countryEn:"Türkiye",code:"TRY",symbol:"₺"},
+      {iso:"US",country:"الولايات المتحدة",countryEn:"United States",code:"USD",symbol:"$"},
+      {iso:"GB",country:"المملكة المتحدة",countryEn:"United Kingdom",code:"GBP",symbol:"£"},
+      {iso:"IS",country:"آيسلندا",countryEn:"Iceland",code:"ISK",symbol:"ISK"},
+      {iso:"AZ",country:"أذربيجان",countryEn:"Azerbaijan",code:"AZN",symbol:"AZN"},
+      {iso:"AM",country:"أرمينيا",countryEn:"Armenia",code:"AMD",symbol:"AMD"},
+      {iso:"AW",country:"أروبا",countryEn:"Aruba",code:"AWG",symbol:"AWG"},
+      {iso:"AU",country:"أستراليا",countryEn:"Australia",code:"AUD",symbol:"A$"},
+      {iso:"AF",country:"أفغانستان",countryEn:"Afghanistan",code:"AFN",symbol:"AFN"},
+      {iso:"AL",country:"ألبانيا",countryEn:"Albania",code:"ALL",symbol:"ALL"},
+      {iso:"DE",country:"ألمانيا",countryEn:"Germany",code:"EUR",symbol:"€"},
+      {iso:"AG",country:"أنتيغوا وبربودا",countryEn:"Antigua & Barbuda",code:"XCD",symbol:"EC$"},
+      {iso:"AD",country:"أندورا",countryEn:"Andorra",code:"EUR",symbol:"€"},
+      {iso:"AO",country:"أنغولا",countryEn:"Angola",code:"AOA",symbol:"AOA"},
+      {iso:"AI",country:"أنغويلا",countryEn:"Anguilla",code:"XCD",symbol:"EC$"},
+      {iso:"UY",country:"أورغواي",countryEn:"Uruguay",code:"UYU",symbol:"UYU"},
+      {iso:"UZ",country:"أوزبكستان",countryEn:"Uzbekistan",code:"UZS",symbol:"UZS"},
+      {iso:"UG",country:"أوغندا",countryEn:"Uganda",code:"UGX",symbol:"UGX"},
+      {iso:"UA",country:"أوكرانيا",countryEn:"Ukraine",code:"UAH",symbol:"₴"},
+      {iso:"IE",country:"أيرلندا",countryEn:"Ireland",code:"EUR",symbol:"€"},
+      {iso:"ET",country:"إثيوبيا",countryEn:"Ethiopia",code:"ETB",symbol:"Br"},
+      {iso:"ER",country:"إريتريا",countryEn:"Eritrea",code:"ERN",symbol:"ERN"},
+      {iso:"ES",country:"إسبانيا",countryEn:"Spain",code:"EUR",symbol:"€"},
+      {iso:"EE",country:"إستونيا",countryEn:"Estonia",code:"EUR",symbol:"€"},
+      {iso:"IL",country:"إسرائيل",countryEn:"Israel",code:"ILS",symbol:"₪"},
+      {iso:"SZ",country:"إسواتيني",countryEn:"Eswatini",code:"SZL",symbol:"SZL"},
+      {iso:"ID",country:"إندونيسيا",countryEn:"Indonesia",code:"IDR",symbol:"Rp"},
+      {iso:"IR",country:"إيران",countryEn:"Iran",code:"IRR",symbol:"IRR"},
+      {iso:"IT",country:"إيطاليا",countryEn:"Italy",code:"EUR",symbol:"€"},
+      {iso:"AR",country:"الأرجنتين",countryEn:"Argentina",code:"ARS",symbol:"AR$"},
+      {iso:"TF",country:"الأقاليم الجنوبية الفرنسية",countryEn:"French Southern Territories",code:"EUR",symbol:"€"},
+      {iso:"IO",country:"الإقليم البريطاني في المحيط الهندي",countryEn:"British Indian Ocean Territory",code:"USD",symbol:"$"},
+      {iso:"EC",country:"الإكوادور",countryEn:"Ecuador",code:"USD",symbol:"$"},
+      {iso:"BR",country:"البرازيل",countryEn:"Brazil",code:"BRL",symbol:"R$"},
+      {iso:"PT",country:"البرتغال",countryEn:"Portugal",code:"EUR",symbol:"€"},
+      {iso:"BA",country:"البوسنة والهرسك",countryEn:"Bosnia & Herzegovina",code:"BAM",symbol:"BAM"},
+      {iso:"CZ",country:"التشيك",countryEn:"Czechia",code:"CZK",symbol:"Kč"},
+      {iso:"ME",country:"الجبل الأسود",countryEn:"Montenegro",code:"EUR",symbol:"€"},
+      {iso:"DK",country:"الدانمرك",countryEn:"Denmark",code:"DKK",symbol:"kr"},
+      {iso:"CV",country:"الرأس الأخضر",countryEn:"Cape Verde",code:"CVE",symbol:"CVE"},
+      {iso:"SV",country:"السلفادور",countryEn:"El Salvador",code:"USD",symbol:"$"},
+      {iso:"SN",country:"السنغال",countryEn:"Senegal",code:"XOF",symbol:"F CFA"},
+      {iso:"SE",country:"السويد",countryEn:"Sweden",code:"SEK",symbol:"kr"},
+      {iso:"EH",country:"الصحراء الغربية",countryEn:"Western Sahara",code:"MAD",symbol:"د.م"},
+      {iso:"CN",country:"الصين",countryEn:"China",code:"CNY",symbol:"¥"},
+      {iso:"GA",country:"الغابون",countryEn:"Gabon",code:"XAF",symbol:"FCFA"},
+      {iso:"VA",country:"الفاتيكان",countryEn:"Vatican City",code:"EUR",symbol:"€"},
+      {iso:"PH",country:"الفلبين",countryEn:"Philippines",code:"PHP",symbol:"₱"},
+      {iso:"CM",country:"الكاميرون",countryEn:"Cameroon",code:"XAF",symbol:"FCFA"},
+      {iso:"CG",country:"الكونغو - برازافيل",countryEn:"Congo - Brazzaville",code:"XAF",symbol:"FCFA"},
+      {iso:"CD",country:"الكونغو - كينشاسا",countryEn:"Congo - Kinshasa",code:"CDF",symbol:"CDF"},
+      {iso:"MX",country:"المكسيك",countryEn:"Mexico",code:"MXN",symbol:"MX$"},
+      {iso:"NO",country:"النرويج",countryEn:"Norway",code:"NOK",symbol:"kr"},
+      {iso:"AT",country:"النمسا",countryEn:"Austria",code:"EUR",symbol:"€"},
+      {iso:"NE",country:"النيجر",countryEn:"Niger",code:"XOF",symbol:"F CFA"},
+      {iso:"IN",country:"الهند",countryEn:"India",code:"INR",symbol:"₹"},
+      {iso:"JP",country:"اليابان",countryEn:"Japan",code:"JPY",symbol:"¥"},
+      {iso:"GR",country:"اليونان",countryEn:"Greece",code:"EUR",symbol:"€"},
+      {iso:"PG",country:"بابوا غينيا الجديدة",countryEn:"Papua New Guinea",code:"PGK",symbol:"PGK"},
+      {iso:"PY",country:"باراغواي",countryEn:"Paraguay",code:"PYG",symbol:"PYG"},
+      {iso:"PK",country:"باكستان",countryEn:"Pakistan",code:"PKR",symbol:"₨"},
+      {iso:"PW",country:"بالاو",countryEn:"Palau",code:"USD",symbol:"$"},
+      {iso:"BB",country:"بربادوس",countryEn:"Barbados",code:"BBD",symbol:"BBD"},
+      {iso:"BM",country:"برمودا",countryEn:"Bermuda",code:"BMD",symbol:"BMD"},
+      {iso:"BN",country:"بروناي",countryEn:"Brunei",code:"BND",symbol:"BND"},
+      {iso:"BE",country:"بلجيكا",countryEn:"Belgium",code:"EUR",symbol:"€"},
+      {iso:"BG",country:"بلغاريا",countryEn:"Bulgaria",code:"BGN",symbol:"BGN"},
+      {iso:"BZ",country:"بليز",countryEn:"Belize",code:"BZD",symbol:"BZD"},
+      {iso:"BD",country:"بنغلاديش",countryEn:"Bangladesh",code:"BDT",symbol:"৳"},
+      {iso:"PA",country:"بنما",countryEn:"Panama",code:"PAB",symbol:"PAB"},
+      {iso:"BJ",country:"بنين",countryEn:"Benin",code:"XOF",symbol:"F CFA"},
+      {iso:"BT",country:"بوتان",countryEn:"Bhutan",code:"INR",symbol:"₹"},
+      {iso:"BW",country:"بوتسوانا",countryEn:"Botswana",code:"BWP",symbol:"BWP"},
+      {iso:"PR",country:"بورتوريكو",countryEn:"Puerto Rico",code:"USD",symbol:"$"},
+      {iso:"BF",country:"بوركينا فاسو",countryEn:"Burkina Faso",code:"XOF",symbol:"F CFA"},
+      {iso:"BI",country:"بوروندي",countryEn:"Burundi",code:"BIF",symbol:"BIF"},
+      {iso:"PL",country:"بولندا",countryEn:"Poland",code:"PLN",symbol:"zł"},
+      {iso:"BO",country:"بوليفيا",countryEn:"Bolivia",code:"BOB",symbol:"BOB"},
+      {iso:"PF",country:"بولينيزيا الفرنسية",countryEn:"French Polynesia",code:"XPF",symbol:"CFPF"},
+      {iso:"PE",country:"بيرو",countryEn:"Peru",code:"PEN",symbol:"PEN"},
+      {iso:"BY",country:"بيلاروس",countryEn:"Belarus",code:"BYN",symbol:"BYN"},
+      {iso:"TH",country:"تايلاند",countryEn:"Thailand",code:"THB",symbol:"฿"},
+      {iso:"TW",country:"تايوان",countryEn:"Taiwan",code:"TWD",symbol:"NT$"},
+      {iso:"TM",country:"تركمانستان",countryEn:"Turkmenistan",code:"TMT",symbol:"TMT"},
+      {iso:"TT",country:"ترينيداد وتوباغو",countryEn:"Trinidad & Tobago",code:"TTD",symbol:"TTD"},
+      {iso:"TD",country:"تشاد",countryEn:"Chad",code:"XAF",symbol:"FCFA"},
+      {iso:"CL",country:"تشيلي",countryEn:"Chile",code:"CLP",symbol:"CLP"},
+      {iso:"TZ",country:"تنزانيا",countryEn:"Tanzania",code:"TZS",symbol:"TZS"},
+      {iso:"TG",country:"توغو",countryEn:"Togo",code:"XOF",symbol:"F CFA"},
+      {iso:"TV",country:"توفالو",countryEn:"Tuvalu",code:"AUD",symbol:"A$"},
+      {iso:"TK",country:"توكيلاو",countryEn:"Tokelau",code:"NZD",symbol:"NZ$"},
+      {iso:"TO",country:"تونغا",countryEn:"Tonga",code:"TOP",symbol:"TOP"},
+      {iso:"TL",country:"تيمور - ليشتي",countryEn:"Timor-Leste",code:"USD",symbol:"$"},
+      {iso:"JM",country:"جامايكا",countryEn:"Jamaica",code:"JMD",symbol:"JMD"},
+      {iso:"GI",country:"جبل طارق",countryEn:"Gibraltar",code:"GIP",symbol:"GIP"},
+      {iso:"AX",country:"جزر آلاند",countryEn:"Åland Islands",code:"EUR",symbol:"€"},
+      {iso:"BS",country:"جزر البهاما",countryEn:"Bahamas",code:"BSD",symbol:"BSD"},
+      {iso:"MQ",country:"جزر المارتينيك",countryEn:"Martinique",code:"EUR",symbol:"€"},
+      {iso:"MV",country:"جزر المالديف",countryEn:"Maldives",code:"MVR",symbol:"MVR"},
+      {iso:"UM",country:"جزر الولايات المتحدة النائية",countryEn:"U.S. Outlying Islands",code:"USD",symbol:"$"},
+      {iso:"PN",country:"جزر بيتكيرن",countryEn:"Pitcairn Islands",code:"NZD",symbol:"NZ$"},
+      {iso:"TC",country:"جزر توركس وكايكوس",countryEn:"Turks & Caicos Islands",code:"USD",symbol:"$"},
+      {iso:"SB",country:"جزر سليمان",countryEn:"Solomon Islands",code:"SBD",symbol:"SBD"},
+      {iso:"FO",country:"جزر فارو",countryEn:"Faroe Islands",code:"DKK",symbol:"kr"},
+      {iso:"FK",country:"جزر فوكلاند",countryEn:"Falkland Islands",code:"FKP",symbol:"FKP"},
+      {iso:"VI",country:"جزر فيرجن الأمريكية",countryEn:"U.S. Virgin Islands",code:"USD",symbol:"$"},
+      {iso:"VG",country:"جزر فيرجن البريطانية",countryEn:"British Virgin Islands",code:"USD",symbol:"$"},
+      {iso:"KY",country:"جزر كايمان",countryEn:"Cayman Islands",code:"KYD",symbol:"KYD"},
+      {iso:"CK",country:"جزر كوك",countryEn:"Cook Islands",code:"NZD",symbol:"NZ$"},
+      {iso:"CC",country:"جزر كوكوس (كيلينغ)",countryEn:"Cocos (Keeling) Islands",code:"AUD",symbol:"A$"},
+      {iso:"MH",country:"جزر مارشال",countryEn:"Marshall Islands",code:"USD",symbol:"$"},
+      {iso:"MP",country:"جزر ماريانا الشمالية",countryEn:"Northern Mariana Islands",code:"USD",symbol:"$"},
+      {iso:"WF",country:"جزر والس وفوتونا",countryEn:"Wallis & Futuna",code:"XPF",symbol:"CFPF"},
+      {iso:"BV",country:"جزيرة بوفيه",countryEn:"Bouvet Island",code:"NOK",symbol:"kr"},
+      {iso:"CX",country:"جزيرة كريسماس",countryEn:"Christmas Island",code:"AUD",symbol:"A$"},
+      {iso:"IM",country:"جزيرة مان",countryEn:"Isle of Man",code:"GBP",symbol:"£"},
+      {iso:"NF",country:"جزيرة نورفولك",countryEn:"Norfolk Island",code:"AUD",symbol:"A$"},
+      {iso:"HM",country:"جزيرة هيرد وجزر ماكدونالد",countryEn:"Heard & McDonald Islands",code:"AUD",symbol:"A$"},
+      {iso:"CF",country:"جمهورية أفريقيا الوسطى",countryEn:"Central African Republic",code:"XAF",symbol:"FCFA"},
+      {iso:"DO",country:"جمهورية الدومينيكان",countryEn:"Dominican Republic",code:"DOP",symbol:"DOP"},
+      {iso:"ZA",country:"جنوب أفريقيا",countryEn:"South Africa",code:"ZAR",symbol:"R"},
+      {iso:"SS",country:"جنوب السودان",countryEn:"South Sudan",code:"SSP",symbol:"SSP"},
+      {iso:"GE",country:"جورجيا",countryEn:"Georgia",code:"GEL",symbol:"GEL"},
+      {iso:"GS",country:"جورجيا الجنوبية وجزر ساندويتش الجنوبية",countryEn:"South Georgia & South Sandwich Islands",code:"GBP",symbol:"£"},
+      {iso:"JE",country:"جيرسي",countryEn:"Jersey",code:"GBP",symbol:"£"},
+      {iso:"DM",country:"دومينيكا",countryEn:"Dominica",code:"XCD",symbol:"EC$"},
+      {iso:"RW",country:"رواندا",countryEn:"Rwanda",code:"RWF",symbol:"RWF"},
+      {iso:"RU",country:"روسيا",countryEn:"Russia",code:"RUB",symbol:"₽"},
+      {iso:"RO",country:"رومانيا",countryEn:"Romania",code:"RON",symbol:"lei"},
+      {iso:"RE",country:"روينيون",countryEn:"Réunion",code:"EUR",symbol:"€"},
+      {iso:"ZM",country:"زامبيا",countryEn:"Zambia",code:"ZMW",symbol:"ZMW"},
+      {iso:"ZW",country:"زيمبابوي",countryEn:"Zimbabwe",code:"USD",symbol:"$"},
+      {iso:"CI",country:"ساحل العاج",countryEn:"Côte d’Ivoire",code:"XOF",symbol:"F CFA"},
+      {iso:"WS",country:"ساموا",countryEn:"Samoa",code:"WST",symbol:"WST"},
+      {iso:"AS",country:"ساموا الأمريكية",countryEn:"American Samoa",code:"USD",symbol:"$"},
+      {iso:"BL",country:"سان بارتليمي",countryEn:"St. Barthélemy",code:"EUR",symbol:"€"},
+      {iso:"PM",country:"سان بيير ومكويلون",countryEn:"St. Pierre & Miquelon",code:"EUR",symbol:"€"},
+      {iso:"MF",country:"سان مارتن",countryEn:"St. Martin",code:"EUR",symbol:"€"},
+      {iso:"SM",country:"سان مارينو",countryEn:"San Marino",code:"EUR",symbol:"€"},
+      {iso:"VC",country:"سانت فنسنت وجزر غرينادين",countryEn:"St. Vincent & Grenadines",code:"XCD",symbol:"EC$"},
+      {iso:"KN",country:"سانت كيتس ونيفيس",countryEn:"St. Kitts & Nevis",code:"XCD",symbol:"EC$"},
+      {iso:"LC",country:"سانت لوسيا",countryEn:"St. Lucia",code:"XCD",symbol:"EC$"},
+      {iso:"SX",country:"سانت مارتن",countryEn:"Sint Maarten",code:"XCG",symbol:"Cg."},
+      {iso:"SH",country:"سانت هيلينا",countryEn:"St. Helena",code:"SHP",symbol:"SHP"},
+      {iso:"ST",country:"ساو تومي وبرينسيبي",countryEn:"São Tomé & Príncipe",code:"STN",symbol:"STN"},
+      {iso:"LK",country:"سريلانكا",countryEn:"Sri Lanka",code:"LKR",symbol:"LKR"},
+      {iso:"SJ",country:"سفالبارد وجان ماين",countryEn:"Svalbard & Jan Mayen",code:"NOK",symbol:"kr"},
+      {iso:"SK",country:"سلوفاكيا",countryEn:"Slovakia",code:"EUR",symbol:"€"},
+      {iso:"SI",country:"سلوفينيا",countryEn:"Slovenia",code:"EUR",symbol:"€"},
+      {iso:"SG",country:"سنغافورة",countryEn:"Singapore",code:"SGD",symbol:"S$"},
+      {iso:"SR",country:"سورينام",countryEn:"Suriname",code:"SRD",symbol:"SRD"},
+      {iso:"CH",country:"سويسرا",countryEn:"Switzerland",code:"CHF",symbol:"CHF"},
+      {iso:"SL",country:"سيراليون",countryEn:"Sierra Leone",code:"SLE",symbol:"SLE"},
+      {iso:"SC",country:"سيشل",countryEn:"Seychelles",code:"SCR",symbol:"SCR"},
+      {iso:"RS",country:"صربيا",countryEn:"Serbia",code:"RSD",symbol:"RSD"},
+      {iso:"TJ",country:"طاجيكستان",countryEn:"Tajikistan",code:"TJS",symbol:"TJS"},
+      {iso:"GM",country:"غامبيا",countryEn:"Gambia",code:"GMD",symbol:"GMD"},
+      {iso:"GH",country:"غانا",countryEn:"Ghana",code:"GHS",symbol:"GHS"},
+      {iso:"GD",country:"غرينادا",countryEn:"Grenada",code:"XCD",symbol:"EC$"},
+      {iso:"GL",country:"غرينلاند",countryEn:"Greenland",code:"DKK",symbol:"kr"},
+      {iso:"GT",country:"غواتيمالا",countryEn:"Guatemala",code:"GTQ",symbol:"GTQ"},
+      {iso:"GP",country:"غوادلوب",countryEn:"Guadeloupe",code:"EUR",symbol:"€"},
+      {iso:"GU",country:"غوام",countryEn:"Guam",code:"USD",symbol:"$"},
+      {iso:"GF",country:"غويانا الفرنسية",countryEn:"French Guiana",code:"EUR",symbol:"€"},
+      {iso:"GY",country:"غيانا",countryEn:"Guyana",code:"GYD",symbol:"GYD"},
+      {iso:"GG",country:"غيرنزي",countryEn:"Guernsey",code:"GBP",symbol:"£"},
+      {iso:"GN",country:"غينيا",countryEn:"Guinea",code:"GNF",symbol:"GNF"},
+      {iso:"GQ",country:"غينيا الاستوائية",countryEn:"Equatorial Guinea",code:"XAF",symbol:"FCFA"},
+      {iso:"GW",country:"غينيا بيساو",countryEn:"Guinea-Bissau",code:"XOF",symbol:"F CFA"},
+      {iso:"VU",country:"فانواتو",countryEn:"Vanuatu",code:"VUV",symbol:"VUV"},
+      {iso:"FR",country:"فرنسا",countryEn:"France",code:"EUR",symbol:"€"},
+      {iso:"VE",country:"فنزويلا",countryEn:"Venezuela",code:"VES",symbol:"VES"},
+      {iso:"FI",country:"فنلندا",countryEn:"Finland",code:"EUR",symbol:"€"},
+      {iso:"VN",country:"فيتنام",countryEn:"Vietnam",code:"VND",symbol:"₫"},
+      {iso:"FJ",country:"فيجي",countryEn:"Fiji",code:"FJD",symbol:"FJD"},
+      {iso:"CY",country:"قبرص",countryEn:"Cyprus",code:"EUR",symbol:"€"},
+      {iso:"KG",country:"قيرغيزستان",countryEn:"Kyrgyzstan",code:"KGS",symbol:"KGS"},
+      {iso:"KZ",country:"كازاخستان",countryEn:"Kazakhstan",code:"KZT",symbol:"KZT"},
+      {iso:"NC",country:"كاليدونيا الجديدة",countryEn:"New Caledonia",code:"XPF",symbol:"CFPF"},
+      {iso:"HR",country:"كرواتيا",countryEn:"Croatia",code:"EUR",symbol:"€"},
+      {iso:"KH",country:"كمبوديا",countryEn:"Cambodia",code:"KHR",symbol:"KHR"},
+      {iso:"CA",country:"كندا",countryEn:"Canada",code:"CAD",symbol:"C$"},
+      {iso:"CU",country:"كوبا",countryEn:"Cuba",code:"CUP",symbol:"CUP"},
+      {iso:"CW",country:"كوراساو",countryEn:"Curaçao",code:"XCG",symbol:"Cg."},
+      {iso:"KR",country:"كوريا الجنوبية",countryEn:"South Korea",code:"KRW",symbol:"₩"},
+      {iso:"KP",country:"كوريا الشمالية",countryEn:"North Korea",code:"KPW",symbol:"KPW"},
+      {iso:"CR",country:"كوستاريكا",countryEn:"Costa Rica",code:"CRC",symbol:"CRC"},
+      {iso:"CO",country:"كولومبيا",countryEn:"Colombia",code:"COP",symbol:"COP"},
+      {iso:"KI",country:"كيريباتي",countryEn:"Kiribati",code:"AUD",symbol:"A$"},
+      {iso:"KE",country:"كينيا",countryEn:"Kenya",code:"KES",symbol:"KSh"},
+      {iso:"LV",country:"لاتفيا",countryEn:"Latvia",code:"EUR",symbol:"€"},
+      {iso:"LA",country:"لاوس",countryEn:"Laos",code:"LAK",symbol:"LAK"},
+      {iso:"LU",country:"لوكسمبورغ",countryEn:"Luxembourg",code:"EUR",symbol:"€"},
+      {iso:"LR",country:"ليبيريا",countryEn:"Liberia",code:"LRD",symbol:"LRD"},
+      {iso:"LT",country:"ليتوانيا",countryEn:"Lithuania",code:"EUR",symbol:"€"},
+      {iso:"LI",country:"ليختنشتاين",countryEn:"Liechtenstein",code:"CHF",symbol:"CHF"},
+      {iso:"LS",country:"ليسوتو",countryEn:"Lesotho",code:"ZAR",symbol:"R"},
+      {iso:"MT",country:"مالطا",countryEn:"Malta",code:"EUR",symbol:"€"},
+      {iso:"ML",country:"مالي",countryEn:"Mali",code:"XOF",symbol:"F CFA"},
+      {iso:"MY",country:"ماليزيا",countryEn:"Malaysia",code:"MYR",symbol:"RM"},
+      {iso:"YT",country:"مايوت",countryEn:"Mayotte",code:"EUR",symbol:"€"},
+      {iso:"MG",country:"مدغشقر",countryEn:"Madagascar",code:"MGA",symbol:"MGA"},
+      {iso:"MK",country:"مقدونيا الشمالية",countryEn:"North Macedonia",code:"MKD",symbol:"MKD"},
+      {iso:"MW",country:"ملاوي",countryEn:"Malawi",code:"MWK",symbol:"MWK"},
+      {iso:"MO",country:"منطقة ماكاو الإدارية الخاصة",countryEn:"Macao SAR China",code:"MOP",symbol:"MOP"},
+      {iso:"MN",country:"منغوليا",countryEn:"Mongolia",code:"MNT",symbol:"MNT"},
+      {iso:"MU",country:"موريشيوس",countryEn:"Mauritius",code:"MUR",symbol:"MUR"},
+      {iso:"MZ",country:"موزمبيق",countryEn:"Mozambique",code:"MZN",symbol:"MZN"},
+      {iso:"MD",country:"مولدوفا",countryEn:"Moldova",code:"MDL",symbol:"MDL"},
+      {iso:"MC",country:"موناكو",countryEn:"Monaco",code:"EUR",symbol:"€"},
+      {iso:"MS",country:"مونتسرات",countryEn:"Montserrat",code:"XCD",symbol:"EC$"},
+      {iso:"MM",country:"ميانمار (بورما)",countryEn:"Myanmar (Burma)",code:"MMK",symbol:"MMK"},
+      {iso:"FM",country:"ميكرونيزيا",countryEn:"Micronesia",code:"USD",symbol:"$"},
+      {iso:"NA",country:"ناميبيا",countryEn:"Namibia",code:"ZAR",symbol:"R"},
+      {iso:"NR",country:"ناورو",countryEn:"Nauru",code:"AUD",symbol:"A$"},
+      {iso:"NP",country:"نيبال",countryEn:"Nepal",code:"NPR",symbol:"NPR"},
+      {iso:"NG",country:"نيجيريا",countryEn:"Nigeria",code:"NGN",symbol:"₦"},
+      {iso:"NI",country:"نيكاراغوا",countryEn:"Nicaragua",code:"NIO",symbol:"NIO"},
+      {iso:"NZ",country:"نيوزيلندا",countryEn:"New Zealand",code:"NZD",symbol:"NZ$"},
+      {iso:"NU",country:"نيوي",countryEn:"Niue",code:"NZD",symbol:"NZ$"},
+      {iso:"HT",country:"هايتي",countryEn:"Haiti",code:"HTG",symbol:"HTG"},
+      {iso:"HN",country:"هندوراس",countryEn:"Honduras",code:"HNL",symbol:"HNL"},
+      {iso:"HU",country:"هنغاريا",countryEn:"Hungary",code:"HUF",symbol:"HUF"},
+      {iso:"NL",country:"هولندا",countryEn:"Netherlands",code:"EUR",symbol:"€"},
+      {iso:"BQ",country:"هولندا الكاريبية",countryEn:"Caribbean Netherlands",code:"USD",symbol:"$"},
+      {iso:"HK",country:"هونغ كونغ الصينية (منطقة إدارية خاصة)",countryEn:"Hong Kong SAR China",code:"HKD",symbol:"HK$"}
     ];
+    window.ADT_ARAB_CURRENCIES = window.ADT_COUNTRY_CURRENCIES;
+    window.getAppCountry = function(){
+      const iso=localStorage.getItem('adt_app_country_iso')||'LY';
+      return window.ADT_COUNTRY_CURRENCIES.find(x=>x.iso===iso)||window.ADT_COUNTRY_CURRENCIES[0];
+    };
     window.getAppCurrency = function(){
-      const code=localStorage.getItem('adt_app_currency_code')||'LYD';
-      return window.ADT_ARAB_CURRENCIES.find(x=>x.code===code)||window.ADT_ARAB_CURRENCIES[0];
+      const code=localStorage.getItem('adt_app_currency_code')||window.getAppCountry().code||'LYD';
+      const savedIso=localStorage.getItem('adt_app_country_iso')||'';
+      const byCountry=window.ADT_COUNTRY_CURRENCIES.find(x=>x.iso===savedIso && x.code===code);
+      return byCountry||window.ADT_COUNTRY_CURRENCIES.find(x=>x.code===code)||window.ADT_COUNTRY_CURRENCIES[0];
     };
     window.getCurrencySymbol = function(){ return window.getAppCurrency().symbol; };
     window.formatMoney = function(value){ return Number(value||0).toFixed(2)+' '+window.getCurrencySymbol(); };
     window.applyAppCurrency = function(){
       const symbol=window.getCurrencySymbol();
       document.querySelectorAll('.app-currency-symbol').forEach(el=>el.textContent=symbol);
-      window.renderProducts?.(); window.renderHomeStats?.(); window.renderAudit?.(); window.renderInvoiceItems?.(); window.renderSavedInvoices?.();
+      const daily=document.getElementById('dailySalesCurrentTotal'); if(daily && /^\s*0(?:\.0+)?/.test(daily.textContent||'')) daily.textContent='0.00 '+symbol;
+      window.renderProducts?.(); window.renderHomeStats?.(); window.renderAudit?.(); window.renderInvoiceItems?.(); window.renderSavedInvoices?.(); window.renderDailySales?.();
     };
     window.openCurrencyModal = function(){
       const box=document.getElementById('appCurrencyOptions'); if(!box)return;
       const current=window.getAppCurrency().code;
       window.pendingAppCurrencyCode=current;
-      box.innerHTML=window.ADT_ARAB_CURRENCIES.map(x=>`<button type="button" class="adt-currency-option ${x.code===current?'active':''}" data-code="${x.code}" onclick="window.selectAppCurrency('${x.code}',this)"><span><b>${x.country}</b><small>${x.code}</small></span><strong>${x.symbol}</strong></button>`).join('');
+      const seen=new Set();
+      const choices=window.ADT_COUNTRY_CURRENCIES.filter(x=>{const k=x.code+'|'+x.symbol;if(seen.has(k))return false;seen.add(k);return true;});
+      box.innerHTML=choices.map(x=>`<button type="button" class="adt-currency-option ${x.code===current?'active':''}" data-code="${x.code}" onclick="window.selectAppCurrency('${x.code}',this)"><span><b>${x.country}</b><small>${x.code}</small></span><strong>${x.symbol}</strong></button>`).join('');
       window.openModalFront?.('currencyModal',10040) || (document.getElementById('currencyModal').style.display='flex');
     };
     window.selectAppCurrency=function(code,button){
@@ -7674,6 +8010,9 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
                             p_old_name: item.existing?.name || null
                         });
                         if (error || saveOk !== true) throw error || new Error('رفض الخادم حفظ المنتج');
+                        if (canImportBuyPrice && (!item.existing || Number(item.existing.buyPrice || 0) !== Number(savedBuyPrice || 0))) {
+                            await window.recordBuyPriceHistory({ id:productId, name:item.record.name, supplier_name:item.record.supplier }, item.existing ? Number(item.existing.buyPrice || 0) : null, Number(savedBuyPrice || 0));
+                        }
                         succeeded.push({ ...item, productId, savedBuyPrice });
                     } catch (error) {
                         failures.push({ name: item.record.name, message: error?.message || 'تعذر الحفظ' });
@@ -7982,6 +8321,11 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             const newSellPrice = String(details.newSellPrice ?? '');
             const changeType = String(details.changeType || 'price_change');
             if (!safeTeamId || !actorUserId) return { ok:false, reason:'missing_identity' };
+            const currencySymbol = String(window.getCurrencySymbol?.() || 'د.ل');
+            if (window.Android && typeof window.Android.triggerPricePushV174 === 'function') {
+                window.Android.triggerPricePushV174(safeTeamId, actorUserId, actorName, productName, oldSellPrice, newSellPrice, changeType, currencySymbol);
+                return { ok:true, native:true, rich:true, currency:true };
+            }
             if (window.Android && typeof window.Android.triggerPricePushV172 === 'function') {
                 window.Android.triggerPricePushV172(safeTeamId, actorUserId, actorName, productName, oldSellPrice, newSellPrice, changeType);
                 return { ok:true, native:true, rich:true };
@@ -8871,10 +9215,167 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         }
     };
 
+    // V174: اختيار اللغة أولاً، ثم البلد/العملة، ثم التعريف الإجباري قبل تسجيل الدخول.
+    window.adtAuthLanguage = localStorage.getItem('adt_app_language_v173') || 'ar';
+    window.adtIntroStage = 'language';
+    window.adtIntroIndex = 0;
+    window.__adtProductViewIndex = null;
+    window.__adtLoginIntroPassed = false;
+    window.adtIntroCopy = {
+        ar: [
+            {title:'إدارة المخزون بسهولة', text:'أضف أصنافك وتابع الكميات وأسعار البيع والشراء من واجهة واحدة سريعة وواضحة.'},
+            {title:'جرد أسرع وأكثر دقة', text:'استخدم الجرد الفعلي وجرد القطاعي، واحفظ النتائج وتابع قيمة المخزون بدون خطوات معقدة.'},
+            {title:'إدارة نشاطك من مكان واحد', text:'تابع الديون والفواتير والمبيعات اليومية والفريق والصلاحيات داخل ADT Stock.'}
+        ],
+        en: [
+            {title:'Simple inventory management', text:'Add products and keep track of quantities, purchase prices and selling prices from one clear workspace.'},
+            {title:'Faster, more accurate stocktaking', text:'Use wholesale and retail stocktaking, save results and follow inventory value with fewer steps.'},
+            {title:'Run your business in one place', text:'Manage debts, invoices, daily sales, team members and permissions inside ADT Stock.'}
+        ]
+    };
+    window.applyAuthLanguage = function(lang){
+        lang = lang === 'en' ? 'en' : 'ar';
+        window.adtAuthLanguage = lang;
+        localStorage.setItem('adt_app_language_v173', lang);
+        const en = lang === 'en';
+        const shell=document.getElementById('adtIntroShell'); if(shell) shell.dir=en?'ltr':'rtl';
+        const authBox=document.querySelector('#onboardingModal .adt-auth-box'); if(authBox){ authBox.dir=en?'ltr':'rtl'; authBox.style.textAlign=en?'left':'right'; }
+        const set=(id,a,b)=>{const el=document.getElementById(id);if(el)el.textContent=en?b:a;};
+        set('adtIntroLanguageTitle','اختر اللغة','Choose language');
+        set('adtIntroLanguageSub','اختر لغة البداية قبل الدخول إلى التطبيق','Choose your language before entering the app');
+        set('adtIntroCountryTitle','اختر البلد','Choose country');
+        set('adtIntroCountrySub','سيتم ضبط عملة التطبيق تلقائياً حسب البلد','The app currency will be set automatically for your country');
+        const cs=document.getElementById('adtCountrySearch'); if(cs)cs.placeholder=en?'Search country':'ابحث عن البلد';
+        set('authLoginTitle','تسجيل الدخول','Sign in');
+        set('authLoginSubtitle','مرحباً بك، يرجى تسجيل الدخول للمتابعة','Welcome back. Sign in to continue');
+        const t1=document.getElementById('tabBtnMgrLogin'); if(t1)t1.textContent=en?'Sign in':'تسجيل الدخول';
+        const t2=document.getElementById('tabBtnNewTeam'); if(t2)t2.textContent=en?'Create team':'إنشاء فريق';
+        const t3=document.getElementById('tabBtnJoinTeam'); if(t3)t3.textContent=en?'Join':'انضمام';
+        set('authPhoneLabel','رقم الهاتف','Phone number');
+        set('authPasswordLabel','كلمة سر الفريق','Team password');
+        const codeLabel=document.getElementById('authTeamCodeLabel'); if(codeLabel)codeLabel.innerHTML=en?'Team code <span style="color:var(--text-muted);font-size:9px;font-weight:700;">(member — optional for manager)</span>':'كود الفريق <span style="color:var(--text-muted);font-size:9px;font-weight:700;">(للعضو — اختياري للمدير)</span>';
+        set('authRememberLabel','تذكرني','Remember me');
+        set('authLoginHint','المدير يترك كود الفريق فارغاً، والعضو المعتمد يكتبه لتسجيل الدخول مباشرة.','Managers leave the team code empty. Approved members enter it to sign in directly.');
+        set('authLoginSubmit','تسجيل الدخول','Sign in');
+        set('authCreateLink','إنشاء فريق جديد','Create a new team');
+        set('authJoinLink','الانضمام لفريق','Join a team');
+        const tc=document.getElementById('mgrLoginTeamCodeInput'); if(tc)tc.placeholder=en?'Enter team code if you are a member':'أدخل كود الفريق إذا كنت عضواً';
+    };
+    window.renderIntroCountries = function(query=''){
+        const box=document.getElementById('adtCountryList'); if(!box)return;
+        const en=window.adtAuthLanguage==='en';
+        const q=String(query||'').trim().toLocaleLowerCase();
+        const currentIso=localStorage.getItem('adt_app_country_iso')||'LY';
+        const rows=window.ADT_COUNTRY_CURRENCIES.filter(x=>{
+            if(!q)return true;
+            return [x.country,x.countryEn,x.iso,x.code].some(v=>String(v||'').toLocaleLowerCase().includes(q));
+        });
+        box.innerHTML=rows.length?rows.map(x=>`<button type="button" class="adt-country-card ${x.iso===currentIso?'active':''}" onclick="window.selectIntroCountry('${x.iso}')"><span><b>${en?x.countryEn:x.country}</b><small>${x.code}</small></span><strong>${x.symbol}</strong></button>`).join(''):`<div class="adt-country-empty">${en?'No matching country':'لا توجد دولة مطابقة'}</div>`;
+    };
+    window.selectIntroCountry = function(iso){
+        const row=window.ADT_COUNTRY_CURRENCIES.find(x=>x.iso===String(iso||''));
+        if(!row)return;
+        localStorage.setItem('adt_app_country_iso',row.iso);
+        localStorage.setItem('adt_app_currency_code',row.code);
+        window.applyAppCurrency?.();
+        window.adtIntroStage='slides'; window.adtIntroIndex=0;
+        window.renderMandatoryIntro();
+    };
+    window.renderMandatoryIntro = function(){
+        const modal=document.getElementById('adtIntroModal'); if(!modal)return;
+        modal.style.display='flex';
+        document.getElementById('onboardingModal')?.style.setProperty('display','none');
+        const steps=[...modal.querySelectorAll('.adt-intro-step')]; steps.forEach(x=>x.classList.remove('active'));
+        const foot=document.getElementById('adtIntroFooter');
+        if(window.adtIntroStage==='language'){
+            modal.querySelector('[data-intro-step="language"]')?.classList.add('active');
+            if(foot)foot.style.display='none'; return;
+        }
+        if(window.adtIntroStage==='country'){
+            modal.querySelector('[data-intro-step="country"]')?.classList.add('active');
+            if(foot)foot.style.display='none';
+            const search=document.getElementById('adtCountrySearch'); if(search)search.value='';
+            window.renderIntroCountries(''); return;
+        }
+        const target=modal.querySelector(`[data-intro-step="${window.adtIntroIndex}"]`); if(target)target.classList.add('active');
+        const copy=(window.adtIntroCopy[window.adtAuthLanguage]||window.adtIntroCopy.ar)[window.adtIntroIndex]||window.adtIntroCopy.ar[0];
+        const title=target?.querySelector('[data-intro-title]'); if(title)title.textContent=copy.title;
+        const text=target?.querySelector('[data-intro-text]'); if(text)text.textContent=copy.text;
+        if(foot)foot.style.display='block';
+        modal.querySelectorAll('.adt-intro-dots span').forEach((d,i)=>d.classList.toggle('active',i===window.adtIntroIndex));
+        const btn=document.getElementById('adtIntroNextBtn'); if(btn)btn.textContent=(window.adtIntroIndex===2)?(window.adtAuthLanguage==='en'?'Get started':'ابدأ الآن'):(window.adtAuthLanguage==='en'?'Next':'التالي');
+    };
+    window.startMandatoryIntro = function(){
+        window.__adtLoginIntroPassed=false;
+        window.adtIntroStage='language'; window.adtIntroIndex=0;
+        window.applyAuthLanguage(window.adtAuthLanguage);
+        window.renderMandatoryIntro();
+    };
+    window.selectIntroLanguage = function(lang){
+        window.applyAuthLanguage(lang);
+        window.adtIntroStage='country'; window.adtIntroIndex=0;
+        window.renderMandatoryIntro();
+    };
+    window.nextMandatoryIntro = function(){
+        if(window.adtIntroStage!=='slides')return;
+        if(window.adtIntroIndex < 2){ window.adtIntroIndex += 1; window.renderMandatoryIntro(); return; }
+        window.__adtLoginIntroPassed=true;
+        const intro=document.getElementById('adtIntroModal'); if(intro)intro.style.display='none';
+        const auth=document.getElementById('onboardingModal'); if(auth)auth.style.display='flex';
+        window.showOnboardingSubTab?.('mgrLogin');
+        setTimeout(()=>document.getElementById('mgrLoginPhoneInput')?.focus(),120);
+    };
+    window.showAuthAfterMandatoryIntro = function(){
+        if(window.__adtLoginIntroPassed){ const auth=document.getElementById('onboardingModal'); if(auth)auth.style.display='flex'; return; }
+        window.startMandatoryIntro();
+    };
+
+    // V173: سجل سعر الشراء محفوظ في Supabase ويظهر للمدير الرئيسي فقط.
+    window.recordBuyPriceHistory = async function(product, oldPrice, newPrice){
+        if(!dbClient || !currentTeam || !window.canEditBuyPrice() || !product?.id) return false;
+        try{
+            const {data,error}=await dbClient.rpc('adt_buy_price_history_record',{
+                p_team_id:String(currentTeam.id), p_user_id:getDeviceId(), p_product_id:String(product.id),
+                p_product_name:String(product.name||''), p_old_price:(oldPrice===null||oldPrice===undefined)?null:Number(oldPrice),
+                p_new_price:Number(newPrice||0), p_actor_name:String(localStorage.getItem('atd_sales_user_name')||window.currentUserName||'مدير'),
+                p_supplier_name:String(product.supplier_name||product.supplier||'')
+            });
+            if(error) throw error;
+            return data===true;
+        }catch(e){ console.warn('[Buy Price History] record failed:',e); return false; }
+    };
+    window.openBuyPriceHistoryFromView = function(){
+        const idx=Number(window.__adtProductViewIndex); if(!Number.isInteger(idx))return;
+        window.openBuyPriceHistory(idx);
+    };
+    window.openBuyPriceHistory = async function(index){
+        if(!window.canEditBuyPrice()){window.customAlert('غير مسموح','سجل سعر الشراء متاح لمدير الفريق الرئيسي فقط.');return;}
+        const p=products[index]; if(!p)return;
+        const modal=document.getElementById('buyPriceHistoryModal'), list=document.getElementById('buyPriceHistoryList');
+        document.getElementById('buyPriceHistoryProductName').textContent=p.name||'الصنف';
+        if(list)list.innerHTML='<div style="padding:24px 8px;text-align:center;color:var(--text-muted);font-size:10px;font-weight:800">جاري تحميل السجل...</div>';
+        window.openModalFront('buyPriceHistoryModal',18000);
+        if(!dbClient||!currentTeam){if(list)list.innerHTML='<div style="padding:24px 8px;text-align:center;color:#ffbf00;font-size:10px;font-weight:800">يلزم الاتصال بالإنترنت لعرض السجل.</div>';return;}
+        try{
+            const {data,error}=await dbClient.rpc('adt_buy_price_history_fetch',{p_team_id:String(currentTeam.id),p_user_id:getDeviceId(),p_product_id:String(p.id)});
+            if(error)throw error;
+            const rows=Array.isArray(data)?data:[];
+            if(!rows.length){list.innerHTML='<div style="padding:24px 8px;text-align:center;color:var(--text-muted);font-size:10px;font-weight:800">لا توجد تغييرات مسجلة لسعر الشراء حتى الآن.</div>';return;}
+            list.innerHTML=rows.map(r=>{
+                const initial=r.old_price===null||r.old_price===undefined;
+                const oldTxt=initial?'السعر الأولي':window.formatMoney(Number(r.old_price||0));
+                const newTxt=window.formatMoney(Number(r.new_price||0));
+                const dt=new Date(r.changed_at); const when=Number.isNaN(dt.getTime())?'':dt.toLocaleString('ar-LY-u-nu-latn',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+                const supplier=String(r.supplier_name||'').trim();
+                return `<div class="adt-buy-history-row"><div class="adt-buy-history-prices"><strong>${window.escapeHtml(oldTxt)}</strong><span class="arrow">←</span><strong>${window.escapeHtml(newTxt)}</strong></div><div class="adt-buy-history-meta"><span>${window.escapeHtml(String(r.changed_by||'مدير'))}${supplier?' • '+window.escapeHtml(supplier):''}</span><span>${window.escapeHtml(when)}</span></div></div>`;
+            }).join('');
+        }catch(e){console.error('[Buy Price History] fetch failed:',e);list.innerHTML='<div style="padding:20px 8px;text-align:center;color:#ffbf00;font-size:10px;font-weight:800">تعذر تحميل السجل. تأكد من تشغيل SQL الخاص بالإصدار V173 في Supabase.</div>';}
+    };
+
     // التحقق من الفريق وتسجيل الدخول وشاشة الانتظار
     window.checkAuthAndTeamServer = async function(options = {}) {
         const preserveCurrentTab = !!options.preserveCurrentTab;
-        if (localStorage.getItem('atd_sales_signed_out') === 'true') { document.getElementById('onboardingModal').style.display='flex'; return; }
+        if (localStorage.getItem('atd_sales_signed_out') === 'true') { window.showAuthAfterMandatoryIntro(); return; }
         const savedTeamId=localStorage.getItem('atd_sales_team_id');
         const savedRole=localStorage.getItem('atd_sales_user_role');
         const savedName=localStorage.getItem('atd_sales_user_name');
@@ -8882,10 +9383,10 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             if (savedTeamId) {
                 try { const snap=JSON.parse(localStorage.getItem(`atd_team_snapshot__${savedTeamId}`)||'null'); currentTeam=snap&&snap.id?snap:{id:savedTeamId,name:'الفريق المحفوظ',manager_name:savedName||'مستخدم'}; } catch(_){ currentTeam={id:savedTeamId,name:'الفريق المحفوظ',manager_name:savedName||'مستخدم'}; }
                 userRole=savedRole||'member'; await window.loadTeamLocalCaches(savedTeamId); document.getElementById('onboardingModal').style.display='none'; window.updateUserProfileUI(savedName); window.renderProducts(); window.renderShortagesView(); window.renderDebts(); window.renderHomeStats(); if (!preserveCurrentTab) window.switchTab('home',false);
-            } else document.getElementById('onboardingModal').style.display='flex';
+            } else window.showAuthAfterMandatoryIntro();
             return;
         }
-        if (!savedTeamId) { document.getElementById('onboardingModal').style.display='flex'; return; }
+        if (!savedTeamId) { window.showAuthAfterMandatoryIntro(); return; }
         try {
             if (!(await window.validateActiveSession())) return;
             const {data:ctx,error}=await dbClient.rpc('adt_get_my_context',{p_team_id:String(savedTeamId),p_user_id:getDeviceId()});
@@ -8910,7 +9411,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             }
             const m=ctx.member;
             if (m.status==='pending' && m.role!=='manager') { document.getElementById('onboardingModal').style.display='none'; document.getElementById('pendingApprovalModal').style.display='flex'; return; }
-            if (m.status!=='approved' && m.role!=='manager') { document.getElementById('onboardingModal').style.display='flex'; return; }
+            if (m.status!=='approved' && m.role!=='manager') { window.showAuthAfterMandatoryIntro(); return; }
             document.getElementById('pendingApprovalModal').style.display='none';
             currentTeam=ctx.team; userRole=m.role||savedRole||'member';
             window.applyCurrentMemberContext(m, ctx.team);
@@ -8955,7 +9456,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
                 window.renderProducts(); window.renderShortagesView(); window.renderDebts(); window.renderHomeStats();
                 if (!preserveCurrentTab) window.switchTab('home',false);
             } else {
-                document.getElementById('onboardingModal').style.display='flex';
+                window.showAuthAfterMandatoryIntro();
             }
         }
     };
@@ -9345,7 +9846,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             if (!ctx?.team || !m) {
                 window.customAlert('الطلب غير موجود','لم يعد طلب الانضمام موجوداً. يمكنك العودة لشاشة الدخول وإرسال طلب جديد.');
                 document.getElementById('pendingApprovalModal').style.display='none';
-                document.getElementById('onboardingModal').style.display='flex';
+                window.showAuthAfterMandatoryIntro();
                 return;
             }
             if (m.status === 'approved' || m.role === 'manager') {
@@ -11307,6 +11808,11 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
                 }
                 return;
             }
+            if ((editingIndex === null || buyPriceChanged) && window.canEditBuyPrice()) {
+                const historyProduct = { id: prodObj.id, name: name, supplier_name: supplier };
+                const historyOk = await window.recordBuyPriceHistory(historyProduct, oldProduct ? Number(oldProduct.buyPrice || 0) : null, Number(buyPrice || 0));
+                if (!historyOk) console.warn('[Buy Price History] product saved but history was not recorded');
+            }
             if (priceChanged) {
                 const pushResult = await window.triggerPendingPricePush(String(currentTeam.id), {
                     actorName: localStorage.getItem('atd_sales_user_name') || window.currentUserName || 'مستخدم',
@@ -11406,6 +11912,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     window.openProductViewModal = function(index) {
         const product = products[index];
         if (!product) return;
+        window.__adtProductViewIndex = index;
+        const historyBtn=document.getElementById('productViewBuyHistoryBtn'); if(historyBtn)historyBtn.style.display=window.canEditBuyPrice()?'block':'none';
         const packQty = Math.max(1, Number(product.packQty || product.pack_qty || 1));
         const sellPrice = Number(product.sellPrice || product.sell_price || 0);
         const buyPrice = Number(product.buyPrice || product.buy_price || 0);
@@ -13470,7 +13978,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     window.syncBrandLogoToAuth = function() {
         const logo = document.getElementById('adtHeaderLogoV45');
         if (!logo) return;
-        ['adtAuthLogoHost'].forEach(id => {
+        ['adtAuthLogoHost','adtIntroLogoHost'].forEach(id => {
             const host = document.getElementById(id);
             if (!host) return;
             host.replaceChildren(logo.cloneNode(true));
@@ -13495,6 +14003,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     window.initIntegratedUi = function() {
         window.dedupeStoredActivityLogs();
         window.syncBrandLogoToAuth();
+        window.applyAuthLanguage?.(window.adtAuthLanguage || 'ar');
         window.applyAppCurrency?.();
         window.syncBottomMask();
         window.showOnboardingSubTab?.('mgrLogin');

@@ -49,3 +49,10 @@ The Android launcher icon foreground was enlarged to fill the adaptive icon area
 تم تصغير أيقونة التطبيق قليلاً عن v170 مع الحفاظ على نفس التصميم.
 - versionCode 171
 - versionName 1.71.0
+
+
+V173 SQL: run V173_BUY_PRICE_HISTORY.sql once in Supabase to enable purchase-price history.
+
+
+## v174
+اختيار اللغة -> اختيار البلد/العملة -> التعريف الإجباري -> تسجيل الدخول. لا يحتاج SQL إضافي فوق V173_BUY_PRICE_HISTORY.sql.
