@@ -5241,7 +5241,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
   padding:10px 12px;
   margin-bottom:8px;
   display:grid;
-  grid-template-columns:minmax(0,1fr) 92px 104px 48px;
+  grid-template-columns:minmax(0,1fr) 92px 104px 58px;
   gap:8px;
   align-items:center;
   cursor:default;
@@ -5266,6 +5266,26 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
   font-size:15px;
   margin-top:3px;
 }
+
+.audit-delete-btn {
+  width:58px;
+  min-width:58px;
+  height:36px;
+  padding:0 7px;
+  border:1px solid rgba(255,91,91,.50);
+  border-radius:10px;
+  background:rgba(255,91,91,.10);
+  color:#ff7373;
+  font-size:10px;
+  font-weight:900;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+}
+.audit-delete-btn:active { transform:scale(.96); }
+.audit-delete-btn .svg-icon { width:14px; height:14px; fill:currentColor; }
 
 @media(max-width:390px) {
   .logo-main-title {
@@ -5360,7 +5380,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
   }
 
   .audit-display-card {
-    grid-template-columns:minmax(0,1fr) 72px 82px 42px;
+    grid-template-columns:minmax(0,1fr) 72px 82px 50px;
     gap:5px;
     padding:9px;
   }
@@ -5371,6 +5391,14 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
   .audit-display-card .audit-buy-inline strong, .audit-display-card .audit-qty-col strong, .audit-display-card .audit-total-col strong {
     font-size:13px;
+  }
+
+  .audit-delete-btn {
+    width:50px;
+    min-width:50px;
+    height:34px;
+    padding:0 4px;
+    font-size:9px;
   }
 }
 
@@ -7944,14 +7972,23 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     };
 
     // استخدم مسار Firebase الأصلي الشغال داخل تطبيق Android.
-    window.triggerPendingPricePush = async function(teamId) {
+    window.triggerPendingPricePush = async function(teamId, details = {}) {
         try {
             const actorUserId = String(getDeviceId?.() || '');
             const safeTeamId = String(teamId || '');
+            const actorName = String(details.actorName || localStorage.getItem('atd_sales_user_name') || window.currentUserName || 'مستخدم').trim() || 'مستخدم';
+            const productName = String(details.productName || '').trim();
+            const oldSellPrice = String(details.oldSellPrice ?? '');
+            const newSellPrice = String(details.newSellPrice ?? '');
+            const changeType = String(details.changeType || 'price_change');
             if (!safeTeamId || !actorUserId) return { ok:false, reason:'missing_identity' };
+            if (window.Android && typeof window.Android.triggerPricePushV172 === 'function') {
+                window.Android.triggerPricePushV172(safeTeamId, actorUserId, actorName, productName, oldSellPrice, newSellPrice, changeType);
+                return { ok:true, native:true, rich:true };
+            }
             if (window.Android && typeof window.Android.triggerPricePush === 'function') {
                 window.Android.triggerPricePush(safeTeamId, actorUserId);
-                return { ok:true, native:true };
+                return { ok:true, native:true, rich:false };
             }
             return { ok:false, reason:'native_bridge_unavailable' };
         } catch (error) {
@@ -8835,7 +8872,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     };
 
     // التحقق من الفريق وتسجيل الدخول وشاشة الانتظار
-    window.checkAuthAndTeamServer = async function() {
+    window.checkAuthAndTeamServer = async function(options = {}) {
+        const preserveCurrentTab = !!options.preserveCurrentTab;
         if (localStorage.getItem('atd_sales_signed_out') === 'true') { document.getElementById('onboardingModal').style.display='flex'; return; }
         const savedTeamId=localStorage.getItem('atd_sales_team_id');
         const savedRole=localStorage.getItem('atd_sales_user_role');
@@ -8843,7 +8881,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         if (!dbClient) {
             if (savedTeamId) {
                 try { const snap=JSON.parse(localStorage.getItem(`atd_team_snapshot__${savedTeamId}`)||'null'); currentTeam=snap&&snap.id?snap:{id:savedTeamId,name:'الفريق المحفوظ',manager_name:savedName||'مستخدم'}; } catch(_){ currentTeam={id:savedTeamId,name:'الفريق المحفوظ',manager_name:savedName||'مستخدم'}; }
-                userRole=savedRole||'member'; await window.loadTeamLocalCaches(savedTeamId); document.getElementById('onboardingModal').style.display='none'; window.updateUserProfileUI(savedName); window.renderProducts(); window.renderShortagesView(); window.renderDebts(); window.renderHomeStats(); window.switchTab('home',false);
+                userRole=savedRole||'member'; await window.loadTeamLocalCaches(savedTeamId); document.getElementById('onboardingModal').style.display='none'; window.updateUserProfileUI(savedName); window.renderProducts(); window.renderShortagesView(); window.renderDebts(); window.renderHomeStats(); if (!preserveCurrentTab) window.switchTab('home',false);
             } else document.getElementById('onboardingModal').style.display='flex';
             return;
         }
@@ -8867,7 +8905,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
                 document.getElementById('onboardingModal').style.display='none';
                 window.updateUserProfileUI(savedName);
                 window.renderProducts(); window.renderShortagesView(); window.renderDebts(); window.renderHomeStats();
-                window.switchTab('home',false);
+                if (!preserveCurrentTab) window.switchTab('home',false);
                 return;
             }
             const m=ctx.member;
@@ -8899,7 +8937,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             window.checkTeamLockState(); window.updateUserProfileUI(localStorage.getItem('atd_sales_user_name')||(currentTeam.manager_name||'عضو'));
             await Promise.all([window.loadTeamMembers(),window.fetchProductsFromSupabase(),window.fetchShortagesFromSupabase(),window.fetchDebtsFromSupabase()]);
             window.checkWeeklyDebtReminder();
-            window.setupRealtimeSubscription(); try{await dbClient.rpc('adt_touch_team',{p_team_id:String(currentTeam.id),p_user_id:getDeviceId()});}catch(_){} try{await window.fetchDeveloperNotices();}catch(_){} window.switchTab('home',false);
+            window.setupRealtimeSubscription(); try{await dbClient.rpc('adt_touch_team',{p_team_id:String(currentTeam.id),p_user_id:getDeviceId()});}catch(_){} try{await window.fetchDeveloperNotices();}catch(_){} if (!preserveCurrentTab) window.switchTab('home',false);
         } catch(e) {
             console.error('[Auth] secure context failed:',e);
             // فشل الإنترنت/الخادم لا يعني تسجيل خروج. استخدم الجلسة المحلية المحفوظة.
@@ -8915,7 +8953,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
                 document.getElementById('onboardingModal').style.display='none';
                 window.updateUserProfileUI(savedName);
                 window.renderProducts(); window.renderShortagesView(); window.renderDebts(); window.renderHomeStats();
-                window.switchTab('home',false);
+                if (!preserveCurrentTab) window.switchTab('home',false);
             } else {
                 document.getElementById('onboardingModal').style.display='flex';
             }
@@ -8962,7 +9000,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
         // 3) تحقق من Supabase وحدّث الصلاحيات والبيانات في الخلفية.
         // الدالة الأصلية محفوظة كما هي حتى لا نفقد أي حماية أو مزامنة.
-        void window.checkAuthAndTeamServer().catch(e => console.warn('[Fast Restore] server refresh failed:', e));
+        void window.checkAuthAndTeamServer({ preserveCurrentTab:true }).catch(e => console.warn('[Fast Restore] server refresh failed:', e));
     };
 
     window.showOnboardingSubTab = function(type) {
@@ -11230,7 +11268,9 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             if (!confirmed) return;
         }
 
-        const priceChanged = !!oldProduct && (Number(oldProduct.buyPrice||0)!==Number(buyPrice) || Number(oldProduct.sellPrice||0)!==Number(sellPrice));
+        const buyPriceChanged = !!oldProduct && Number(oldProduct.buyPrice||0)!==Number(buyPrice);
+        const sellPriceChanged = !!oldProduct && Number(oldProduct.sellPrice||0)!==Number(sellPrice);
+        const priceChanged = buyPriceChanged || sellPriceChanged;
         const editedProductId = oldProduct ? String(oldProduct.id||'') : '';
         if(priceChanged&&editedProductId){try{localStorage.setItem('adt_last_own_price_edit_'+String(currentTeam.id),JSON.stringify({id:editedProductId,at:Date.now()}));}catch(_){}}
         const prodObj = {
@@ -11268,7 +11308,13 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
                 return;
             }
             if (priceChanged) {
-                const pushResult = await window.triggerPendingPricePush(String(currentTeam.id));
+                const pushResult = await window.triggerPendingPricePush(String(currentTeam.id), {
+                    actorName: localStorage.getItem('atd_sales_user_name') || window.currentUserName || 'مستخدم',
+                    productName: name,
+                    oldSellPrice: Number(oldProduct?.sellPrice || 0).toFixed(2),
+                    newSellPrice: Number(sellPrice || 0).toFixed(2),
+                    changeType: sellPriceChanged ? 'sell_price' : (buyPriceChanged ? 'buy_price' : 'price_change')
+                });
                 if (!pushResult?.ok) console.warn('[Push] price notification was not dispatched:', pushResult);
             }
         }
@@ -12020,7 +12066,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
                 <div class="audit-prod-main"><div class="prod-name-title">${window.escapeHtml(p.name)}</div><div class="audit-buy-inline"><span>${retail?'سعر القطعة':'سعر الشراء'}</span> <strong>${price.toFixed(2)}</strong></div></div>
                 <div class="audit-qty-col"><span>${retail?'عدد القطع':'عدد الجرد'}</span><strong>${q}</strong></div>
                 <div class="audit-total-col"><span>إجمالي السعر</span><strong>${total.toFixed(2)}</strong></div>
-                <div class="prod-box-badge" style="border-color:var(--green);color:var(--green)"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M19 3h-4.2A3 3 0 0 0 9.2 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-9 14-4-4 1.4-1.4 2.6 2.6 6.6-6.6L18 9l-8 8z"/></svg></div>
+                <button type="button" class="audit-delete-btn" onclick="event.preventDefault();event.stopPropagation();window.removeAuditItemFromAudit(${products.indexOf(p)});return false;" title="حذف من الجرد"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7L6 7zm3-4h6l1 2h4v2H4V5h4l1-2zm1 6v9h2V9h-2zm4 0v9h2V9h-2z"/></svg><span>حذف</span></button>
             </div>`;
         }).join('');
     };
@@ -12097,6 +12143,36 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         window.cancelAuditPriceEdit();window.calcAuditModalTotal();window.renderAudit();window.showToast('تم تعديل سعر الجرد فقط');
     };
     window.closeAuditItemModal=function(){auditEditingIndex=null;window.auditAddMode=false;window.cancelAuditPriceEdit();window.closeModal('auditItemModal');};
+    window.removeAuditItemFromAudit=async function(index){
+        if(!window.canAudit()){window.customAlert('غير مسموح','ليس لديك صلاحية تعديل الجرد.');return;}
+        const p=products[index];if(!p)return;
+        const retail=window.auditMode==='retail';
+        const currentQty=Number(retail?window.getRetailAuditQty(p):p.auditQty||0);
+        if(currentQty<=0)return;
+        const ok=await window.showAppConfirm({
+            title:'حذف الصنف من الجرد',
+            message:`هل تريد حذف «${p.name}» من الجرد؟ لن يتم حذف الصنف من قائمة المنتجات.`,
+            confirmText:'حذف من الجرد',
+            cancelText:'إلغاء',
+            danger:true
+        });
+        if(!ok)return;
+        if(retail){
+            window.retailAuditState[String(p.id)]=0;
+            p.retailAuditQty=0;
+            window.saveRetailAudit();
+            window.renderAudit();
+            window.showToast('تم حذف الصنف من جرد القطاعي');
+            return;
+        }
+        if(!(await window.confirmGhostMutation('حذف صنف من الجرد')))return;
+        if(!dbClient||!currentTeam){window.customAlert('لا يوجد اتصال بالخادم','تعذر حذف الصنف من الجرد لأن الاتصال بالخادم غير متاح.');return;}
+        const previousQty=Number(p.auditQty||0);
+        p.auditQty=0;
+        window.renderAudit();
+        window.showToast('تم حذف الصنف من الجرد');
+        window.queueWholesaleAuditSave(p,previousQty,0);
+    };
     // حفظ جرد المخزون الفعلي بشكل سريع: الواجهة تتحدث فوراً، والحفظ بالخادم يتم في الخلفية.
     // يتم تسلسل طلبات الصنف نفسه حتى لا تتعارض الزيادات السريعة مع بعضها.
     window.__adtAuditSaveChains=window.__adtAuditSaveChains||{};

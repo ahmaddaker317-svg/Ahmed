@@ -27,15 +27,30 @@ public class ADTFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage msg) {
         super.onMessageReceived(msg);
 
+        // V172: اسم التطبيق هو العنوان الثابت، والنص تحته يشرح التغيير مباشرة.
         String title = "ADT Stock";
         String body = "تم تحديث بيانات منتج";
 
-        if (msg.getNotification() != null) {
-            if (msg.getNotification().getTitle() != null) title = msg.getNotification().getTitle();
-            if (msg.getNotification().getBody() != null) body = msg.getNotification().getBody();
+        if (msg.getNotification() != null && msg.getNotification().getBody() != null) {
+            body = msg.getNotification().getBody();
         }
-        if (msg.getData().containsKey("title")) title = msg.getData().get("title");
-        if (msg.getData().containsKey("body")) body = msg.getData().get("body");
+        if (msg.getData().containsKey("body") && msg.getData().get("body") != null) {
+            body = msg.getData().get("body");
+        }
+
+        String actorName = msg.getData().get("actor_name");
+        String productName = msg.getData().get("product_name");
+        String oldSellPrice = msg.getData().get("old_sell_price");
+        String newSellPrice = msg.getData().get("new_sell_price");
+        String changeType = msg.getData().get("change_type");
+        if ("sell_price".equals(changeType)
+                && actorName != null && !actorName.trim().isEmpty()
+                && productName != null && !productName.trim().isEmpty()
+                && oldSellPrice != null && !oldSellPrice.trim().isEmpty()
+                && newSellPrice != null && !newSellPrice.trim().isEmpty()) {
+            body = "قام " + actorName.trim() + " بتغيير سعر بيع «" + productName.trim()
+                    + "» من " + oldSellPrice.trim() + " د.ل إلى " + newSellPrice.trim() + " د.ل";
+        }
 
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);

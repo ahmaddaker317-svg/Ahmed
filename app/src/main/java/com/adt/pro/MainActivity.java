@@ -31,6 +31,9 @@ import android.webkit.ValueCallback;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.util.Base64;
 import java.io.File;
@@ -61,6 +64,7 @@ public class MainActivity extends Activity {
     private ConnectivityManager.NetworkCallback networkCallback;
     private boolean nativeServicesInitialized = false;
     private static final int APP_HEADER_COLOR = Color.rgb(3, 9, 16);
+    private FrameLayout nativeSplashOverlay;
 
     @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface"})
     @Override
@@ -85,6 +89,20 @@ public class MainActivity extends Activity {
         );
         lp.topMargin = topInset;
         root.addView(webView, lp);
+
+        // V172: غطاء Native بسيط فوق الـ WebView يمنع الوميض الأسود قبل ظهور HTML.
+        nativeSplashOverlay = new FrameLayout(this);
+        nativeSplashOverlay.setBackgroundColor(APP_HEADER_COLOR);
+        ImageView splashLogo = new ImageView(this);
+        splashLogo.setImageResource(R.drawable.ic_splash_logo);
+        splashLogo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        FrameLayout.LayoutParams splashLogoLp = new FrameLayout.LayoutParams(dpToPx(148), dpToPx(148));
+        splashLogoLp.gravity = Gravity.CENTER;
+        nativeSplashOverlay.addView(splashLogo, splashLogoLp);
+        root.addView(nativeSplashOverlay, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
         setContentView(root);
 
         WebSettings s = webView.getSettings();
@@ -127,8 +145,15 @@ public class MainActivity extends Activity {
         });
         webView.setWebViewClient(new WebViewClient() {
             @Override
+            public void onPageCommitVisible(WebView view, String url) {
+                super.onPageCommitVisible(view, url);
+                hideNativeSplash();
+            }
+
+            @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                hideNativeSplash();
                 deliverTokenToWeb();
                 installNativePageHooks();
                 notifyNetworkStateToWeb();
@@ -169,6 +194,22 @@ public class MainActivity extends Activity {
 
         // أول Render للواجهة المحلية يبدأ قبل أي تهيئة خارجية أو طلب صلاحيات.
         webView.loadUrl(HOME_URL);
+    }
+
+    private int dpToPx(int dp) {
+        return Math.round(dp * getResources().getDisplayMetrics().density);
+    }
+
+    private void hideNativeSplash() {
+        final FrameLayout splash = nativeSplashOverlay;
+        if (splash == null || splash.getParent() == null) return;
+        splash.animate().alpha(0f).setDuration(140).withEndAction(() -> {
+            try {
+                ViewGroup parent = (ViewGroup) splash.getParent();
+                if (parent != null) parent.removeView(splash);
+            } catch (Exception ignored) {}
+            if (nativeSplashOverlay == splash) nativeSplashOverlay = null;
+        }).start();
     }
 
     private void startDeferredNativeServices() {
@@ -494,6 +535,31 @@ public class MainActivity extends Activity {
         });
     }
 
+    private void dispatchPricePush(JSONObject payload) {
+        new Thread(() -> {
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL(SB_URL + "/functions/v1/adt-send-price-push");
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setConnectTimeout(12000);
+                conn.setReadTimeout(15000);
+                conn.setDoOutput(true);
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestProperty("apikey", SB_ANON);
+                conn.setRequestProperty("Authorization", "Bearer " + SB_ANON);
+                String body = payload == null ? "{}" : payload.toString();
+                try (OutputStream os = conn.getOutputStream()) { os.write(body.getBytes(StandardCharsets.UTF_8)); }
+                int code = conn.getResponseCode();
+                if (code < 200 || code >= 300) android.util.Log.w("ADT_PUSH", "Edge response=" + code);
+            } catch (Exception e) {
+                android.util.Log.e("ADT_PUSH", "Native dispatch failed", e);
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+        }).start();
+    }
+
     public class NativeBridge {
         @JavascriptInterface
         public String getFcmToken() {
@@ -577,26 +643,44 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void triggerPricePush(String teamId, String actorUserId) {
             if (teamId == null || actorUserId == null || teamId.trim().isEmpty() || actorUserId.trim().isEmpty()) return;
-            new Thread(() -> {
-                HttpURLConnection conn = null;
-                try {
-                    URL url = new URL(SB_URL + "/functions/v1/adt-send-price-push");
-                    conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setConnectTimeout(12000);
-                    conn.setReadTimeout(15000);
-                    conn.setDoOutput(true);
-                    conn.setRequestProperty("Content-Type", "application/json");
-                    conn.setRequestProperty("apikey", SB_ANON);
-                    conn.setRequestProperty("Authorization", "Bearer " + SB_ANON);
-                    String body = new JSONObject().put("team_id", teamId).put("actor_user_id", actorUserId).toString();
-                    try (OutputStream os = conn.getOutputStream()) { os.write(body.getBytes(StandardCharsets.UTF_8)); }
-                    int code = conn.getResponseCode();
-                    if (code < 200 || code >= 300) android.util.Log.w("ADT_PUSH", "Edge response=" + code);
-                } catch (Exception e) {
-                    android.util.Log.e("ADT_PUSH", "Native dispatch failed", e);
-                } finally { if (conn != null) conn.disconnect(); }
-            }).start();
+            try {
+                JSONObject payload = new JSONObject()
+                        .put("team_id", teamId)
+                        .put("actor_user_id", actorUserId)
+                        .put("title", "ADT Stock");
+                dispatchPricePush(payload);
+            } catch (Exception error) {
+                android.util.Log.e("ADT_PUSH", "Payload build failed", error);
+            }
+        }
+
+        @JavascriptInterface
+        public void triggerPricePushV172(String teamId, String actorUserId, String actorName, String productName, String oldSellPrice, String newSellPrice, String changeType) {
+            if (teamId == null || actorUserId == null || teamId.trim().isEmpty() || actorUserId.trim().isEmpty()) return;
+            try {
+                String safeActor = actorName == null || actorName.trim().isEmpty() ? "مستخدم" : actorName.trim();
+                String safeProduct = productName == null ? "" : productName.trim();
+                String safeOld = oldSellPrice == null ? "" : oldSellPrice.trim();
+                String safeNew = newSellPrice == null ? "" : newSellPrice.trim();
+                String safeType = changeType == null ? "price_change" : changeType.trim();
+
+                JSONObject payload = new JSONObject()
+                        .put("team_id", teamId)
+                        .put("actor_user_id", actorUserId)
+                        .put("actor_name", safeActor)
+                        .put("product_name", safeProduct)
+                        .put("old_sell_price", safeOld)
+                        .put("new_sell_price", safeNew)
+                        .put("change_type", safeType)
+                        .put("title", "ADT Stock");
+
+                if ("sell_price".equals(safeType) && !safeProduct.isEmpty() && !safeOld.isEmpty() && !safeNew.isEmpty()) {
+                    payload.put("body", "قام " + safeActor + " بتغيير سعر بيع «" + safeProduct + "» من " + safeOld + " د.ل إلى " + safeNew + " د.ل");
+                }
+                dispatchPricePush(payload);
+            } catch (Exception error) {
+                android.util.Log.e("ADT_PUSH", "V172 payload build failed", error);
+            }
         }
 
         @JavascriptInterface
