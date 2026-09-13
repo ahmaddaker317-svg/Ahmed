@@ -5653,6 +5653,62 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 #productsList .adt-product-actions{gap:3px!important}#productsList .adt-product-action-btn{width:27px!important;height:27px!important;min-width:27px!important;padding:5px!important;border-radius:7px!important}
 
 .adt-buy-history-box{padding:15px!important}.adt-buy-history-head{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:10px}.adt-buy-history-head small{font-size:9px;color:var(--accent-teal);font-weight:900}.adt-buy-history-head h3{margin:2px 0 0;font-size:15px;color:#fff}.adt-buy-history-list{display:flex;flex-direction:column;gap:7px;max-height:55vh;overflow:auto;margin-bottom:10px}.adt-buy-history-row{border:1px solid #1c2d3f;border-radius:11px;background:#0c1521;padding:9px 10px}.adt-buy-history-prices{display:flex;align-items:center;justify-content:space-between;gap:8px}.adt-buy-history-prices strong{color:#fff;font-size:12px}.adt-buy-history-prices .arrow{color:var(--accent-teal);font-weight:1000}.adt-buy-history-meta{margin-top:5px;font-size:8.5px;color:var(--text-muted);display:flex;justify-content:space-between;gap:7px;flex-wrap:wrap}
+
+/* V180 — قائمة المنتجات: سعر البيع فقط، واضح وبجوار الرقم */
+#productsList .product-card-classic.adt-v180-product{
+  min-height:58px!important;
+}
+#productsList .adt-v180-product .prod-info-center{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-areas:'name sell' 'meta sell'!important;
+  align-items:center!important;
+  column-gap:10px!important;
+  row-gap:2px!important;
+  direction:rtl!important;
+}
+#productsList .adt-v180-product .prod-name-title{
+  grid-area:name!important;
+  min-width:0!important;
+}
+#productsList .adt-v180-product .adt-v12-meta{
+  grid-area:meta!important;
+  font-size:7.8px!important;
+}
+#productsList .adt-v180-sell-row{
+  grid-area:sell!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
+  direction:rtl!important;
+  white-space:nowrap!important;
+  color:var(--primary)!important;
+  font-weight:1000!important;
+  padding:4px 7px!important;
+  border:1px solid rgba(0,210,180,.16)!important;
+  background:rgba(0,210,180,.055)!important;
+  border-radius:8px!important;
+}
+#productsList .adt-v180-sell-row span{
+  font-size:9.2px!important;
+  line-height:1!important;
+  color:var(--primary)!important;
+  font-weight:900!important;
+}
+#productsList .adt-v180-sell-row strong{
+  font-size:11.6px!important;
+  line-height:1!important;
+  color:#fff!important;
+  font-weight:1000!important;
+}
+@media(max-width:360px){
+  #productsList .adt-v180-product .prod-info-center{column-gap:6px!important}
+  #productsList .adt-v180-sell-row{gap:4px!important;padding:4px 5px!important}
+  #productsList .adt-v180-sell-row span{font-size:8.5px!important}
+  #productsList .adt-v180-sell-row strong{font-size:10.8px!important}
+}
+
 </style>
 
 <style id="adtV177IntroCompact">
@@ -6813,7 +6869,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 <div class="stat-card-single">
 <div class="stat-card-title">عدد المنتجات</div>
 <div class="stat-card-value" id="prodStatCount">0 صنف</div>
-<div class="stat-card-sub">قائمة أسعار الشراء والبيع وهامش الربح</div>
+<div class="stat-card-sub">قائمة المنتجات وأسعار البيع</div>
 </div>
 <div class="search-container">
 <input class="search-input-box" id="searchBox" oninput="window.handleProductSearchInput()" placeholder="بحث سريع في قائمة المنتجات..." type="text"/>
@@ -12036,16 +12092,13 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:24px 8px;font-weight:700">لا توجد أصناف مطابقة للبحث</div>';
             return;
         }
-        const showCost = window.canViewCost(), canEdit = window.canEditProducts();
+        const canEdit = window.canEditProducts();
         const visible = list.slice(0, window.__adtProductRenderLimit);
         const cards = visible.map(({ product:p, index }) => {
-            const profit = Number(p.sellPrice || 0) - Number(p.buyPrice || 0);
-            return `<div class="product-card-classic adt-v12-product"><div class="prod-info-center">
+            return `<div class="product-card-classic adt-v12-product adt-v180-product"><div class="prod-info-center">
                 <div class="prod-name-title">${window.escapeHtml(p.name)}</div>
-                ${showCost ? `<div class="adt-v12-buy">الشراء<br>${Number(p.buyPrice || 0).toFixed(2)}</div>` : '<div class="adt-v12-buy"></div>'}
-                <div class="adt-v12-sell">البيع<br>${Number(p.sellPrice || 0).toFixed(2)}</div>
+                <div class="adt-v180-sell-row"><span>سعر البيع</span><strong>${Number(p.sellPrice || 0).toFixed(2)}</strong></div>
                 <div class="adt-v12-meta">${window.escapeHtml(p.supplier || 'بدون مورد')}</div>
-                ${showCost ? `<div class="adt-v12-profit">المكسب ${profit >= 0 ? '+' : ''}${profit.toFixed(2)}</div>` : '<div></div>'}
             </div><div class="adt-product-actions">
                 <button onclick="window.openProductViewModal(${index})" class="adt-product-action-btn" aria-label="عرض الصنف" title="عرض الصنف"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5c-5 0-9.3 3-11 7 1.7 4 6 7 11 7s9.3-3 11-7c-1.7-4-6-7-11-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-2a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg></button>
                 ${canEdit ? `<button onclick="window.openEditProductModal(${index})" class="adt-product-action-btn" aria-label="تعديل"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>` : ''}

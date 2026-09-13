@@ -68,3 +68,10 @@ V173 SQL: run V173_BUY_PRICE_HISTORY.sql once in Supabase to enable purchase-pri
 - Product search now filters the normal product cards under the search bar for all roles.
 - Removed the manager-only quick-search result panel.
 - No SQL changes.
+
+
+## v180
+- أخفى سعر الشراء وهامش الربح من بطاقات قائمة المنتجات فقط.
+- يظهر الآن سعر البيع فقط بصيغة واضحة: «سعر البيع 350.00».
+- سعر الشراء يظل داخل عرض/تعديل الصنف حسب الصلاحيات.
+- لا يوجد SQL جديد.
