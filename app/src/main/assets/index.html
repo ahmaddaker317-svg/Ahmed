@@ -6819,7 +6819,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 <input class="search-input-box" id="searchBox" oninput="window.handleProductSearchInput()" placeholder="بحث سريع في قائمة المنتجات..." type="text"/>
 <button id="btnInlineAddProduct" class="btn-primary" onclick="window.openAddModal()" style="display:none; flex:0 0 auto; width:auto; min-width:92px; margin:0; padding:8px 11px; border-radius:10px; font-size:11px; font-weight:900; white-space:nowrap; align-items:center; justify-content:center; text-align:center;">إضافة صنف</button>
 </div>
-<div class="search-results-dropdown" id="productSearchResultsDropdown"></div>
+
 </div>
 <div id="productsList"></div>
 </div>
@@ -11980,53 +11980,14 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         window.openModalFront('productViewModal', 15000);
     };
 
-    // بحث المنتجات: نفس أسلوب بحث الجرد ولكن بزر تعديل بدلاً من إدخال الجرد.
+    // بحث المنتجات: فلترة البطاقات داخل القائمة نفسها لكل الأدوار بدون واجهة نتائج منفصلة.
     window.handleProductSearchInput = function() {
-        const input = document.getElementById('searchBox');
         const dropdown = document.getElementById('productSearchResultsDropdown');
-        if (!input || !dropdown) {
-            window.renderProducts();
-            return;
-        }
-
-        const val = window.normalizeArabic(input.value);
-        window.renderProducts();
-
-        // المدير يرى نتيجة البحث السريعة فقط، بينما العضو يرى بطاقات الأصناف المفلترة فقط.
-        if (!val || !window.useManagerProductQuickSearch()) {
+        if (dropdown) {
             dropdown.style.display = 'none';
             dropdown.innerHTML = '';
-            return;
         }
-
-        const matchedProds = products
-            .filter(p => window.getProductSearchValue(p).includes(val))
-            .slice(0, 8);
-
-        if (matchedProds.length === 0) {
-            dropdown.innerHTML = '<div class="search-res-item" style="color:var(--text-muted);">لا توجد نتائج مطابقة في المنتجات</div>';
-            dropdown.style.display = 'flex';
-            return;
-        }
-
-        const canEdit = window.canEditProducts();
-        dropdown.innerHTML = matchedProds.map(p => {
-            const realIdx = products.indexOf(p);
-            return `
-                <div class="search-res-item" style="gap:8px;">
-                    <span style="min-width:0; flex:1;">
-                        <b style="color:#FFF; font-size:12px;">${window.escapeHtml(p.name)}</b>
-                        <small style="display:block; margin-top:2px; color:var(--accent-teal);">
-                            البيع: ${Number(p.sellPrice || 0).toFixed(2)}${window.canViewCost() ? ` • الشراء: ${Number(p.buyPrice || 0).toFixed(2)}` : ''}
-                        </small>
-                    </span>
-                    ${canEdit ? `
-                        <button class="btn-primary" onclick="event.stopPropagation(); window.selectProductForEdit(${realIdx})" style="width:auto; min-width:72px; padding:5px 10px; font-size:10px; border-radius:9px;">تعديل</button>
-                    ` : ''}
-                </div>
-            `;
-        }).join('');
-        dropdown.style.display = 'flex';
+        window.renderProducts();
     };
 
     window.selectProductForEdit = async function(idx) {
@@ -12071,11 +12032,6 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         });
         const count = document.getElementById('prodStatCount'); if (count) count.textContent = String(products.length);
         const hub = document.getElementById('hubProdBadge'); if (hub) hub.textContent = `${products.length} صنف مسجل`;
-        if (search && window.useManagerProductQuickSearch()) {
-            container.innerHTML = '';
-            container.style.display = 'none';
-            return;
-        }
         if (!list.length) {
             container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:24px 8px;font-weight:700">لا توجد أصناف مطابقة للبحث</div>';
             return;

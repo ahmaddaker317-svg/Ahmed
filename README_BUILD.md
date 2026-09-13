@@ -62,3 +62,9 @@ V173 SQL: run V173_BUY_PRICE_HISTORY.sql once in Supabase to enable purchase-pri
 
 ## v178
 راجع V178_CHANGES.txt. لا يحتاج SQL جديد.
+
+
+## v179
+- Product search now filters the normal product cards under the search bar for all roles.
+- Removed the manager-only quick-search result panel.
+- No SQL changes.
