@@ -1,4 +1,4 @@
-ADT Stock v176 - UI Stability + Splash Fix
+ADT Stock v178 - UI Stability + Splash Fix
 
 # ADT Stock V169 — GitHub Ready
 
@@ -56,5 +56,9 @@ The Android launcher icon foreground was enlarged to fill the adaptive icon area
 V173 SQL: run V173_BUY_PRICE_HISTORY.sql once in Supabase to enable purchase-price history.
 
 
-## v176
+## v178
 اختيار اللغة -> اختيار البلد/العملة -> التعريف الإجباري -> تسجيل الدخول. لا يحتاج SQL إضافي فوق V173_BUY_PRICE_HISTORY.sql.
+
+
+## v178
+راجع V178_CHANGES.txt. لا يحتاج SQL جديد.

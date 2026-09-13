@@ -1,0 +1,10 @@
+ADT Stock v178 — Debt share text + image
+
+- Replaced the old forced WhatsApp transaction receipt action with two in-app share choices: text and image.
+- Customer debt message now uses the approved wording: "تم تسجيل دين جديد بقيمة ..." and "إجمالي المبلغ عليك".
+- Customer payment message now uses the approved wording: "تم استلام مبلغ ... وسداد جزء من الدين السابق".
+- When the balance reaches zero, the payment message says "الحساب خالص" automatically.
+- Added a formal white receipt/image generated inside the app with store name, customer, amount, date/time, details, balance and signature area.
+- Added Android native Share Sheet support for text and PNG images; no forced WhatsApp destination.
+- Historical receipts calculate the balance immediately after that transaction, so later movements do not change the old receipt balance.
+- No new Supabase SQL is required for v178.

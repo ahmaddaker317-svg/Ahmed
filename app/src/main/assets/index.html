@@ -5654,6 +5654,27 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
 .adt-buy-history-box{padding:15px!important}.adt-buy-history-head{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:10px}.adt-buy-history-head small{font-size:9px;color:var(--accent-teal);font-weight:900}.adt-buy-history-head h3{margin:2px 0 0;font-size:15px;color:#fff}.adt-buy-history-list{display:flex;flex-direction:column;gap:7px;max-height:55vh;overflow:auto;margin-bottom:10px}.adt-buy-history-row{border:1px solid #1c2d3f;border-radius:11px;background:#0c1521;padding:9px 10px}.adt-buy-history-prices{display:flex;align-items:center;justify-content:space-between;gap:8px}.adt-buy-history-prices strong{color:#fff;font-size:12px}.adt-buy-history-prices .arrow{color:var(--accent-teal);font-weight:1000}.adt-buy-history-meta{margin-top:5px;font-size:8.5px;color:var(--text-muted);display:flex;justify-content:space-between;gap:7px;flex-wrap:wrap}
 </style>
+
+<style id="adtV177IntroCompact">
+/* V177 — شاشة البداية: لوجو واحد، بدون تكرار الاسم، ومسافات أقصر */
+#adtIntroModal .adt-intro-shell{min-height:480px;padding-top:16px!important}
+#adtIntroModal .adt-intro-logo{height:62px!important;margin-bottom:2px!important}
+#adtIntroModal .adt-intro-logo img{max-width:176px!important;max-height:58px!important}
+#adtIntroModal .adt-intro-step[data-intro-step="language"]{justify-content:flex-start!important;padding-top:10px!important}
+#adtIntroModal .adt-intro-step[data-intro-step="language"] h2{margin-top:0!important;margin-bottom:7px!important}
+#adtIntroModal .adt-intro-step[data-intro-step="language"] p{margin-bottom:0!important}
+#adtIntroModal .adt-intro-step[data-intro-step="language"] .adt-language-grid{margin-top:17px!important}
+#adtIntroModal .adt-intro-step[data-intro-step="country"]{padding-top:10px!important}
+#adtIntroModal .adt-intro-step[data-intro-step="country"] h2{margin-top:0!important;margin-bottom:7px!important}
+@media(max-height:700px){
+  #adtIntroModal{padding:10px!important}
+  #adtIntroModal .adt-intro-shell{min-height:440px;padding-top:12px!important}
+  #adtIntroModal .adt-intro-logo{height:54px!important}
+  #adtIntroModal .adt-intro-logo img{max-width:164px!important;max-height:52px!important}
+  #adtIntroModal .adt-intro-step[data-intro-step="language"]{padding-top:7px!important}
+  #adtIntroModal .adt-language-card{min-height:94px!important}
+}
+</style>
 </head>
 <body style="background-color: #070A12 !important; color: #FFFFFF !important;">
 <!-- شريط الإشعار العلوي الذكي -->
@@ -6032,7 +6053,6 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
   <div class="adt-intro-shell" id="adtIntroShell" dir="rtl">
     <div class="adt-intro-logo" id="adtIntroLogoHost"></div>
     <section class="adt-intro-step active" data-intro-step="language">
-      <div class="adt-intro-kicker">ADT Stock</div>
       <h2 id="adtIntroLanguageTitle">اختر اللغة</h2>
       <p id="adtIntroLanguageSub">اختر لغة البداية قبل الدخول إلى التطبيق</p>
       <div class="adt-language-grid">
@@ -6041,7 +6061,6 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
       </div>
     </section>
     <section class="adt-intro-step adt-country-step" data-intro-step="country">
-      <div class="adt-intro-kicker">ADT Stock</div>
       <h2 id="adtIntroCountryTitle">اختر البلد</h2>
       <p id="adtIntroCountrySub">سيتم ضبط عملة التطبيق تلقائياً حسب البلد</p>
       <div class="adt-country-search-wrap"><input id="adtCountrySearch" class="adt-country-search" type="search" autocomplete="off" placeholder="ابحث عن البلد" oninput="window.renderIntroCountries(this.value)"></div>
@@ -6367,19 +6386,19 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 <button class="btn-secondary" onclick="window.closeModal('addTransactionModal')">إلغاء</button>
 </div>
 </div>
-<!-- نافذة تفاصيل الحركة المالية (مشاركة إيصال واتساب أو حذف الحركة بوضوح) -->
+<!-- نافذة تفاصيل الحركة المالية: مشاركة كنص أو كصورة من Share Sheet النظام -->
 <div class="modal no-print" id="txDetailModal" style="display:none; z-index:9998;">
-<div class="modal-box" style="text-align:center; max-width:340px; border:1.5px solid var(--primary);">
+<div class="modal-box" style="text-align:center; max-width:350px; border:1.5px solid var(--primary);">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid var(--border); padding-bottom:6px;">
 <h3 id="txDetailModalTitle" style="margin-bottom:0; font-size:15px; color:#FFF;">تفاصيل الحركة المالية</h3>
 <button onclick="window.closeModal('txDetailModal')" style="background:none; border:none; color:var(--text-muted); font-size:20px; cursor:pointer; font-weight:900;"></button>
 </div>
 <div id="txDetailModalBody" style="background:var(--input-bg); border-radius:10px; padding:12px; margin-bottom:12px; font-size:12px; text-align:right; line-height:1.6;"></div>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:7px;">
+<button class="btn-primary" onclick="window.executeShareTxTextFromDetail()" style="font-size:11px; padding:9px 6px; min-width:0;">مشاركة كنص</button>
+<button class="btn-primary" onclick="window.executeShareTxImageFromDetail()" style="font-size:11px; padding:9px 6px; min-width:0; background:linear-gradient(135deg,#00d2b4,#00a890); color:#02110f;">مشاركة كصورة</button>
+</div>
 <div style="display:flex; flex-direction:column; gap:6px;">
-<button class="btn-primary" onclick="window.executeShareTxWhatsAppFromDetail()" style="background:#25D366; color:#FFF; font-size:12px; padding:9px; display:flex; align-items:center; justify-content:center; gap:6px;">
-<svg class="svg-icon" style="width:15px; height:15px;" viewbox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-5.46-4.45-9.92-9.91-9.92z"></path></svg>
-<span>إرسال إيصال الحركة واتساب</span>
-</button>
 <button class="btn-danger" onclick="window.promptDeleteTransactionFromDetail()" style="font-size:12px; padding:8px;">حذف هذه الحركة</button>
 <button class="btn-secondary" onclick="window.closeModal('txDetailModal')">إغلاق</button>
 </div>
@@ -13444,43 +13463,324 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         document.getElementById('txDetailModal').style.display = 'flex';
     };
 
-    window.executeShareTxWhatsAppFromDetail = function() {
-        if (!activeTxForDetail || !activeLedgerAccount) return;
-        const tx = activeTxForDetail;
-        const acc = activeLedgerAccount;
-        if (!acc.phone) { window.customAlert('بيانات ناقصة', 'لا يوجد رقم هاتف مسجل لهذا الحساب.'); return; }
+    // V178: بناء نص موحد ورسمي للحركة، مع رصيد الحركة وقت تسجيلها لا الرصيد الحالي بعد حركات لاحقة.
+    window.getDebtBalanceAfterTransaction = function(acc, targetTx) {
+        const targetId = String(targetTx?.id || '');
+        const rows = [...(acc?.transactions || [])].sort((a, b) => {
+            const da = new Date(a?.created_at || 0).getTime();
+            const db = new Date(b?.created_at || 0).getTime();
+            if (da !== db) return da - db;
+            return String(a?.id || '').localeCompare(String(b?.id || ''));
+        });
+        let balance = 0;
+        let found = false;
+        for (const row of rows) {
+            const amount = Math.max(0, Number(row?.amount || 0));
+            if (row?.type === 'debit') balance += amount;
+            else if (row?.type === 'credit' || row?.type === 'settle') balance -= amount;
+            if (String(row?.id || '') === targetId) { found = true; break; }
+        }
+        if (!found) balance = Number(window.calcAccountBalances(acc)?.net || 0);
+        return Math.max(0, balance);
+    };
 
-        const b = window.calcAccountBalances(acc);
+    window.formatDebtShareMoney = function(value) {
+        return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.max(0, Number(value || 0)));
+    };
+
+    window.formatDebtShareDateTime = function(value) {
+        const d = new Date(value || Date.now());
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yyyy = d.getFullYear();
+        const time = d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:true });
+        return { date: `${dd}-${mm}-${yyyy}`, time };
+    };
+
+    window.buildDebtTransactionShareData = function(tx, acc) {
+        if (!tx || !acc) return null;
         const isDebit = tx.type === 'debit';
         const isSettle = tx.type === 'settle';
         const isSupplier = window.isSupplierDebtAccount(acc);
-        const txDate = new Date(tx.created_at || Date.now());
-        const dateStr = txDate.toLocaleDateString('en-GB');
-        const timeStr = txDate.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:true });
         const currency = String(window.getCurrencySymbol?.() || 'د.ل');
-        const amountText = `${Number(tx.amount).toFixed(2)} ${currency}`;
-        const balanceText = `${Math.max(0, Number(b.net || 0)).toFixed(2)} ${currency}`;
-        const detailsText = tx.notes || tx.invoiceCode || (isDebit ? 'بضاعة على الحساب' : 'سداد على الحساب');
-        let store = currentTeam ? currentTeam.name : 'متجرنا';
+        const amountNumber = Math.max(0, Number(tx.amount || 0));
+        const balanceNumber = window.getDebtBalanceAfterTransaction(acc, tx);
+        const amountText = `${window.formatDebtShareMoney(amountNumber)} ${currency}`;
+        const balanceText = `${window.formatDebtShareMoney(balanceNumber)} ${currency}`;
+        const dt = window.formatDebtShareDateTime(tx.created_at);
+        const detailsText = String(tx.notes || tx.invoiceCode || 'بدون بيان').trim() || 'بدون بيان';
+        const profile = (typeof window.getStoreProfile === 'function') ? window.getStoreProfile() : {};
+        const storeName = String(profile?.storeName || currentTeam?.name || 'ADT Stock').trim() || 'ADT Stock';
+        const customerName = String(acc.name || 'العميل').trim() || 'العميل';
+        const isPaidOff = !isDebit && balanceNumber <= 0.005;
+        let title = '';
+        let intro = '';
+        let balanceLabel = '';
+        let text = '';
 
-        let msg = '';
         if (!isSupplier && isDebit) {
-            msg = `*إشعار مديونية*\n*${acc.name}*\nالمبلغ: *${amountText}*\nالبيان: ${detailsText}\nالتاريخ: ${dateStr} - ${timeStr}\nالرصيد المستحق: *${balanceText}*\nــــــــــــــــــــ\n${store}\nشكرًا لتعاملكم معنا.`;
+            title = 'إشعار دين جديد';
+            intro = `تم تسجيل دين جديد بقيمة ${amountText}.`;
+            balanceLabel = 'إجمالي المبلغ عليك';
+            text = `مرحباً ${customerName}\n\n${intro}\n\n• التاريخ: ${dt.date} | ${dt.time}\n• التفاصيل: ${detailsText}\n• ${balanceLabel}: ${balanceText}\n\nشكراً لتعاملك معنا!`;
         } else if (!isSupplier) {
-            msg = isSettle
-                ? `*تصفية حساب*\n*${acc.name}*\nالمبلغ المستلم: *${amountText}*\nالبيان: ${detailsText}\nالتاريخ: ${dateStr} - ${timeStr}\nحالة الحساب: *تمت التصفية بالكامل*\nــــــــــــــــــــ\n${store}\nشكرًا لتعاملكم معنا.`
-                : `*إشعار سداد*\n*${acc.name}*\nالمبلغ المستلم: *${amountText}*\nالبيان: ${detailsText}\nالتاريخ: ${dateStr} - ${timeStr}\nالرصيد المتبقي: *${balanceText}*\nــــــــــــــــــــ\n${store}\nشكرًا لتعاملكم معنا.`;
+            title = isPaidOff ? 'سند قبض - الحساب خالص' : 'سند قبض';
+            intro = isPaidOff
+                ? `تم استلام مبلغ ${amountText} والحساب خالص.`
+                : `تم استلام مبلغ ${amountText} وسداد جزء من الدين السابق.`;
+            balanceLabel = 'المتبقي عليك';
+            text = `مرحباً ${customerName}\n\n${intro}\n\n• التاريخ: ${dt.date} | ${dt.time}\n• التفاصيل: ${detailsText}\n• ${balanceLabel}: ${balanceText}\n\nشكراً لتعاملك معنا!`;
         } else if (isDebit) {
-            msg = `إشعار قيد مالي من (${store})\nللمورد: ${acc.name}\n--------------------\nالبيان: تسجيل دين جديد له\nالمبلغ: ${amountText}\nالتفاصيل: ${detailsText}\nالتاريخ: ${dateStr} - ${timeStr}\n--------------------\nإجمالي الدين الحالي: ${balanceText}\n--------------------\nشاكرين حسن تعاملكم!`;
+            title = 'إشعار دين للمورد';
+            intro = `تم تسجيل دين جديد للمورد بقيمة ${amountText}.`;
+            balanceLabel = 'إجمالي الدين الحالي له';
+            text = `مرحباً ${customerName}\n\n${intro}\n\n• التاريخ: ${dt.date} | ${dt.time}\n• التفاصيل: ${detailsText}\n• ${balanceLabel}: ${balanceText}\n\nشكراً لتعاملك معنا!`;
         } else {
-            msg = `إشعار سداد لنا من (${store})\nللمورد: ${acc.name}\n--------------------\nالبيان: ${isSettle ? 'سداد لنا وتصفية كاملة' : 'سداد لنا'}\nالمبلغ المسدد: ${amountText}\nالتفاصيل: ${detailsText}\nالتاريخ: ${dateStr} - ${timeStr}\n--------------------\nالرصيد المتبقي: ${balanceText}\n--------------------\nتم تسجيل السداد لنا بنجاح، شاكرين حسن تعاونكم!`;
+            title = isPaidOff ? 'سداد للمورد - الحساب خالص' : 'سداد للمورد';
+            intro = isPaidOff
+                ? `تم تسجيل سداد بقيمة ${amountText} والحساب خالص.`
+                : `تم تسجيل سداد بقيمة ${amountText}.`;
+            balanceLabel = 'الرصيد المتبقي له';
+            text = `مرحباً ${customerName}\n\n${intro}\n\n• التاريخ: ${dt.date} | ${dt.time}\n• التفاصيل: ${detailsText}\n• ${balanceLabel}: ${balanceText}\n\nشكراً لتعاملك معنا!`;
         }
 
-        let clean = String(acc.phone||'').replace(/\D/g, '');
-        if (clean.startsWith('0')) clean = '218' + clean.substring(1);
-        window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank');
-        window.closeModal('txDetailModal');
+        return {
+            tx, acc, isDebit, isSettle, isSupplier, isPaidOff, currency,
+            amountNumber, balanceNumber, amountText, balanceText,
+            date: dt.date, time: dt.time, detailsText, storeName, customerName,
+            title, intro, balanceLabel, text
+        };
     };
+
+    window.sharePlainTextFromApp = async function(text, title) {
+        if (window.Android && typeof window.Android.shareText === 'function') {
+            window.Android.shareText(String(text || ''), String(title || 'ADT Stock'));
+            return;
+        }
+        if (navigator.share) {
+            try { await navigator.share({ title: String(title || 'ADT Stock'), text: String(text || '') }); return; }
+            catch (e) { if (e?.name === 'AbortError') return; }
+        }
+        try {
+            await navigator.clipboard.writeText(String(text || ''));
+            window.showToast('تم نسخ الرسالة — الصقها في التطبيق المطلوب');
+        } catch (_) {
+            window.customAlert('تعذر فتح المشاركة', 'تعذر فتح نافذة المشاركة على هذا الجهاز.');
+        }
+    };
+
+    window.executeShareTxTextFromDetail = async function() {
+        if (!activeTxForDetail || !activeLedgerAccount) return;
+        const data = window.buildDebtTransactionShareData(activeTxForDetail, activeLedgerAccount);
+        if (!data) return;
+        await window.sharePlainTextFromApp(data.text, data.title);
+    };
+
+    window.__adtReceiptRoundRect = function(ctx, x, y, w, h, r) {
+        const rr = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + rr, y);
+        ctx.arcTo(x + w, y, x + w, y + h, rr);
+        ctx.arcTo(x + w, y + h, x, y + h, rr);
+        ctx.arcTo(x, y + h, x, y, rr);
+        ctx.arcTo(x, y, x + w, y, rr);
+        ctx.closePath();
+    };
+
+    window.__adtReceiptWrapRtl = function(ctx, text, rightX, startY, maxWidth, lineHeight, maxLines) {
+        const words = String(text || '').split(/\s+/).filter(Boolean);
+        const lines = [];
+        let line = '';
+        for (const word of words) {
+            const test = line ? `${line} ${word}` : word;
+            if (ctx.measureText(test).width <= maxWidth || !line) line = test;
+            else { lines.push(line); line = word; }
+        }
+        if (line) lines.push(line);
+        const limited = lines.slice(0, Math.max(1, maxLines || 4));
+        if (lines.length > limited.length && limited.length) limited[limited.length - 1] += '…';
+        limited.forEach((ln, idx) => ctx.fillText(ln, rightX, startY + idx * lineHeight));
+        return startY + limited.length * lineHeight;
+    };
+
+    window.createDebtReceiptCanvas = function(data) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1080;
+        canvas.height = 1420;
+        const ctx = canvas.getContext('2d');
+        const teal = '#009d8b';
+        const dark = '#10202b';
+        const muted = '#687781';
+        const border = '#d9e2e7';
+        const soft = '#f5f8f9';
+        const amountBg = data.isDebit ? '#fff4f3' : '#eefbf7';
+        const amountBorder = data.isDebit ? '#e96d63' : '#38aa8d';
+        const balanceBg = data.isPaidOff ? '#edf9f1' : '#fff8e8';
+        const balanceBorder = data.isPaidOff ? '#5aaa70' : '#d5a344';
+        const margin = 74;
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.direction = 'rtl';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'alphabetic';
+
+        // هوية ADT Stock / المحل
+        ctx.fillStyle = teal;
+        ctx.font = '900 34px Cairo, Arial, sans-serif';
+        ctx.fillText('ADT Stock', canvas.width - margin, 82);
+        ctx.fillStyle = dark;
+        ctx.font = '800 29px Cairo, Arial, sans-serif';
+        ctx.fillText(data.storeName, canvas.width - margin, 128);
+        ctx.fillStyle = muted;
+        ctx.font = '500 21px Cairo, Arial, sans-serif';
+        ctx.fillText(`${data.date}  ${data.time}`, canvas.width - margin, 164);
+
+        ctx.strokeStyle = teal;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(margin, 198);
+        ctx.lineTo(canvas.width - margin, 198);
+        ctx.stroke();
+
+        // رقم مرجعي مبسط من رقم الحركة
+        const ref = String(data.tx?.id || '').replace(/[^a-zA-Z0-9]/g, '').slice(-10).toUpperCase() || 'ADT';
+        ctx.fillStyle = muted;
+        ctx.font = '600 20px Cairo, Arial, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(`الرقم: ${ref}`, margin, 250);
+        ctx.textAlign = 'right';
+        ctx.fillText(`التاريخ والوقت: ${data.date} | ${data.time}`, canvas.width - margin, 250);
+
+        // عنوان السند
+        const titleW = 420, titleH = 86, titleX = (canvas.width - titleW) / 2, titleY = 305;
+        window.__adtReceiptRoundRect(ctx, titleX, titleY, titleW, titleH, 24);
+        ctx.fillStyle = soft;
+        ctx.fill();
+        ctx.strokeStyle = border;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = dark;
+        ctx.font = '900 38px Cairo, Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(data.title, canvas.width / 2, titleY + 56);
+
+        // العميل
+        ctx.textAlign = 'right';
+        ctx.fillStyle = muted;
+        ctx.font = '600 24px Cairo, Arial, sans-serif';
+        ctx.fillText(data.isSupplier ? 'المورد' : 'العميل', canvas.width - margin, 455);
+        ctx.fillStyle = dark;
+        ctx.font = '900 36px Cairo, Arial, sans-serif';
+        window.__adtReceiptWrapRtl(ctx, data.customerName, canvas.width - margin, 503, 700, 46, 2);
+
+        // المبلغ
+        window.__adtReceiptRoundRect(ctx, margin, 575, canvas.width - margin * 2, 180, 28);
+        ctx.fillStyle = amountBg;
+        ctx.fill();
+        ctx.strokeStyle = amountBorder;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.fillStyle = muted;
+        ctx.font = '700 24px Cairo, Arial, sans-serif';
+        ctx.fillText(data.isDebit ? 'قيمة الدين الجديد' : 'المبلغ المستلم', canvas.width - margin - 32, 625);
+        ctx.fillStyle = dark;
+        ctx.font = '900 56px Cairo, Arial, sans-serif';
+        ctx.fillText(data.amountText, canvas.width - margin - 32, 704);
+
+        // وصف الحركة
+        ctx.fillStyle = dark;
+        ctx.font = '700 28px Cairo, Arial, sans-serif';
+        window.__adtReceiptWrapRtl(ctx, data.intro, canvas.width - margin, 825, canvas.width - margin * 2, 45, 3);
+
+        // التفاصيل
+        ctx.fillStyle = muted;
+        ctx.font = '700 23px Cairo, Arial, sans-serif';
+        ctx.fillText('التفاصيل:', canvas.width - margin, 940);
+        ctx.fillStyle = dark;
+        ctx.font = '600 25px Cairo, Arial, sans-serif';
+        window.__adtReceiptWrapRtl(ctx, data.detailsText, canvas.width - margin, 980, canvas.width - margin * 2, 40, 3);
+
+        // الرصيد
+        window.__adtReceiptRoundRect(ctx, margin, 1080, canvas.width - margin * 2, 105, 22);
+        ctx.fillStyle = balanceBg;
+        ctx.fill();
+        ctx.strokeStyle = balanceBorder;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        ctx.fillStyle = dark;
+        ctx.font = '800 25px Cairo, Arial, sans-serif';
+        ctx.fillText(`${data.balanceLabel}:`, canvas.width - margin - 24, 1145);
+        ctx.fillStyle = data.isPaidOff ? '#2f8b54' : '#a67519';
+        ctx.font = '900 29px Cairo, Arial, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(data.balanceText, margin + 24, 1145);
+
+        // التوقيع
+        ctx.textAlign = 'right';
+        ctx.fillStyle = dark;
+        ctx.font = '800 24px Cairo, Arial, sans-serif';
+        ctx.fillText('توقيع المحاسب / المؤسسة', canvas.width - margin, 1260);
+        ctx.strokeStyle = '#8b969d';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(canvas.width - margin - 310, 1302);
+        ctx.lineTo(canvas.width - margin, 1302);
+        ctx.stroke();
+
+        ctx.fillStyle = muted;
+        ctx.font = '500 18px Cairo, Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('تم إنشاء هذا الإشعار عبر ADT Stock', canvas.width / 2, 1375);
+        return canvas;
+    };
+
+    window.shareDebtReceiptImage = async function(data) {
+        const canvas = window.createDebtReceiptCanvas(data);
+        const fileName = `ADT_Stock_${data.isDebit ? 'Debt' : 'Receipt'}_${String(data.tx?.id || Date.now()).replace(/[^a-zA-Z0-9_-]/g,'_')}.png`;
+        const dataUrl = canvas.toDataURL('image/png', 1);
+        const base64 = String(dataUrl).split(',')[1] || '';
+
+        if (window.Android && typeof window.Android.shareImageBase64 === 'function') {
+            window.Android.shareImageBase64(base64, fileName);
+            window.showToast('تم تجهيز الصورة — اختر التطبيق للمشاركة');
+            return;
+        }
+
+        const blob = await new Promise((resolve, reject) => canvas.toBlob(b => b ? resolve(b) : reject(new Error('IMAGE_BLOB_FAILED')), 'image/png', 1));
+        const file = new File([blob], fileName, { type:'image/png' });
+        if (navigator.canShare && navigator.canShare({ files:[file] })) {
+            await navigator.share({ files:[file], title:data.title, text:data.storeName });
+            return;
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = fileName; a.style.display = 'none';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        window.showToast('تم إنشاء صورة الإشعار');
+    };
+
+    window.executeShareTxImageFromDetail = async function() {
+        if (!activeTxForDetail || !activeLedgerAccount || window.__adtDebtReceiptShareBusy) return;
+        const data = window.buildDebtTransactionShareData(activeTxForDetail, activeLedgerAccount);
+        if (!data) return;
+        window.__adtDebtReceiptShareBusy = true;
+        try {
+            window.showToast('جاري تجهيز صورة الإشعار...');
+            await window.shareDebtReceiptImage(data);
+        } catch (e) {
+            if (e?.name !== 'AbortError') {
+                console.error('[Debt Receipt Image] failed:', e);
+                window.customAlert('تعذر مشاركة الصورة', 'حدث خطأ أثناء تجهيز صورة الإشعار. حاول مرة أخرى.');
+            }
+        } finally {
+            window.__adtDebtReceiptShareBusy = false;
+        }
+    };
+
+    // توافق مع أي زر قديم بقي في نسخة مخزنة: بدلاً من واتساب افتح المشاركة العامة للنص.
+    window.executeShareTxWhatsAppFromDetail = window.executeShareTxTextFromDetail;
 
     window.promptDeleteTransactionFromDetail = function() {
         if (!window.canEditDebts()) {

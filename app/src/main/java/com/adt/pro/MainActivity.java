@@ -707,6 +707,55 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public void shareText(String text, String title) {
+            final String safeText = text == null ? "" : text;
+            final String safeTitle = title == null || title.trim().isEmpty() ? "ADT Stock" : title.trim();
+            runOnUiThread(() -> {
+                try {
+                    Intent send = new Intent(Intent.ACTION_SEND);
+                    send.setType("text/plain");
+                    send.putExtra(Intent.EXTRA_TEXT, safeText);
+                    send.putExtra(Intent.EXTRA_TITLE, safeTitle);
+                    startActivity(Intent.createChooser(send, "مشاركة من ADT Stock"));
+                } catch (ActivityNotFoundException error) {
+                    Toast.makeText(MainActivity.this, "لا يوجد تطبيق متاح للمشاركة", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void shareImageBase64(String base64, String fileName) {
+            try {
+                String safeName = safeFileName(fileName, "ADT_Stock_Receipt.png");
+                if (!safeName.toLowerCase().endsWith(".png")) safeName += ".png";
+                byte[] bytes = Base64.decode(base64 == null ? "" : base64, Base64.DEFAULT);
+                if (bytes.length == 0) throw new IllegalArgumentException("EMPTY_IMAGE");
+                File dir = new File(getCacheDir(), "shared_images");
+                if (!dir.exists() && !dir.mkdirs()) throw new IllegalStateException("CACHE_DIR_FAILED");
+                File out = new File(dir, safeName);
+                try (FileOutputStream fos = new FileOutputStream(out)) { fos.write(bytes); }
+                Uri uri = FileProvider.getUriForFile(MainActivity.this, getPackageName()+".fileprovider", out);
+                Intent send = new Intent(Intent.ACTION_SEND);
+                send.setType("image/png");
+                send.putExtra(Intent.EXTRA_STREAM, uri);
+                send.setClipData(ClipData.newUri(getContentResolver(), safeName, uri));
+                send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                runOnUiThread(() -> {
+                    try {
+                        Intent chooser = Intent.createChooser(send, "مشاركة صورة الإشعار");
+                        chooser.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        startActivity(chooser);
+                    } catch (ActivityNotFoundException error) {
+                        Toast.makeText(MainActivity.this, "لا يوجد تطبيق متاح للمشاركة", Toast.LENGTH_LONG).show();
+                    }
+                });
+            } catch (Exception e) {
+                android.util.Log.e("ADT_SHARE", "Image share failed", e);
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, "تعذر مشاركة صورة الإشعار", Toast.LENGTH_LONG).show());
+            }
+        }
+
+        @JavascriptInterface
         public void sharePdfBase64(String base64, String fileName) {
             try {
                 String safeName = safeFileName(fileName, "ADT_Stock.pdf");
