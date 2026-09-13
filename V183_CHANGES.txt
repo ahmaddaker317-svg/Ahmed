@@ -1,0 +1,7 @@
+ADT Stock v183
+- Restored wholesale audit labels to "الكمية المجرودة" and "سعر الشراء".
+- Renamed wholesale inventory audit to "جرد الجملة" in the main audit UI and PDF title.
+- Reduced the per-page total box height and font size.
+- Moved the per-page total box upward to avoid overlap with the ADT Stock footer text.
+- Keeps multi-page A4 audit PDF and a separate total for every page.
+- No SQL changes required.

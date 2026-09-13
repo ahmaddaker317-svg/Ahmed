@@ -6395,7 +6395,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 <!-- نافذة الجرد الفعلي -->
 <div class="modal no-print" id="auditItemModal">
 <div class="modal-box" style="margin-top: 10px;">
-<h3 id="auditModalTitle">إدخال الجرد الفعلي</h3>
+<h3 id="auditModalTitle">إدخال جرد الجملة</h3>
 <div id="auditModalProdName" style="font-weight:800; color:#FFF; margin-bottom:8px; font-size:15px; text-align:center;"></div>
 <div class="form-group"><label style="text-align:center;"><span id="auditQtyLabel">العدد المجرود فعلياً:</span></label><input class="input-field" id="auditModalQtyInput" oninput="window.calcAuditModalTotal()" onkeydown="if(event.key==='Enter'||event.keyCode===13){ event.preventDefault(); window.confirmAuditItemQty(); }" placeholder="أدخل العدد" style="font-size:18px; font-weight:900; text-align:center; border-color:var(--accent-cyan);" type="number"/></div>
 <div id="auditModalBuyPriceRow" style="text-align:center; color:var(--text-muted); font-size:11px; font-weight:800; margin:-2px 0 8px;"><span id="auditPriceLabel">سعر الشراء</span>: <span id="auditModalBuyPriceText" style="color:#fff;">0.00</span> <span class="app-currency-symbol">د.ل</span></div>
@@ -6743,7 +6743,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 </div>
 <div class="hub-card hub-card-audit" id="hubWholesaleAuditCard" onclick="window.openWholesaleAudit()">
 <div class="hub-icon-box"><svg class="svg-icon" viewbox="0 0 24 24"><path d="M4 4h16v16H4V4zm3 3v10h10V7H7zm2 2h6v2H9V9zm0 4h4v2H9v-2z"></path></svg></div>
-<div class="hub-card-info"><div class="hub-card-title">جرد المخزون الفعلي</div><div class="hub-card-sub">البحث عن الأصناف وإدخال الكميات وتصدير PDF</div><div class="hub-card-badge" id="hubAuditBadge" style="color:#ff5669;border-color:rgba(255,86,105,.35)">0 صنف مجرود</div></div>
+<div class="hub-card-info"><div class="hub-card-title">جرد الجملة</div><div class="hub-card-sub">البحث عن الأصناف وإدخال الكميات وتصدير PDF</div><div class="hub-card-badge" id="hubAuditBadge" style="color:#ff5669;border-color:rgba(255,86,105,.35)">0 صنف مجرود</div></div>
 </div>
 <div class="hub-card hub-card-audit" id="hubRetailAuditCard" onclick="window.openRetailAudit()">
 <div class="hub-icon-box"><svg class="svg-icon" viewbox="0 0 24 24"><path d="M4 4h16v16H4V4zm3 3v10h10V7H7zm2 2h6v2H9V9zm0 4h4v2H9v-2z"></path></svg></div>
@@ -9175,7 +9175,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             products: 'واجهة المنتجات',
             shortages: 'واجهة النواقص',
             recent: 'التعديلات الأخيرة',
-            audit: window.auditMode === 'retail' ? 'واجهة جرد القطاعي' : 'واجهة جرد المخزون الفعلي',
+            audit: window.auditMode === 'retail' ? 'واجهة جرد القطاعي' : 'واجهة جرد الجملة',
             debts: 'الحسابات والديون',
             dailySales: 'المبيعات اليومية'
         };
@@ -9327,7 +9327,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     window.adtIntroCopy = {
         ar: [
             {title:'إدارة المخزون بسهولة', text:'أضف أصنافك وتابع الكميات وأسعار البيع والشراء من واجهة واحدة سريعة وواضحة.'},
-            {title:'جرد أسرع وأكثر دقة', text:'استخدم الجرد الفعلي وجرد القطاعي، واحفظ النتائج وتابع قيمة المخزون بدون خطوات معقدة.'},
+            {title:'جرد أسرع وأكثر دقة', text:'استخدم جرد الجملة وجرد القطاعي، واحفظ النتائج وتابع قيمة المخزون بدون خطوات معقدة.'},
             {title:'إدارة نشاطك من مكان واحد', text:'تابع الديون والفواتير والمبيعات اليومية والفريق والصلاحيات داخل ADT Stock.'}
         ],
         en: [
@@ -12569,7 +12569,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         products.forEach(p=>p.retailAuditQty=Number((window.retailAuditState||{})[String(p.id)]||0));
     };
     window.getRetailAuditQty=function(product){ return Number((window.retailAuditState||{})[String(product?.id)]||0); };
-    window.getAuditModeTitle=function(){return window.auditMode==='retail'?'واجهة جرد القطاعي':'واجهة جرد المخزون الفعلي';};
+    window.getAuditModeTitle=function(){return window.auditMode==='retail'?'واجهة جرد القطاعي':'واجهة جرد الجملة';};
     // كل واجهة جرد تبدأ ببحث نظيف حتى لا ينتقل بحث واجهة إلى الأخرى.
     window.clearAuditSearch=function(){
         const input=document.getElementById('searchAuditBox');
@@ -12631,7 +12631,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             const q=qtyOf(p),price=priceOf(p),total=q*price;
             return `<div class="audit-display-card">
                 <div class="audit-prod-main"><div class="prod-name-title">${window.escapeHtml(p.name)}</div><div class="audit-buy-inline"><span>${retail?'سعر القطعة':'سعر الشراء'}</span> <strong>${price.toFixed(2)}</strong></div></div>
-                <div class="audit-qty-col"><span>${retail?'عدد القطع':'عدد الجرد'}</span><strong>${q}</strong></div>
+                <div class="audit-qty-col"><span>${retail?'عدد القطع':'الكمية المجرودة'}</span><strong>${q}</strong></div>
                 <div class="audit-total-col"><span>إجمالي السعر</span><strong>${total.toFixed(2)}</strong></div>
                 <button type="button" class="audit-delete-btn" onclick="event.preventDefault();event.stopPropagation();window.removeAuditItemFromAudit(${products.indexOf(p)});return false;" title="حذف من الجرد"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7L6 7zm3-4h6l1 2h4v2H4V5h4l1-2zm1 6v9h2V9h-2zm4 0v9h2V9h-2z"/></svg><span>حذف</span></button>
             </div>`;
@@ -12675,7 +12675,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         const price=window.getAuditOnlyPrice(p);
         document.getElementById('auditModalProdName').innerText=p.name;
         document.getElementById('auditModalQtyInput').value='';
-        document.getElementById('auditModalTitle').innerText=window.auditAddMode?'زيادة عدد جرد المنتج':(retail?'إدخال جرد القطاعي':'إدخال الجرد الفعلي');
+        document.getElementById('auditModalTitle').innerText=window.auditAddMode?'زيادة عدد جرد المنتج':(retail?'إدخال جرد القطاعي':'إدخال جرد الجملة');
         document.getElementById('auditQtyLabel').innerText=retail?'عدد القطع المجرودة:':'العدد المجرود فعلياً:';
         document.getElementById('auditPriceLabel').innerText=retail?'سعر القطعة':'سعر الشراء';
         document.getElementById('auditModalBuyPriceText').innerText=price.toFixed(2);
@@ -12869,7 +12869,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     };
 
     // تصدير PDF الجرد على صفحات A4 فعلية بدل ضغط كل الأصناف داخل ورقة واحدة.
-    // ترتيب الأعمدة من اليمين: رقم، اسم المنتج، عدد الجرد، سعر الجرد، الإجمالي.
+    // ترتيب الأعمدة من اليمين: رقم، اسم المنتج، الكمية المجرودة، سعر الشراء، الإجمالي.
     window.exportAuditPDF = async function() {
         if(!window.canAudit()){
             window.customAlert('صلاحية مقفلة','تصدير الجرد متاح للمدير أو للعضو المسموح له فقط.');
@@ -12889,8 +12889,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         }
 
         const store = currentTeam ? currentTeam.name : 'متجرنا';
-        const title = retail ? 'كشف جرد القطاعي' : 'كشف الجرد الفعلي للمخزون';
-        const qtyLabel = retail ? 'عدد القطع' : 'عدد الجرد';
+        const title = retail ? 'كشف جرد القطاعي' : 'كشف جرد الجملة';
+        const qtyLabel = retail ? 'عدد القطع' : 'الكمية المجرودة';
         const reportDate = new Date().toLocaleDateString('ar-LY');
         const fileName = retail
             ? `كشف_الجرد_القطاعي_${new Date().toISOString().slice(0,10)}.pdf`
@@ -12921,8 +12921,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         const TABLE_HEADER_H = 50;
         const TABLE_TOP = 220;
         const FOOTER_Y = PAGE_H - 45;
-        const PAGE_SUMMARY_H = 56;
-        const PAGE_SUMMARY_GAP = 18;
+        const PAGE_SUMMARY_H = 40;
+        const PAGE_SUMMARY_GAP = 36;
         const usableRowsHeight = FOOTER_Y - TABLE_TOP - TABLE_HEADER_H - PAGE_SUMMARY_H - PAGE_SUMMARY_GAP - 20;
         const rowsPerPage = Math.max(1, Math.floor(usableRowsHeight / ROW_H));
         const pageCount = Math.ceil(rows.length / rowsPerPage);
@@ -13002,7 +13002,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             ctx.fillText('اسم المنتج', X_AFTER_NO - 22, TABLE_TOP + 33);
             ctx.textAlign = 'center';
             ctx.fillText(qtyLabel, (X_AFTER_NAME + X_AFTER_QTY) / 2, TABLE_TOP + 33);
-            ctx.fillText('سعر الجرد', (X_AFTER_QTY + X_AFTER_PRICE) / 2, TABLE_TOP + 33);
+            ctx.fillText(retail ? 'سعر القطعة' : 'سعر الشراء', (X_AFTER_QTY + X_AFTER_PRICE) / 2, TABLE_TOP + 33);
             ctx.fillText('الإجمالي', (X_AFTER_PRICE + X_LEFT) / 2, TABLE_TOP + 33);
 
             let y = TABLE_TOP + TABLE_HEADER_H;
@@ -13040,16 +13040,16 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             });
 
             // إجمالي الصفحة الحالية.
-            const summaryY = FOOTER_Y - PAGE_SUMMARY_H - 8;
+            const summaryY = FOOTER_Y - PAGE_SUMMARY_H - 34;
             ctx.fillStyle = '#f6fbfa';
             ctx.strokeStyle = '#00D2B4';
             ctx.lineWidth = 1.5;
             ctx.fillRect(LEFT, summaryY, TABLE_W, PAGE_SUMMARY_H);
             ctx.strokeRect(LEFT, summaryY, TABLE_W, PAGE_SUMMARY_H);
             ctx.fillStyle = '#0b5f56';
-            ctx.font = 'bold 20px Cairo, sans-serif';
+            ctx.font = 'bold 17px Cairo, sans-serif';
             ctx.textAlign = 'right';
-            ctx.fillText(`إجمالي هذه الصفحة: ${window.formatMoney(pageSum)}`, RIGHT - 20, summaryY + 35);
+            ctx.fillText(`إجمالي هذه الصفحة: ${window.formatMoney(pageSum)}`, RIGHT - 16, summaryY + 27);
 
             // يظل باقي الصفحة أبيضاً بدلاً من تصغير الجدول كله ليناسب صفحة واحدة.
             ctx.fillStyle = '#6d7781';
