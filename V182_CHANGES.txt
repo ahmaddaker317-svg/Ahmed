@@ -1,0 +1,5 @@
+ADT Stock v182
+- Added per-page total at the bottom of every audit PDF page.
+- Audit export still splits automatically across multiple A4 pages.
+- Table order remains: product name, audit quantity, audit price, total.
+- No SQL changes required.

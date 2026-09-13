@@ -1,0 +1,9 @@
+ADT Stock v181 — Audit PDF Pagination
+
+- Fixed audit PDF printing so long audits use multiple A4 pages instead of one oversized page scaled down by the printer.
+- Uses fixed A4 portrait pages with repeated headers and page numbers.
+- Audit quantity now appears before audit price in the report.
+- Renamed report price column to "سعر الجرد".
+- Applies to wholesale and retail audit exports.
+- No SQL changes.
+- Android versionCode 181 / versionName 1.81.0.

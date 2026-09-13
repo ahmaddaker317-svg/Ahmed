@@ -12868,147 +12868,210 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         }catch(e){window.customAlert('تعذر تصفير الجرد',e?.message||'لم يتم التصفير على الخادم.');}
     };
 
-    // تصدير PDF الجرد الحقيقي الداخلي
+    // تصدير PDF الجرد على صفحات A4 فعلية بدل ضغط كل الأصناف داخل ورقة واحدة.
+    // ترتيب الأعمدة من اليمين: رقم، اسم المنتج، عدد الجرد، سعر الجرد، الإجمالي.
     window.exportAuditPDF = async function() {
-        if(!window.canAudit()){window.customAlert('صلاحية مقفلة','تصدير الجرد متاح للمدير أو للعضو المسموح له فقط.');return;}
-        if(window.auditMode==='retail'){
-            window.loadRetailAudit();
-            const auditedList=products.filter(p=>window.getRetailAuditQty(p)>0);
-            if(!auditedList.length){window.customAlert('تنبيه','لا توجد أصناف في جرد القطاعي لتصديرها.');return;}
-            const store=currentTeam?currentTeam.name:'متجرنا';
-            const totalSum=auditedList.reduce((a,p)=>a+window.getRetailAuditQty(p)*window.getAuditOnlyPrice(p),0);
-            const rowHeight=60,headerHeight=250,footerHeight=100,canvas=document.createElement('canvas');
-            canvas.width=1200;canvas.height=headerHeight+auditedList.length*rowHeight+footerHeight;
-            const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.direction='rtl';ctx.textAlign='center';
-            ctx.fillStyle='#070A12';ctx.font='bold 36px Cairo, sans-serif';ctx.fillText(store,600,60);
-            ctx.fillStyle='#333';ctx.font='bold 24px Cairo, sans-serif';ctx.fillText('كشف الجرد الفعلي للقطاعي',600,110);
-            ctx.fillStyle='#00D2B4';ctx.fillRect(80,130,1040,45);ctx.fillStyle='#070A12';ctx.font='bold 22px Cairo, sans-serif';ctx.fillText(`إجمالي قيمة الجرد: ${window.formatMoney(totalSum)}  |  عدد الأصناف المجرودة: ${auditedList.length} صنف`,600,160);
-            ctx.fillStyle='#666';ctx.font='18px Cairo, sans-serif';ctx.fillText('تاريخ التصدير: '+new Date().toLocaleDateString('ar-LY'),600,205);
-            const tableTop=225;ctx.fillStyle='#f0f0f0';ctx.fillRect(80,tableTop,1040,50);ctx.strokeStyle='#000';ctx.lineWidth=1.5;ctx.strokeRect(80,tableTop,1040,50);
-            ctx.fillStyle='#000';ctx.font='bold 20px Cairo, sans-serif';ctx.textAlign='center';ctx.fillText('#',1090,tableTop+33);ctx.textAlign='right';ctx.fillText('اسم المنتج',1040,tableTop+33);ctx.textAlign='center';ctx.fillText('سعر القطعة',465,tableTop+33);ctx.fillText('عدد القطع',305,tableTop+33);ctx.fillText('الإجمالي',155,tableTop+33);
-            ctx.beginPath();ctx.moveTo(1060,tableTop);ctx.lineTo(1060,tableTop+50);ctx.moveTo(550,tableTop);ctx.lineTo(550,tableTop+50);ctx.moveTo(380,tableTop);ctx.lineTo(380,tableTop+50);ctx.moveTo(230,tableTop);ctx.lineTo(230,tableTop+50);ctx.stroke();
-            const fitName=(name,max)=>{let t=String(name||'');while(t.length>2&&ctx.measureText(t).width>max)t=t.slice(0,-1);return t===String(name||'')?t:t+'…';};
-            let curY=tableTop+50;
-            auditedList.forEach((p,idx)=>{
-                if(idx%2===1){ctx.fillStyle='#f9f9f9';ctx.fillRect(80,curY,1040,rowHeight);}ctx.strokeStyle='#000';ctx.strokeRect(80,curY,1040,rowHeight);
-                ctx.beginPath();ctx.moveTo(1060,curY);ctx.lineTo(1060,curY+rowHeight);ctx.moveTo(550,curY);ctx.lineTo(550,curY+rowHeight);ctx.moveTo(380,curY);ctx.lineTo(380,curY+rowHeight);ctx.moveTo(230,curY);ctx.lineTo(230,curY+rowHeight);ctx.stroke();
-                const q=window.getRetailAuditQty(p),price=window.getAuditOnlyPrice(p);ctx.fillStyle='#111';ctx.font='18px Cairo, sans-serif';ctx.textAlign='center';ctx.fillText(String(idx+1),1090,curY+38);ctx.direction='rtl';ctx.textAlign='right';ctx.font='bold 18px Cairo, sans-serif';ctx.fillText(fitName(p.name,470),1040,curY+38);ctx.textAlign='center';ctx.font='18px Cairo, sans-serif';ctx.fillText(price.toFixed(2),465,curY+38);ctx.fillText(String(q),305,curY+38);ctx.fillText((q*price).toFixed(2),155,curY+38);curY+=rowHeight;
-            });
-            ctx.fillStyle='#666';ctx.font='18px Cairo, sans-serif';ctx.textAlign='center';ctx.fillText('تم استخراج هذا التقرير عبر منظومة ADT Stock',600,curY+50);
-            await renderCanvasToPdfAndShare(canvas,`كشف_الجرد_القطاعي_${new Date().toISOString().slice(0,10)}.pdf`);return;
+        if(!window.canAudit()){
+            window.customAlert('صلاحية مقفلة','تصدير الجرد متاح للمدير أو للعضو المسموح له فقط.');
+            return;
         }
 
-        const auditedList = products.filter(p => (p.auditQty || 0) > 0);
-        if (auditedList.length === 0) { window.customAlert('تنبيه', 'لا توجد أصناف مجرودة لتصديرها.'); return; }
+        const retail = window.auditMode === 'retail';
+        if (retail) window.loadRetailAudit();
 
-        let store = currentTeam ? currentTeam.name : 'متجرنا';
-        let totalSum = 0;
-        auditedList.forEach(p => totalSum += (p.auditQty || 0) * window.getAuditOnlyPrice(p));
-        let fileName = `كشف_الجرد_${new Date().toISOString().slice(0, 10)}.pdf`;
+        const auditedList = retail
+            ? products.filter(p => window.getRetailAuditQty(p) > 0)
+            : products.filter(p => Number(p.auditQty || 0) > 0);
 
-        window.showToast('جاري رسم وتجهيز ملف PDF...');
+        if (!auditedList.length) {
+            window.customAlert('تنبيه', retail ? 'لا توجد أصناف في جرد القطاعي لتصديرها.' : 'لا توجد أصناف مجرودة لتصديرها.');
+            return;
+        }
 
-        const rowHeight = 60;
-        const headerHeight = 250;
-        const footerHeight = 100;
-        const canvas = document.createElement('canvas');
-        canvas.width = 1200;
-        canvas.height = headerHeight + (auditedList.length * rowHeight) + footerHeight;
-        const ctx = canvas.getContext('2d');
+        const store = currentTeam ? currentTeam.name : 'متجرنا';
+        const title = retail ? 'كشف جرد القطاعي' : 'كشف الجرد الفعلي للمخزون';
+        const qtyLabel = retail ? 'عدد القطع' : 'عدد الجرد';
+        const reportDate = new Date().toLocaleDateString('ar-LY');
+        const fileName = retail
+            ? `كشف_الجرد_القطاعي_${new Date().toISOString().slice(0,10)}.pdf`
+            : `كشف_الجرد_${new Date().toISOString().slice(0,10)}.pdf`;
 
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.direction = 'rtl';
-        ctx.textAlign = 'center';
-
-        ctx.fillStyle = '#070A12';
-        ctx.font = 'bold 36px Cairo, sans-serif';
-        ctx.fillText(store, 600, 60);
-
-        ctx.fillStyle = '#333333';
-        ctx.font = 'bold 24px Cairo, sans-serif';
-        ctx.fillText('كشف الجرد الفعلي للمخزون', 600, 110);
-
-        ctx.fillStyle = '#00D2B4';
-        ctx.fillRect(80, 130, 1040, 45);
-        ctx.fillStyle = '#070A12';
-        ctx.font = 'bold 22px Cairo, sans-serif';
-        ctx.fillText(`إجمالي قيمة الجرد: ${window.formatMoney(totalSum)}  |  عدد الأصناف المجرودة: ${auditedList.length} صنف`, 600, 160);
-
-        ctx.fillStyle = '#666666';
-        ctx.font = '18px Cairo, sans-serif';
-        ctx.fillText('تاريخ التصدير: ' + new Date().toLocaleDateString('ar-EG'), 600, 205);
-
-        const tableTop = 225;
-        ctx.fillStyle = '#f0f0f0';
-        ctx.fillRect(80, tableTop, 1040, 50);
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(80, tableTop, 1040, 50);
-
-        ctx.fillStyle = '#000000';
-        ctx.font = 'bold 20px Cairo, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('#', 1090, tableTop + 33);
-        ctx.textAlign = 'right';
-        ctx.fillText('اسم المنتج', 1040, tableTop + 33);
-        ctx.textAlign = 'center';
-        ctx.fillText('سعر الشراء', 465, tableTop + 33);
-        ctx.fillText('الكمية المجرودة', 305, tableTop + 33);
-        ctx.fillText('الإجمالي', 155, tableTop + 33);
-
-        ctx.beginPath();
-        ctx.moveTo(1060, tableTop); ctx.lineTo(1060, tableTop + 50);
-        ctx.moveTo(550, tableTop); ctx.lineTo(550, tableTop + 50);
-        ctx.moveTo(380, tableTop); ctx.lineTo(380, tableTop + 50);
-        ctx.moveTo(230, tableTop); ctx.lineTo(230, tableTop + 50);
-        ctx.stroke();
-
-        let curY = tableTop + 50;
-        auditedList.forEach((p, idx) => {
-            if (idx % 2 === 1) {
-                ctx.fillStyle = '#f9f9f9';
-                ctx.fillRect(80, curY, 1040, rowHeight);
-            }
-            ctx.strokeStyle = '#000000';
-            ctx.strokeRect(80, curY, 1040, rowHeight);
-
-            ctx.beginPath();
-            ctx.moveTo(1060, curY); ctx.lineTo(1060, curY + rowHeight);
-            ctx.moveTo(550, curY); ctx.lineTo(550, curY + rowHeight);
-            ctx.moveTo(380, curY); ctx.lineTo(380, curY + rowHeight);
-            ctx.moveTo(230, curY); ctx.lineTo(230, curY + rowHeight);
-            ctx.stroke();
-
-            ctx.fillStyle = '#000000';
-            ctx.textAlign = 'center';
-            ctx.font = 'bold 18px Cairo, sans-serif';
-            ctx.fillText(String(idx + 1), 1090, curY + 35);
-
-            ctx.textAlign = 'right';
-            ctx.font = 'bold 20px Cairo, sans-serif';
-            ctx.fillText(p.name || '', 1040, curY + 35);
-
-            ctx.textAlign = 'center';
-            ctx.font = '19px Cairo, sans-serif';
-            ctx.fillText(window.getAuditOnlyPrice(p).toFixed(2), 465, curY + 35);
-
-            ctx.font = 'bold 20px Cairo, sans-serif';
-            ctx.fillText(String(p.auditQty), 305, curY + 35);
-
-            ctx.font = 'bold 20px Cairo, sans-serif';
-            ctx.fillText(((p.auditQty || 0) * window.getAuditOnlyPrice(p)).toFixed(2), 155, curY + 35);
-
-            curY += rowHeight;
+        const rows = auditedList.map((p, index) => {
+            const qty = retail ? Number(window.getRetailAuditQty(p) || 0) : Number(p.auditQty || 0);
+            const price = Number(window.getAuditOnlyPrice(p) || 0);
+            return {
+                index: index + 1,
+                name: String(p.name || ''),
+                qty,
+                price,
+                total: qty * price
+            };
         });
 
-        ctx.fillStyle = '#666666';
-        ctx.font = '18px Cairo, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('تم استخراج هذا التقرير عبر منظومة ADT Stock', 600, curY + 50);
+        const totalSum = rows.reduce((sum, row) => sum + row.total, 0);
+        window.showToast('جاري تجهيز كشف الجرد على صفحات A4...');
 
-        await renderCanvasToPdfAndShare(canvas, fileName);
+        // دقة عالية بنسبة A4 portrait تقريباً 210 × 297 مم.
+        const PAGE_W = 1200;
+        const PAGE_H = 1697;
+        const LEFT = 60;
+        const RIGHT = 1140;
+        const TABLE_W = RIGHT - LEFT;
+        const ROW_H = 52;
+        const TABLE_HEADER_H = 50;
+        const TABLE_TOP = 220;
+        const FOOTER_Y = PAGE_H - 45;
+        const PAGE_SUMMARY_H = 56;
+        const PAGE_SUMMARY_GAP = 18;
+        const usableRowsHeight = FOOTER_Y - TABLE_TOP - TABLE_HEADER_H - PAGE_SUMMARY_H - PAGE_SUMMARY_GAP - 20;
+        const rowsPerPage = Math.max(1, Math.floor(usableRowsHeight / ROW_H));
+        const pageCount = Math.ceil(rows.length / rowsPerPage);
+        const pages = [];
+
+        // حدود الأعمدة: # | المنتج | العدد | السعر | الإجمالي
+        // من اليمين إلى اليسار بصرياً.
+        const X_RIGHT = RIGHT;
+        const X_AFTER_NO = 1070;
+        const X_AFTER_NAME = 550;
+        const X_AFTER_QTY = 390;
+        const X_AFTER_PRICE = 230;
+        const X_LEFT = LEFT;
+
+        function fitText(ctx, value, maxWidth) {
+            const original = String(value || '');
+            if (ctx.measureText(original).width <= maxWidth) return original;
+            let text = original;
+            while (text.length > 2 && ctx.measureText(text + '…').width > maxWidth) text = text.slice(0, -1);
+            return text + '…';
+        }
+
+        function drawPage(pageRows, pageIndex) {
+            const pageSum = pageRows.reduce((sum, row) => sum + row.total, 0);
+            const canvas = document.createElement('canvas');
+            canvas.width = PAGE_W;
+            canvas.height = PAGE_H;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, PAGE_W, PAGE_H);
+            ctx.direction = 'rtl';
+
+            // رأس التقرير؛ أكبر وأقرب لحواف الصفحة ليستفيد من مساحة الورقة.
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#070A12';
+            ctx.font = 'bold 34px Cairo, sans-serif';
+            ctx.fillText(store, PAGE_W / 2, 54);
+            ctx.fillStyle = '#333333';
+            ctx.font = 'bold 24px Cairo, sans-serif';
+            ctx.fillText(title, PAGE_W / 2, 96);
+
+            ctx.fillStyle = '#00D2B4';
+            ctx.fillRect(LEFT, 116, TABLE_W, 44);
+            ctx.fillStyle = '#070A12';
+            ctx.font = 'bold 20px Cairo, sans-serif';
+            ctx.fillText(`إجمالي قيمة الجرد: ${window.formatMoney(totalSum)}   |   عدد الأصناف: ${rows.length}`, PAGE_W / 2, 146);
+
+            ctx.fillStyle = '#666666';
+            ctx.font = '17px Cairo, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(`التاريخ: ${reportDate}`, RIGHT, 192);
+            ctx.textAlign = 'left';
+            ctx.fillText(`صفحة ${pageIndex + 1} من ${pageCount}`, LEFT, 192);
+
+            // رأس الجدول.
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(LEFT, TABLE_TOP, TABLE_W, TABLE_HEADER_H);
+            ctx.strokeStyle = '#111111';
+            ctx.lineWidth = 1.4;
+            ctx.strokeRect(LEFT, TABLE_TOP, TABLE_W, TABLE_HEADER_H);
+
+            const drawVerticals = (top, height) => {
+                ctx.beginPath();
+                [X_AFTER_NO, X_AFTER_NAME, X_AFTER_QTY, X_AFTER_PRICE].forEach(x => {
+                    ctx.moveTo(x, top);
+                    ctx.lineTo(x, top + height);
+                });
+                ctx.stroke();
+            };
+            drawVerticals(TABLE_TOP, TABLE_HEADER_H);
+
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 19px Cairo, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('#', (X_RIGHT + X_AFTER_NO) / 2, TABLE_TOP + 33);
+            ctx.textAlign = 'right';
+            ctx.fillText('اسم المنتج', X_AFTER_NO - 22, TABLE_TOP + 33);
+            ctx.textAlign = 'center';
+            ctx.fillText(qtyLabel, (X_AFTER_NAME + X_AFTER_QTY) / 2, TABLE_TOP + 33);
+            ctx.fillText('سعر الجرد', (X_AFTER_QTY + X_AFTER_PRICE) / 2, TABLE_TOP + 33);
+            ctx.fillText('الإجمالي', (X_AFTER_PRICE + X_LEFT) / 2, TABLE_TOP + 33);
+
+            let y = TABLE_TOP + TABLE_HEADER_H;
+            pageRows.forEach((row, localIndex) => {
+                if ((row.index - 1) % 2 === 1) {
+                    ctx.fillStyle = '#f9f9f9';
+                    ctx.fillRect(LEFT, y, TABLE_W, ROW_H);
+                }
+                ctx.strokeStyle = '#222222';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(LEFT, y, TABLE_W, ROW_H);
+                drawVerticals(y, ROW_H);
+
+                const baseline = y + 34;
+                ctx.fillStyle = '#111111';
+                ctx.font = '18px Cairo, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(String(row.index), (X_RIGHT + X_AFTER_NO) / 2, baseline);
+
+                ctx.direction = 'rtl';
+                ctx.textAlign = 'right';
+                ctx.font = 'bold 18px Cairo, sans-serif';
+                ctx.fillText(fitText(ctx, row.name, 480), X_AFTER_NO - 22, baseline);
+
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 18px Cairo, sans-serif';
+                ctx.fillText(String(row.qty), (X_AFTER_NAME + X_AFTER_QTY) / 2, baseline);
+
+                ctx.font = '18px Cairo, sans-serif';
+                ctx.fillText(row.price.toFixed(2), (X_AFTER_QTY + X_AFTER_PRICE) / 2, baseline);
+
+                ctx.font = 'bold 18px Cairo, sans-serif';
+                ctx.fillText(row.total.toFixed(2), (X_AFTER_PRICE + X_LEFT) / 2, baseline);
+                y += ROW_H;
+            });
+
+            // إجمالي الصفحة الحالية.
+            const summaryY = FOOTER_Y - PAGE_SUMMARY_H - 8;
+            ctx.fillStyle = '#f6fbfa';
+            ctx.strokeStyle = '#00D2B4';
+            ctx.lineWidth = 1.5;
+            ctx.fillRect(LEFT, summaryY, TABLE_W, PAGE_SUMMARY_H);
+            ctx.strokeRect(LEFT, summaryY, TABLE_W, PAGE_SUMMARY_H);
+            ctx.fillStyle = '#0b5f56';
+            ctx.font = 'bold 20px Cairo, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(`إجمالي هذه الصفحة: ${window.formatMoney(pageSum)}`, RIGHT - 20, summaryY + 35);
+
+            // يظل باقي الصفحة أبيضاً بدلاً من تصغير الجدول كله ليناسب صفحة واحدة.
+            ctx.fillStyle = '#6d7781';
+            ctx.font = '16px Cairo, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('تم استخراج هذا التقرير عبر منظومة ADT Stock', PAGE_W / 2, FOOTER_Y);
+            return canvas;
+        }
+
+        for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
+            const from = pageIndex * rowsPerPage;
+            const to = from + rowsPerPage;
+            pages.push(drawPage(rows.slice(from, to), pageIndex));
+        }
+
+        try {
+            await sharePdfBlob(createPurePdfBlobFromCanvases(pages), fileName);
+        } catch (err) {
+            if (err?.name === 'AbortError') return;
+            console.error('[Audit PDF Export] failed:', err);
+            window.customAlert('تعذر تصدير الجرد','حدث خطأ أثناء إنشاء أو مشاركة ملف PDF. حاول مرة أخرى.');
+        }
     };
 
     // الفواتير الاحتياطية - تعمل محلياً عند تعطل المنظومة
