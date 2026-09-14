@@ -1,0 +1,5 @@
+ADT Stock v184 stable add-on
+- Preserved the native keyboard fix (adjustNothing) and all v184 UI unchanged.
+- Country selection now requires selecting a country then pressing "تأكيد ومتابعة".
+- Added manager-only delete button for previous daily-sales settlements with confirmation.
+- Settlement deletion requires ADT-Stock-v184-DAILY-SALES-DELETE.sql once in Supabase.

@@ -1,0 +1,5 @@
+ADT Stock v184
+- Changed audit card label from "الكمية المجرودة" to shorter "الكمية".
+- Retail audit label shortened to "العدد".
+- Fixed total amount overflow by widening the total column and slightly reducing its font size.
+- No SQL changes required.

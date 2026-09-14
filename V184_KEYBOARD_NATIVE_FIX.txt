@@ -1,0 +1,6 @@
+ADT Stock v184 - Product keyboard native fix
+- Base: original v184 only.
+- Android MainActivity uses windowSoftInputMode="adjustNothing" so opening the keyboard does not resize or pan the WebView.
+- Product floating search focuses with preventScroll and does not call scrollIntoView.
+- No UI/layout/design changes.
+- No SQL changes.
