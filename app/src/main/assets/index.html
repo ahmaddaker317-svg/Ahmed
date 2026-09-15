@@ -5821,6 +5821,14 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 </div>
 <!-- شباك التنبيه الداكن الفاخر -->
 <!-- تنبيه الاتصال: يظهر فوق الواجهة مع الاحتفاظ بآخر بيانات محلية -->
+<div class="modal no-print" id="adtUpdateModal" style="display:none;z-index:30005;">
+  <div class="modal-box" style="max-width:350px;text-align:center;background:#101a28;border:1px solid #2a4850;border-radius:18px;padding:22px 18px;">
+    <h3 style="color:#fff;font-size:19px;margin:0 0 9px;">يتوفر إصدار أحدث من ADT Stock</h3>
+    <p id="adtUpdateDescription" style="color:#aab9c7;font-size:12px;line-height:1.8;margin:0 0 18px;">حدّث التطبيق للاستفادة من آخر التحسينات.</p>
+    <button type="button" class="btn-primary" onclick="window.openLatestAppRelease()" style="min-height:44px">تنزيل آخر إصدار</button>
+    <button type="button" class="btn-secondary" id="adtUpdateLater" onclick="window.closeLatestAppReleaseNotice()" style="margin-top:8px">لاحقاً</button>
+  </div>
+</div>
 <div class="modal no-print" id="offlineConnectionModal" style="display:none;">
 <div class="modal-box">
 <div class="adt-offline-icon" aria-hidden="true">
@@ -6059,6 +6067,13 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 <button class="btn-primary" onclick="window.sendGlobalDeveloperBroadcast()" style="font-size:11px; padding:7px;">إرسال الإشعار لجميع الأجهزة</button>
 </div>
 <button class="btn-secondary" onclick="window.triggerForceReloadAll()" style="font-size:11px; padding:8px; margin-bottom:6px; color:var(--accent-cyan); border-color:var(--accent-cyan);">فرض تحديث التطبيق لجميع الأجهزة</button>
+<div style="border:1px solid #283c4b;border-radius:12px;background:#101a28;padding:10px;margin:10px 0;text-align:right">
+  <div style="font-size:12px;font-weight:900;color:#fff;margin-bottom:7px">نشر تحديث التطبيق</div>
+  <input class="input-field" id="devReleaseVersion" type="number" min="192" step="1" placeholder="رقم الإصدار الجديد، مثال: 192" style="margin-bottom:7px">
+  <input class="input-field" id="devReleaseLink" type="url" placeholder="رابط تنزيل APK يبدأ بـ https://" style="margin-bottom:7px" dir="ltr">
+  <input class="input-field" id="devReleaseNotes" type="text" placeholder="ما الجديد في هذا الإصدار؟" style="margin-bottom:7px">
+  <button type="button" class="btn-primary" onclick="window.publishLatestAppRelease()">نشر رابط التحديث</button>
+</div>
 </div>
 <!-- قسم الأمان والنسخ الاحتياطي -->
 <div id="devSubTabSecurity" style="display:none;">
@@ -8011,7 +8026,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
     window.chooseProductsBackupFile = function() {
         if (!window.canManageProductBackups() || window.__adtProductBackupBusy) return;
-        if (!dbClient || !currentTeam) {
+        if ((!dbClient || !currentTeam) && !window.isDeveloperOffline()) {
             window.customAlert('لا يوجد اتصال بالخادم', 'استيراد المنتجات يحتاج اتصالاً بالخادم حتى تُحفظ المنتجات في الحساب وتظهر على جميع الأجهزة.');
             return;
         }
@@ -8085,7 +8100,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         if (!file || window.__adtProductBackupBusy) return;
         try {
             if (!window.canManageProductBackups()) throw new Error('ليست لديك صلاحية استيراد المنتجات.');
-            if (!dbClient || !currentTeam) throw new Error('لا يوجد اتصال بالخادم لحفظ المنتجات المستوردة.');
+            if ((!dbClient || !currentTeam) && !window.isDeveloperOffline()) throw new Error('لا يوجد اتصال بالخادم لحفظ المنتجات المستوردة.');
             if (Number(file.size || 0) > PRODUCTS_BACKUP_MAX_FILE_BYTES) throw new Error('حجم الملف أكبر من الحد المسموح وهو 50 ميجابايت.');
 
             const parsed = window.parseProductsBackupPayload(await window.readProductsBackupText(file));
@@ -8147,15 +8162,17 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
                         piece_name: item.record.pieceName
                     };
                     try {
-                        const { data: saveOk, error } = await dbClient.rpc('adt_product_save_v131', {
+                        const { data: saveOk, error } = await (window.isDeveloperOffline()
+                            ? Promise.resolve(window.queueDeveloperOfflineProductPayload(productPayload,item.existing?.name||null))
+                            : dbClient.rpc('adt_product_save_v131', {
                             p_team_id: teamIdAtStart,
                             p_user_id: getDeviceId(),
                             p_dev_pin: (isGhostMode ? (developerSessionPin || null) : null),
                             p_product: productPayload,
                             p_old_name: item.existing?.name || null
-                        });
+                        }));
                         if (error || saveOk !== true) throw error || new Error('رفض الخادم حفظ المنتج');
-                        if (canImportBuyPrice && (!item.existing || Number(item.existing.buyPrice || 0) !== Number(savedBuyPrice || 0))) {
+                        if (!window.isDeveloperOffline() && canImportBuyPrice && (!item.existing || Number(item.existing.buyPrice || 0) !== Number(savedBuyPrice || 0))) {
                             await window.recordBuyPriceHistory({ id:productId, name:item.record.name, supplier_name:item.record.supplier }, item.existing ? Number(item.existing.buyPrice || 0) : null, Number(savedBuyPrice || 0));
                         }
                         succeeded.push({ ...item, productId, savedBuyPrice });
@@ -8170,7 +8187,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
                 }
             };
 
-            const workerCount = Math.min(4, importPlan.length);
+            const workerCount = window.isDeveloperOffline()?1:Math.min(4, importPlan.length);
             await Promise.all(Array.from({ length: workerCount }, () => importWorker()));
 
             const now = Date.now();
@@ -8200,7 +8217,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             window.saveTeamCache('atd_product_suppliers_map_v17', productSuppliersMap, teamIdAtStart);
             window.renderProducts?.();
             window.renderHomeStats?.();
-            if (succeeded.length) await window.fetchProductsFromSupabase?.();
+            if (succeeded.length && !window.isDeveloperOffline()) await window.fetchProductsFromSupabase?.();
 
             const addedSucceeded = succeeded.filter(item => !item.existing).length;
             const updatedSucceeded = succeeded.length - addedSucceeded;
@@ -8887,12 +8904,55 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         }
     };
 
+    // A release is announced from the database; WebView reload cannot install a new APK.
+    const ADT_FALLBACK_VERSION_CODE = 191;
+    window.getInstalledAppVersionCode = function() {
+        try { return Number(window.Android?.getAppVersionCode?.()) || ADT_FALLBACK_VERSION_CODE; }
+        catch (_) { return ADT_FALLBACK_VERSION_CODE; }
+    };
+    window.checkLatestAppRelease = async function() {
+        if (!dbClient || !window.getNativeNetworkState()) return;
+        try {
+            const {data, error} = await dbClient.from('adt_app_releases')
+                .select('version_code,version_name,download_url,notes,required')
+                .eq('id',1).maybeSingle();
+            if (error || !data) return;
+            const code = Number(data.version_code);
+            const url = String(data.download_url || '').trim();
+            if (!Number.isInteger(code) || code <= window.getInstalledAppVersionCode() || !/^https:\/\//i.test(url)) return;
+            window.__adtLatestRelease = {code, url, required: data.required === true};
+            const description = document.getElementById('adtUpdateDescription');
+            if (description) description.textContent = `الإصدار ${data.version_name || code} متاح الآن. ${data.notes || 'حدّث التطبيق للاستفادة من آخر التحسينات.'}`;
+            const later = document.getElementById('adtUpdateLater');
+            if (later) later.style.display = data.required === true ? 'none' : '';
+            if (data.required || sessionStorage.getItem('adt_release_seen_'+code) !== '1') window.openModalFront('adtUpdateModal',30005);
+        } catch (error) { console.warn('[Update] release check unavailable:', error); }
+    };
+    window.closeLatestAppReleaseNotice = function() {
+        if (window.__adtLatestRelease?.required) return;
+        if (window.__adtLatestRelease) sessionStorage.setItem('adt_release_seen_'+window.__adtLatestRelease.code,'1');
+        const modal=document.getElementById('adtUpdateModal'); if(modal) modal.style.display='none';
+    };
+    setInterval(() => { if (!document.hidden && window.getNativeNetworkState()) window.checkLatestAppRelease(); }, 10*60*1000);
+    window.openLatestAppRelease = function() {
+        const url=window.__adtLatestRelease?.url;
+        if (!url || !/^https:\/\//i.test(url)) return;
+        if (window.Android?.openExternal) window.Android.openExternal(url);
+        else window.open(url,'_blank','noopener');
+    };
+
     window.setNetworkConnectionState = function(isOnline, message) {
         const online = isOnline === true || isOnline === 'true' || isOnline === 1 || isOnline === '1';
         window.__adtNetworkOnline = online;
         const modal = document.getElementById('offlineConnectionModal');
         const messageBox = document.getElementById('offlineConnectionMessage');
         if (!modal) return online;
+        // The signed-in developer can open the locally cached app while offline.
+        if (!online && localStorage.getItem('atd_sales_signed_out')!=='true' && window.isDeveloperAccount() && !isGhostMode) {
+            modal.style.display='none';
+            window.updateSyncBadge(false);
+            return false;
+        }
         if (!online) {
             if (messageBox) messageBox.textContent = message || 'تحقق من بيانات الهاتف أو شبكة Wi‑Fi، ثم اضغط إعادة المحاولة. ستبقى بياناتك المحفوظة آمنة على الجهاز.';
             window.openModalFront('offlineConnectionModal', 30000);
@@ -8966,7 +9026,10 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             window.tryCaptureNativePushToken().catch(()=>{});
             // V175: المزامنة الخلفية لا تغيّر الصفحة التي فتحها المستخدم.
             // كان الاستدعاء بدون preserveCurrentTab يعيد المستخدم للرئيسية بعد اكتمال التحديث.
+            await window.flushDeveloperOfflineProducts(currentTeam?.id);
+            await window.flushDeveloperOfflineMutations(currentTeam?.id);
             await window.checkAuthAndTeamServer({ preserveCurrentTab:true });
+            await window.checkLatestAppRelease();
         } catch (error) {
             console.warn('[Startup] cloud sync deferred:', error?.message || error);
         }
@@ -8990,6 +9053,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     window.addEventListener('online', () => {
         window.setNetworkConnectionState(true);
         setTimeout(() => window.startBackgroundCloudSync(), 250);
+        setTimeout(() => window.checkLatestAppRelease(), 1250);
     });
 
     window.fetchDeveloperNotices = async function() {
@@ -9171,6 +9235,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         } else {
             setTimeout(() => window.resumeSecureSessionAndSync(), 250);
             setTimeout(() => window.adtEnsurePushBoundToCurrentTeam(), 350);
+            setTimeout(() => window.checkLatestAppRelease(), 800);
         }
     });
 
@@ -11129,6 +11194,30 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         }
     };
 
+    window.publishLatestAppRelease = async function() {
+        if (!window.isDeveloperAccount() || !developerSessionPin || !dbClient) {
+            window.customAlert('وضع المطور','افتح وضع المطور واتصل بالإنترنت أولاً.'); return;
+        }
+        const code=Number(document.getElementById('devReleaseVersion')?.value);
+        const url=String(document.getElementById('devReleaseLink')?.value||'').trim();
+        const notes=String(document.getElementById('devReleaseNotes')?.value||'').trim();
+        if (!Number.isInteger(code) || code<=window.getInstalledAppVersionCode() || !/^https:\/\//i.test(url)) {
+            window.customAlert('بيانات التحديث','أدخل رقم إصدار أكبر من الحالي ورابط تنزيل HTTPS صالحاً.'); return;
+        }
+        try {
+            const {data,error}=await dbClient.rpc('adt_admin_publish_app_release',{
+                p_dev_pin:developerSessionPin,p_device_id:getDeviceId(),
+                p_version_code:code,p_download_url:url,p_notes:notes
+            });
+            if (error || data!==true) throw error||new Error('RELEASE_REJECTED');
+            window.showToast('تم نشر رابط الإصدار الجديد؛ سيظهر للمستخدمين عند اتصالهم بالإنترنت');
+            window.checkLatestAppRelease();
+        } catch(error) {
+            console.warn('[Update] publish failed:',error);
+            window.customAlert('تعذر نشر التحديث','شغّل ملف SQL الخاص بالتحديثات وتأكد من الاتصال، ثم حاول مرة أخرى.');
+        }
+    };
+
     window.triggerForceReloadAll = async function() {
         if (!dbClient || !developerSessionPin) return;
         try {
@@ -11741,6 +11830,30 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
                 localStorage.removeItem('adt_last_own_price_edit_' + teamIdAtStart);
             }
 
+            // Preserve developer edits until the server accepts them.
+            const pending=window.getDeveloperOfflineProductQueue(teamIdAtStart);
+            for (const entry of pending) {
+                const local=products.find(p=>String(p.id)===String(entry.product?.id));
+                if (!local) continue;
+                const i=nextProducts.findIndex(p=>String(p.id)===String(local.id));
+                if (i>=0) nextProducts[i]=local; else nextProducts.unshift(local);
+            }
+            const pendingAudit=window.getDeveloperOfflineMutationQueue(teamIdAtStart)
+                .filter(entry=>entry.name==='adt_audit_set_qty'||entry.name==='adt_audit_reset');
+            for (const entry of pendingAudit) {
+                if(entry.name==='adt_audit_reset')nextProducts.forEach(item=>item.auditQty=0);
+                else {
+                    const item=nextProducts.find(item=>String(item.id)===String(entry.args?.p_product_id));
+                    if(item)item.auditQty=Number(entry.args?.p_qty||0);
+                }
+            }
+            const pendingDeletes=window.getDeveloperOfflineMutationQueue(teamIdAtStart)
+                .filter(entry=>entry.name==='adt_product_delete')
+                .map(entry=>String(entry.args?.p_product_id));
+            for (const id of pendingDeletes) {
+                const index=nextProducts.findIndex(item=>String(item.id)===id);
+                if(index>=0)nextProducts.splice(index,1);
+            }
             // استبدال الحالة مرة واحدة فقط بعد اكتمال الطلب بنجاح.
             products = nextProducts;
             await window.writeProductsCache(products, teamIdAtStart);
@@ -11895,9 +12008,117 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         return true;
     };
 
+    window.isDeveloperOffline = function() {
+        return localStorage.getItem('atd_sales_signed_out')!=='true' &&
+            !window.getNativeNetworkState() && !!currentTeam?.id && !isGhostMode && window.isDeveloperAccount();
+    };
+    window.getDeveloperOfflineMutationQueue = function(teamId) {
+        try { const rows=JSON.parse(localStorage.getItem('adt_dev_pending_mutations_'+teamId)||'[]'); return Array.isArray(rows)?rows:[]; }
+        catch (_) { return []; }
+    };
+    window.developerOfflineRpc = async function(name,args,mockData=true) {
+        if (!window.isDeveloperOffline()) return dbClient.rpc(name,args);
+        const teamId=String(currentTeam.id),key='adt_dev_pending_mutations_'+teamId;
+        if (mockData===true && (name==='adt_debt_create' || name==='adt_shortage_add')) mockData={id:'offline_'+window.makeSafeId()};
+        const queue=window.getDeveloperOfflineMutationQueue(teamId);
+        queue.push({id:window.makeSafeId(),name,args,mockData});
+        // If storage fails, no UI change may be committed.
+        try { localStorage.setItem(key,JSON.stringify(queue)); }
+        catch (error) { return {data:null,error,offline:true}; }
+        return {data:mockData,error:null,offline:true};
+    };
+    window.hasPendingDeveloperMutations = function(domain) {
+        if (!currentTeam?.id) return false;
+        const names={debts:['adt_debt_'],shortages:['adt_shortage_'],audit:['adt_audit_'],sales:['adt_daily_sales_']};
+        return window.getDeveloperOfflineMutationQueue(String(currentTeam.id))
+            .some(entry=>(names[domain]||[]).some(prefix=>entry.name.startsWith(prefix)));
+    };
+    window.flushDeveloperOfflineMutations = async function(teamId) {
+        if (!dbClient || !window.getNativeNetworkState() || !window.isDeveloperAccount() || isGhostMode || !teamId) return;
+        if (window.__adtDevMutationFlushBusy) return;
+        window.__adtDevMutationFlushBusy=true;
+        try {
+        const key='adt_dev_pending_mutations_'+teamId;
+        let queue=window.getDeveloperOfflineMutationQueue(teamId);
+        let idMap={};
+        try { idMap=JSON.parse(localStorage.getItem('adt_dev_pending_id_map_'+teamId)||'{}')||{}; } catch (_) {}
+        for (const entry of queue.slice()) {
+            if (String(currentTeam?.id)!==String(teamId)) break;
+            const args={...entry.args};
+            for (const field of ['p_debt_id','p_settlement_id']) {
+                if (idMap[String(args[field])]) args[field]=idMap[String(args[field])];
+            }
+            try {
+                const {data,error}=await dbClient.rpc(entry.name,args);
+                if (error || data===false || (['adt_debt_create','adt_shortage_add','adt_daily_sales_settle'].includes(entry.name)&&!data?.id)) throw error||new Error('OFFLINE_MUTATION_REJECTED');
+                if (entry.name==='adt_debt_create' && entry.mockData?.id && data?.id) {
+                    idMap[String(entry.mockData.id)]=String(data.id);
+                    const all=[...(debts.customers||[]),...(debts.suppliers||[])];
+                    const local=all.find(a=>String(a.id)===String(entry.mockData.id));
+                    if(local)local.id=String(data.id);
+                    if(activeLedgerAccount && String(activeLedgerAccount.id)===String(entry.mockData.id))activeLedgerAccount.id=String(data.id);
+                    window.saveTeamCache('atd_sales_debts_v17',debts);
+                }
+                if (entry.name==='adt_daily_sales_settle' && entry.mockData?.id && data?.id) {
+                    idMap[String(entry.mockData.id)]=String(data.id);
+                }
+                localStorage.setItem('adt_dev_pending_id_map_'+teamId,JSON.stringify(idMap));
+                queue=queue.filter(item=>item.id!==entry.id);
+                localStorage.setItem(key,JSON.stringify(queue));
+            } catch(error) {
+                console.warn('[Developer Offline] pending mutation:',entry.name,error);
+                window.showToast('بعض التعديلات المحلية لم تُزامن بعد؛ ستتم إعادة المحاولة');
+                break;
+            }
+        }
+        } finally { window.__adtDevMutationFlushBusy=false; }
+    };
+
+    // Developer-only local edits are queued for server reconciliation after reconnection.
+    window.getDeveloperOfflineProductQueue = function(teamId) {
+        try { const rows=JSON.parse(localStorage.getItem('adt_dev_pending_products_'+teamId)||'[]'); return Array.isArray(rows)?rows:[]; }
+        catch (_) { return []; }
+    };
+    window.flushDeveloperOfflineProducts = async function(teamId) {
+        if (!dbClient || !window.getNativeNetworkState() || !window.isDeveloperAccount() || isGhostMode || !teamId) return;
+        if (window.__adtDevProductFlushBusy) return;
+        window.__adtDevProductFlushBusy=true;
+        try {
+        const key='adt_dev_pending_products_'+teamId;
+        let queue=window.getDeveloperOfflineProductQueue(teamId);
+        for (const entry of queue.slice()) {
+            if (String(currentTeam?.id)!==String(teamId)) break;
+            try {
+                const {data,error}=await dbClient.rpc('adt_product_save_v131',{
+                    p_team_id:String(teamId),p_user_id:getDeviceId(),p_dev_pin:null,
+                    p_product:entry.product,p_old_name:entry.oldName||null
+                });
+                if (error || data!==true) throw error||new Error('PRODUCT_REJECTED');
+                queue=queue.filter(row=>row.localId!==entry.localId);
+                localStorage.setItem(key,JSON.stringify(queue));
+            } catch(error) {
+                console.warn('[Developer Offline] product awaits sync:',error);
+                window.showToast('بعض تعديلات المطور المحلية لم تُزامن بعد');
+                break;
+            }
+        }
+        } finally { window.__adtDevProductFlushBusy=false; }
+    };
+
+    window.queueDeveloperOfflineProductPayload = function(product,oldName) {
+        const teamId=String(currentTeam.id),key='adt_dev_pending_products_'+teamId;
+        const existing=window.getDeveloperOfflineProductQueue(teamId);
+        const first=existing.find(row=>String(row.product?.id)===String(product.id));
+        const queue=existing.filter(row=>String(row.product?.id)!==String(product.id));
+        queue.push({localId:window.makeSafeId(),product,oldName:first?.oldName||oldName||null});
+        try { localStorage.setItem(key,JSON.stringify(queue)); return {data:true,error:null}; }
+        catch(error) { return {data:null,error}; }
+    };
+
     window.saveProduct = async function() {
         if (!(await window.confirmGhostMutation('إضافة أو تعديل منتج'))) return;
-        if (!dbClient || !currentTeam) {
+        const offlineDeveloper = !window.getNativeNetworkState() && window.isDeveloperAccount() && !isGhostMode && !!currentTeam;
+        if ((!dbClient || !currentTeam) && !offlineDeveloper) {
             window.customAlert('لا يوجد اتصال بالخادم', 'تعذر الحفظ لأن الاتصال بالخادم غير متاح. يمكنك مشاهدة آخر نسخة محفوظة، لكن التعديل يحتاج اتصالاً حتى لا تضيع البيانات.');
             return;
         }
@@ -11969,7 +12190,10 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         };
 
         // احفظ المنتج على الخادم أولاً. لا نغير أي cache محلي قبل نجاح الحفظ.
-        if (dbClient && currentTeam) {
+        if (offlineDeveloper) {
+            const {error}=window.queueDeveloperOfflineProductPayload(prodObj,oldName);
+            if(error){window.customAlert('التخزين ممتلئ','لم يتم حفظ تعديل الصنف محلياً.');return;}
+        } else if (dbClient && currentTeam) {
             const { data: saveOk, error: productError } = await dbClient.rpc('adt_product_save_v131', {
                 p_team_id: String(currentTeam.id),
                 p_user_id: getDeviceId(),
@@ -12024,7 +12248,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
                 auditQty: products[editingIndex].auditQty || 0,
                 packQty, packName, pieceName
             };
-            window.showToast('تم تحديث بيانات الصنف بنجاح');
+            window.showToast(offlineDeveloper ? 'تم حفظ تعديل الصنف محلياً، وسيزامن عند الاتصال' : 'تم تحديث بيانات الصنف بنجاح');
         } else {
             products.unshift({
                 id: prodObj.id,
@@ -12036,7 +12260,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
                 auditQty: 0,
                 packQty, packName, pieceName
             });
-            window.showToast('تمت إضافة الصنف للقائمة');
+            window.showToast(offlineDeveloper ? 'تم حفظ الصنف محلياً، وسيزامن عند الاتصال' : 'تمت إضافة الصنف للقائمة');
         }
 
         await window.writeProductsCache(products, currentTeam.id);
@@ -12058,7 +12282,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
     window.executeConfirmedDelete = async function() {
         if (!(await window.confirmGhostMutation('حذف منتج'))) return;
-        if (!dbClient || !currentTeam) {
+        if ((!dbClient || !currentTeam) && !window.isDeveloperOffline()) {
             window.customAlert('لا يوجد اتصال بالخادم', 'تعذر الحفظ لأن الاتصال بالخادم غير متاح. يمكنك مشاهدة آخر نسخة محفوظة، لكن التعديل يحتاج اتصالاً حتى لا تضيع البيانات.');
             return;
         }
@@ -12066,8 +12290,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         if (pendingDeleteIndex === null) return;
         const p = products[pendingDeleteIndex];
 
-        if (dbClient && currentTeam && p.id) {
-            const { data: deleteOk, error: deleteError } = await dbClient.rpc('adt_product_delete', {
+        if ((dbClient || window.isDeveloperOffline()) && currentTeam && p.id) {
+            const { data: deleteOk, error: deleteError } = await window.developerOfflineRpc('adt_product_delete', {
                 p_team_id: String(currentTeam.id), p_user_id: getDeviceId(), p_dev_pin: (isGhostMode ? (developerSessionPin || null) : null), p_product_id: String(p.id)
             });
             if (deleteError || deleteOk !== true) {
@@ -12222,6 +12446,10 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             window.renderShortagesView();
             return true;
         }
+        if (window.hasPendingDeveloperMutations('shortages')) {
+            window.renderShortagesView();
+            return true;
+        }
         if (!dbClient || !currentTeam) {
             try {
                 const cached = window.readTeamCache('atd_sales_shortages_v17', [], currentTeam?.id);
@@ -12338,7 +12566,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
     window.addShortageItem = async function(prodName) {
         if (!(await window.confirmGhostMutation('إضافة صنف إلى النواقص'))) return;
-        if (!dbClient || !currentTeam) {
+        if ((!dbClient || !currentTeam) && !window.isDeveloperOffline()) {
             window.customAlert('لا يوجد اتصال بالخادم', 'تعذر الحفظ لأن الاتصال بالخادم غير متاح. يمكنك مشاهدة آخر نسخة محفوظة، لكن التعديل يحتاج اتصالاً حتى لا تضيع البيانات.');
             return;
         }
@@ -12365,8 +12593,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             createdAt: Date.now()
         };
 
-        if (dbClient && currentTeam) {
-            const { data: savedRow, error } = await dbClient.rpc('adt_shortage_add', {
+        if ((dbClient || window.isDeveloperOffline()) && currentTeam) {
+            const { data: savedRow, error } = await window.developerOfflineRpc('adt_shortage_add', {
                 p_team_id: String(currentTeam.id), p_user_id: getDeviceId(), p_dev_pin: (isGhostMode ? (developerSessionPin || null) : null), p_product_name: prodName, p_supplier_name: supp
             });
             if (error || !savedRow) {
@@ -12385,7 +12613,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
     window.removeShortageItem = async function(prodName) {
         if (!(await window.confirmGhostMutation('حذف صنف من النواقص'))) return;
-        if (!dbClient || !currentTeam) {
+        if ((!dbClient || !currentTeam) && !window.isDeveloperOffline()) {
             window.customAlert('لا يوجد اتصال بالخادم', 'تعذر الحفظ لأن الاتصال بالخادم غير متاح. يمكنك مشاهدة آخر نسخة محفوظة، لكن التعديل يحتاج اتصالاً حتى لا تضيع البيانات.');
             return;
         }
@@ -12395,8 +12623,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             return;
         }
 
-        if (dbClient && currentTeam) {
-            const { data: removeOk, error } = await dbClient.rpc('adt_shortage_remove', {
+        if ((dbClient || window.isDeveloperOffline()) && currentTeam) {
+            const { data: removeOk, error } = await window.developerOfflineRpc('adt_shortage_remove', {
                 p_team_id: String(currentTeam.id), p_user_id: getDeviceId(), p_dev_pin: (isGhostMode ? (developerSessionPin || null) : null), p_product_name: prodName
             });
             if (error || removeOk !== true) {
@@ -12805,7 +13033,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             return;
         }
         if(!(await window.confirmGhostMutation('حذف صنف من الجرد')))return;
-        if(!dbClient||!currentTeam){window.customAlert('لا يوجد اتصال بالخادم','تعذر حذف الصنف من الجرد لأن الاتصال بالخادم غير متاح.');return;}
+        if((!dbClient||!currentTeam)&&!window.isDeveloperOffline()){window.customAlert('لا يوجد اتصال بالخادم','تعذر حذف الصنف من الجرد لأن الاتصال بالخادم غير متاح.');return;}
         const previousQty=Number(p.auditQty||0);
         p.auditQty=0;
         window.renderAudit();
@@ -12817,7 +13045,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     window.__adtAuditSaveChains=window.__adtAuditSaveChains||{};
     window.__adtAuditSaveState=window.__adtAuditSaveState||{};
     window.queueWholesaleAuditSave=function(product,previousQty,finalQty){
-        if(!product||!currentTeam||!dbClient)return;
+        if(!product||!currentTeam||(!dbClient&&!window.isDeveloperOffline()))return;
         const productId=String(product.id),teamId=String(currentTeam.id);
         const stateKey=teamId+':'+productId;
         let state=window.__adtAuditSaveState[stateKey];
@@ -12830,7 +13058,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         const devPin=(isGhostMode?(developerSessionPin||null):null);
         const run=async function(){
             try{
-                const {data:auditOk,error}=await dbClient.rpc('adt_audit_set_qty',{
+                const {data:auditOk,error}=await window.developerOfflineRpc('adt_audit_set_qty',{
                     p_team_id:teamId,
                     p_user_id:userId,
                     p_dev_pin:devPin,
@@ -12873,7 +13101,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             auditEditingIndex=null;window.auditAddMode=false;window.closeModal('auditItemModal');window.renderAudit();window.showToast('تم حفظ جرد القطاعي');return;
         }
         if(!(await window.confirmGhostMutation('تعديل كمية الجرد')))return;
-        if(!dbClient||!currentTeam){window.customAlert('لا يوجد اتصال بالخادم','تعذر الحفظ لأن الاتصال بالخادم غير متاح.');return;}
+        if((!dbClient||!currentTeam)&&!window.isDeveloperOffline()){window.customAlert('لا يوجد اتصال بالخادم','تعذر الحفظ لأن الاتصال بالخادم غير متاح.');return;}
 
         const p=products[auditEditingIndex];
         const previousQty=Number(p.auditQty||0);
@@ -12917,8 +13145,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     window.restorePreviousAuditToCurrent=async function(){
         if(!window.canAudit()){window.customAlert('صلاحية مقفلة','لا تملك صلاحية استرجاع الجرد.');return;}
         const snap=window.readLastAuditSnapshot();if(!snap?.items?.length){window.customAlert('تنبيه','لا يوجد جرد سابق محفوظ.');return;}
-        if(!dbClient||!currentTeam){window.customAlert('لا يوجد اتصال بالخادم','استرجاع الجرد يحتاج اتصالاً بالخادم.');return;}
-        try{for(const it of snap.items){const {error}=await dbClient.rpc('adt_audit_set_qty',{p_team_id:String(currentTeam.id),p_user_id:getDeviceId(),p_dev_pin:(isGhostMode?(developerSessionPin||null):null),p_product_id:String(it.id),p_qty:Number(it.qty||0)});if(error)throw error;const p=products.find(x=>String(x.id)===String(it.id));if(p)p.auditQty=Number(it.qty||0);}
+        if((!dbClient||!currentTeam)&&!window.isDeveloperOffline()){window.customAlert('لا يوجد اتصال بالخادم','استرجاع الجرد يحتاج اتصالاً بالخادم.');return;}
+        try{for(const it of snap.items){const {error}=await window.developerOfflineRpc('adt_audit_set_qty',{p_team_id:String(currentTeam.id),p_user_id:getDeviceId(),p_dev_pin:(isGhostMode?(developerSessionPin||null):null),p_product_id:String(it.id),p_qty:Number(it.qty||0)});if(error)throw error;const p=products.find(x=>String(x.id)===String(it.id));if(p)p.auditQty=Number(it.qty||0);}
         await window.writeProductsCache(products,currentTeam.id);window.closeModal('previousAuditModal');window.renderAudit();window.showToast('تم استرجاع آخر جرد');}
         catch(e){window.customAlert('تعذر الاسترجاع',e?.message||'حدث خطأ أثناء الاسترجاع.');}
     };
@@ -12929,12 +13157,12 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             if(!ok)return;window.retailAuditState={};products.forEach(p=>p.retailAuditQty=0);localStorage.removeItem(window.getRetailAuditKey());window.renderAudit();window.showToast('تم تصفير جرد القطاعي');return;
         }
         if(!(await window.confirmGhostMutation('تصفير جميع كميات الجرد')))return;
-        if(!dbClient||!currentTeam){window.customAlert('لا يوجد اتصال بالخادم','تصفير جرد الجملة يحتاج اتصالاً بالخادم.');return;}
+        if((!dbClient||!currentTeam)&&!window.isDeveloperOffline()){window.customAlert('لا يوجد اتصال بالخادم','تصفير جرد الجملة يحتاج اتصالاً بالخادم.');return;}
         const ok=await window.showAppConfirm({title:'تصفير الجرد',message:'سيتم حفظ الجرد الحالي كآخر جرد ثم تصفير جميع الكميات.',confirmText:'تصفير الجرد',cancelText:'إلغاء',danger:true});
         if(!ok)return;
         window.saveLastAuditSnapshot();
         try{
-            const {data,error}=await dbClient.rpc('adt_audit_reset',{p_team_id:String(currentTeam.id),p_user_id:getDeviceId(),p_dev_pin:(isGhostMode?(developerSessionPin||null):null)});
+            const {data,error}=await window.developerOfflineRpc('adt_audit_reset',{p_team_id:String(currentTeam.id),p_user_id:getDeviceId(),p_dev_pin:(isGhostMode?(developerSessionPin||null):null)});
             if(error||data!==true)throw error||new Error('رفض الخادم تصفير الجرد');
             products.forEach(p=>p.auditQty=0);await window.writeProductsCache(products,currentTeam.id);window.renderAudit();window.showToast('تم تصفير الجرد');
         }catch(e){window.customAlert('تعذر تصفير الجرد',e?.message||'لم يتم التصفير على الخادم.');}
@@ -13363,6 +13591,10 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             window.renderDebts();
             return true;
         }
+        if (window.hasPendingDeveloperMutations('debts')) {
+            window.renderDebts();
+            return true;
+        }
         if (!dbClient || !currentTeam) {
             try {
                 const cached = window.readTeamCache('atd_sales_debts_v17', { customers: [], suppliers: [] }, currentTeam?.id);
@@ -13427,7 +13659,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
     window.saveNewAccountRecord = async function() {
         if (!(await window.confirmGhostMutation('إنشاء حساب ديون'))) return;
-        if (!dbClient || !currentTeam) {
+        if ((!dbClient || !currentTeam) && !window.isDeveloperOffline()) {
             window.customAlert('لا يوجد اتصال بالخادم', 'تعذر الحفظ لأن الاتصال بالخادم غير متاح. يمكنك مشاهدة آخر نسخة محفوظة، لكن التعديل يحتاج اتصالاً حتى لا تضيع البيانات.');
             return;
         }
@@ -13447,8 +13679,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
             amount: 0
         };
 
-        if (dbClient && currentTeam) {
-            const { data: savedRow, error } = await dbClient.rpc('adt_debt_create', {
+        if ((dbClient || window.isDeveloperOffline()) && currentTeam) {
+            const { data: savedRow, error } = await window.developerOfflineRpc('adt_debt_create', {
                 p_team_id: String(currentTeam.id), p_user_id: getDeviceId(), p_dev_pin: (isGhostMode ? (developerSessionPin || null) : null), p_type: newAcc.type, p_name: newAcc.name, p_phone: newAcc.phone
             });
             if (error || !savedRow) {
@@ -13479,15 +13711,15 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
     window.executeConfirmedDebtAccountDelete = async function() {
         if (!(await window.confirmGhostMutation('حذف حساب ديون'))) return;
-        if (!dbClient || !currentTeam) {
+        if ((!dbClient || !currentTeam) && !window.isDeveloperOffline()) {
             window.customAlert('لا يوجد اتصال بالخادم', 'تعذر الحفظ لأن الاتصال بالخادم غير متاح. يمكنك مشاهدة آخر نسخة محفوظة، لكن التعديل يحتاج اتصالاً حتى لا تضيع البيانات.');
             return;
         }
 
         if (!pendingDebtDeleteId) return;
 
-        if (dbClient && currentTeam) {
-            const { data: debtDeleteOk, error } = await dbClient.rpc('adt_debt_delete', {
+        if ((dbClient || window.isDeveloperOffline()) && currentTeam) {
+            const { data: debtDeleteOk, error } = await window.developerOfflineRpc('adt_debt_delete', {
                 p_team_id: String(currentTeam.id), p_user_id: getDeviceId(), p_dev_pin: (isGhostMode ? (developerSessionPin || null) : null), p_debt_id: String(pendingDebtDeleteId)
             });
             if (error || debtDeleteOk !== true) {
@@ -13956,7 +14188,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
     window.saveAccountTransaction = async function() {
         if (!(await window.confirmGhostMutation('إضافة حركة مالية'))) return;
-        if (!dbClient || !currentTeam) {
+        if ((!dbClient || !currentTeam) && !window.isDeveloperOffline()) {
             window.customAlert('لا يوجد اتصال بالخادم', 'تعذر الحفظ لأن الاتصال بالخادم غير متاح. يمكنك مشاهدة آخر نسخة محفوظة، لكن التعديل يحتاج اتصالاً حتى لا تضيع البيانات.');
             return;
         }
@@ -13972,8 +14204,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         const previewAccount = { ...activeLedgerAccount, transactions: nextTransactions };
         const b = window.calcAccountBalances(previewAccount);
 
-        if (dbClient && currentTeam) {
-            const { data: debtUpdateOk, error } = await dbClient.rpc('adt_debt_update_ledger', {
+        if ((dbClient || window.isDeveloperOffline()) && currentTeam) {
+            const { data: debtUpdateOk, error } = await window.developerOfflineRpc('adt_debt_update_ledger', {
                 p_team_id: String(currentTeam.id), p_user_id: getDeviceId(), p_dev_pin: (isGhostMode ? (developerSessionPin || null) : null), p_debt_id: String(activeLedgerAccount.id), p_amount: b.net, p_transactions: nextTransactions
             });
             if (error || debtUpdateOk !== true) {
@@ -14005,7 +14237,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
     window.executeConfirmedAccountSettle = async function() {
         if (!(await window.confirmGhostMutation('تصفية الحساب بالكامل'))) return;
-        if (!dbClient || !currentTeam) {
+        if ((!dbClient || !currentTeam) && !window.isDeveloperOffline()) {
             window.customAlert('لا يوجد اتصال بالخادم', 'تعذر الحفظ لأن الاتصال بالخادم غير متاح. يمكنك مشاهدة آخر نسخة محفوظة، لكن التعديل يحتاج اتصالاً حتى لا تضيع البيانات.');
             return;
         }
@@ -14015,8 +14247,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         const settleTx = { id: 'tx_settle_' + Date.now(), type: 'settle', amount: b.net, notes: 'تصفية الحساب بالكامل', created_at: new Date().toISOString() };
         const nextTransactions = [settleTx, ...(activeLedgerAccount.transactions || [])];
 
-        if (dbClient && currentTeam) {
-            const { data: debtSettleOk, error } = await dbClient.rpc('adt_debt_update_ledger', {
+        if ((dbClient || window.isDeveloperOffline()) && currentTeam) {
+            const { data: debtSettleOk, error } = await window.developerOfflineRpc('adt_debt_update_ledger', {
                 p_team_id: String(currentTeam.id), p_user_id: getDeviceId(), p_dev_pin: (isGhostMode ? (developerSessionPin || null) : null), p_debt_id: String(activeLedgerAccount.id), p_amount: 0, p_transactions: nextTransactions
             });
             if (error || debtSettleOk !== true) {
@@ -14040,7 +14272,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
     window.executeDeleteTransactionConfirmed = async function() {
         if (!(await window.confirmGhostMutation('حذف حركة مالية'))) return;
-        if (!dbClient || !currentTeam) {
+        if ((!dbClient || !currentTeam) && !window.isDeveloperOffline()) {
             window.customAlert('لا يوجد اتصال بالخادم', 'تعذر الحفظ لأن الاتصال بالخادم غير متاح. يمكنك مشاهدة آخر نسخة محفوظة، لكن التعديل يحتاج اتصالاً حتى لا تضيع البيانات.');
             return;
         }
@@ -14050,8 +14282,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         const previewAccount = { ...activeLedgerAccount, transactions: nextTransactions };
         const b = window.calcAccountBalances(previewAccount);
 
-        if (dbClient && currentTeam) {
-            const { data: debtUpdateOk, error } = await dbClient.rpc('adt_debt_update_ledger', {
+        if ((dbClient || window.isDeveloperOffline()) && currentTeam) {
+            const { data: debtUpdateOk, error } = await window.developerOfflineRpc('adt_debt_update_ledger', {
                 p_team_id: String(currentTeam.id), p_user_id: getDeviceId(), p_dev_pin: (isGhostMode ? (developerSessionPin || null) : null), p_debt_id: String(activeLedgerAccount.id), p_amount: b.net, p_transactions: nextTransactions
             });
             if (error || debtUpdateOk !== true) {
@@ -14601,6 +14833,14 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 (function(){
   window.__adtDailySalesData = { current_total:0, current:[], settlements:[] };
   window.__adtDailySalesBusy = false;
+  window.dailySalesLocalKey=function(){return 'adt_dev_sales_cache_'+String(currentTeam?.id||localStorage.getItem('atd_sales_team_id')||'local');};
+  window.saveDailySalesLocal=function(){localStorage.setItem(window.dailySalesLocalKey(),JSON.stringify(window.__adtDailySalesData));};
+  window.loadDailySalesLocal=function(){
+    try { const saved=JSON.parse(localStorage.getItem(window.dailySalesLocalKey())||'null');
+      if(saved&&Array.isArray(saved.current)&&Array.isArray(saved.settlements))window.__adtDailySalesData=saved;
+    }catch(_){}
+    window.renderDailySales();
+  };
 
   window.formatDailySaleDateTime = function(value){
     const d = new Date(value || Date.now());
@@ -14642,6 +14882,9 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
   window.fetchDailySales = async function(showToast){
     if (!window.canManageDailySales?.()) return false;
+    if(window.isDeveloperOffline() || window.hasPendingDeveloperMutations('sales')) {
+      window.loadDailySalesLocal(); return true;
+    }
     if (!dbClient) window.initSupabaseClient?.();
     if (!dbClient || !currentTeam?.id) {
       window.customAlert?.('لا يوجد اتصال بالخادم','تعذر تحميل المبيعات اليومية. تحقق من الإنترنت وحاول مرة أخرى.');
@@ -14656,6 +14899,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
       const result = Array.isArray(data) ? data[0] : data;
       window.__adtDailySalesData = result && typeof result === 'object' ? result : {current_total:0,current:[],settlements:[]};
       window.renderDailySales();
+      window.saveDailySalesLocal();
       if (showToast) window.showToast?.('تم تحديث المبيعات اليومية');
       return true;
     } catch(e) {
@@ -14677,19 +14921,24 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     const note=String(noteInput?.value||'').trim();
     if (!Number.isFinite(amount) || amount<=0) { window.customAlert?.('قيمة غير صحيحة','اكتب قيمة المبيعات أكبر من صفر.'); return; }
     if (!dbClient) window.initSupabaseClient?.();
-    if (!dbClient || !currentTeam?.id) { window.customAlert?.('لا يوجد اتصال بالخادم','إضافة المبيعات تحتاج اتصالاً بالخادم حتى لا تضيع البيانات.'); return; }
+    if ((!dbClient || !currentTeam?.id) && !window.isDeveloperOffline()) { window.customAlert?.('لا يوجد اتصال بالخادم','إضافة المبيعات تحتاج اتصالاً بالخادم حتى لا تضيع البيانات.'); return; }
     window.__adtDailySalesBusy=true;
     const btn=document.getElementById('btnAddDailySale');
     if(btn){btn.disabled=true;btn.textContent='جارٍ الحفظ…';}
     try{
-      const {data,error}=await dbClient.rpc('adt_daily_sales_add',{
+      const {data,error}=await window.developerOfflineRpc('adt_daily_sales_add',{
         p_team_id:String(currentTeam.id),p_user_id:getDeviceId(),p_amount:amount,p_note:note||null
       });
       if(error) throw error;
       if(amountInput) amountInput.value='';
       if(noteInput) noteInput.value='';
-      await window.fetchDailySales(false);
-      window.showToast?.('تم تسجيل المبيعات بنجاح');
+      if(window.isDeveloperOffline()) {
+        const state=window.__adtDailySalesData;
+        state.current.unshift({id:'offline_'+window.makeSafeId(),amount,note,created_at:new Date().toISOString()});
+        state.current_total=Number(state.current_total||0)+amount;
+        window.saveDailySalesLocal();window.renderDailySales();
+        window.showToast?.('تم حفظ المبيعات محلياً؛ ستُزامن بعد الاتصال');
+      } else {await window.fetchDailySales(false);window.showToast?.('تم تسجيل المبيعات بنجاح');}
     }catch(e){
       console.error('[Daily Sales] add failed:',e);
       const msg=String(e?.message||'');
@@ -14713,15 +14962,21 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     });
     if(!ok)return;
     if(!dbClient) window.initSupabaseClient?.();
-    if(!dbClient || !currentTeam?.id){window.customAlert?.('لا يوجد اتصال بالخادم','التصفية تحتاج اتصالاً بالخادم.');return;}
+    if((!dbClient || !currentTeam?.id)&&!window.isDeveloperOffline()){window.customAlert?.('لا يوجد اتصال بالخادم','التصفية تحتاج اتصالاً بالخادم.');return;}
     window.__adtDailySalesBusy=true;
     const btn=document.getElementById('btnSettleDailySales');
     if(btn){btn.disabled=true;btn.textContent='جارٍ التصفية…';}
     try{
-      const {data,error}=await dbClient.rpc('adt_daily_sales_settle',{p_team_id:String(currentTeam.id),p_user_id:getDeviceId()});
+      const localSettlementId='offline_'+window.makeSafeId();
+      const {data,error}=await window.developerOfflineRpc('adt_daily_sales_settle',{p_team_id:String(currentTeam.id),p_user_id:getDeviceId()},{id:localSettlementId});
       if(error)throw error;
-      await window.fetchDailySales(false);
-      window.showToast?.('تمت تصفية المبيعات وبدأ إجمالي جديد');
+      if(window.isDeveloperOffline()) {
+        const state=window.__adtDailySalesData;
+        state.settlements.unshift({id:localSettlementId,total_amount:total,entries_count:state.current.length,settled_at:new Date().toISOString()});
+        state.current=[];state.current_total=0;
+        window.saveDailySalesLocal();window.renderDailySales();
+        window.showToast?.('تمت التصفية محلياً؛ ستُزامن بعد الاتصال');
+      } else {await window.fetchDailySales(false);window.showToast?.('تمت تصفية المبيعات وبدأ إجمالي جديد');}
     }catch(e){
       console.error('[Daily Sales] settle failed:',e);
       const msg=String(e?.message||'');
@@ -14740,13 +14995,16 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     const ok=await window.showAppConfirm?.({title:'حذف تصفية المبيعات',message:'سيتم حذف هذه التصفية وعمليات المبيعات التابعة لها نهائياً.',confirmText:'حذف التصفية',cancelText:'إلغاء'});
     if(!ok)return;
     if(!dbClient)window.initSupabaseClient?.();
-    if(!dbClient||!currentTeam?.id){window.customAlert?.('لا يوجد اتصال بالخادم','الحذف يحتاج اتصالاً بالخادم.');return;}
+    if((!dbClient||!currentTeam?.id)&&!window.isDeveloperOffline()){window.customAlert?.('لا يوجد اتصال بالخادم','الحذف يحتاج اتصالاً بالخادم.');return;}
     window.__adtDailySalesBusy=true;
     try{
-      const {error}=await dbClient.rpc('adt_daily_sales_delete_settlement',{p_team_id:String(currentTeam.id),p_user_id:getDeviceId(),p_settlement_id:id});
+      const {error}=await window.developerOfflineRpc('adt_daily_sales_delete_settlement',{p_team_id:String(currentTeam.id),p_user_id:getDeviceId(),p_settlement_id:id});
       if(error)throw error;
-      await window.fetchDailySales(false);
-      window.showToast?.('تم حذف تصفية المبيعات');
+      if(window.isDeveloperOffline()) {
+        window.__adtDailySalesData.settlements=window.__adtDailySalesData.settlements.filter(row=>String(row.id)!==id);
+        window.saveDailySalesLocal();window.renderDailySales();
+        window.showToast?.('تم حذف التصفية محلياً؛ ستُزامن بعد الاتصال');
+      } else {await window.fetchDailySales(false);window.showToast?.('تم حذف تصفية المبيعات');}
     }catch(e){
       console.error('[Daily Sales] delete settlement failed:',e);
       const msg=String(e?.message||'');

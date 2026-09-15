@@ -1,0 +1,10 @@
+# ADT Stock updates
+
+1. Run `V190_APP_RELEASES.sql` once in the Supabase SQL Editor.
+2. Build every APK intended as an update with the same `applicationId` (`com.adt.pro`) and the same release keystore. The GitHub workflow requires four repository secrets: `ADT_KEYSTORE_BASE64`, `ADT_STORE_PASSWORD`, `ADT_KEY_ALIAS`, and `ADT_KEY_PASSWORD`. Keep the original keystore backed up outside the repository. Never commit the keystore or passwords.
+3. Increase `versionCode` and `versionName` in `app/build.gradle` for every new APK. Build `assembleRelease`, test installation over the previous signed release APK, then upload that APK to a permanent HTTPS URL.
+4. Open developer mode, enter the new version code and APK URL in “نشر تحديث التطبيق”, and publish. Connected devices compare their installed APK code with the published code and show a download prompt. An HTML reload cannot replace an APK.
+
+APK updates also require that the old installed APK was signed by this exact same key. APKs built by different GitHub Actions runners with `assembleDebug`, a Google Play key, or another developer's signing key cannot update one another. Installing the first stable release may require uninstalling that older build after backing up app data; later releases signed with the stable key can install in place.
+
+Developer offline mode uses the last signed-in session and data cached on this device. Product edits, deletion and backup imports, wholesale and retail audits, shortages, debt accounts and ledger transactions, suppliers, invoices, and daily sales are available locally. Cloud-backed edits are queued in operation order and retried after reconnecting. Pending debt and sales IDs are remapped to their server IDs during replay. A server may reject a pending edit if the account was revoked or another device changed its data meanwhile; the local edit remains visible and the queue stays pending for review. Team administration, first-time login, developer PIN verification, update publishing and other remote-only actions still need a connection.

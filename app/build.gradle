@@ -11,13 +11,26 @@ android {
         applicationId "com.adt.pro"
         minSdk 24
         targetSdk 35
-        versionCode 183
-        versionName "1.83.0"
+        versionCode 191
+        versionName "1.91.0"
+    }
+
+    signingConfigs {
+        stableRelease {
+            def keyPath = System.getenv('ADT_KEYSTORE_PATH')
+            if (keyPath) {
+                storeFile file(keyPath)
+                storePassword System.getenv('ADT_STORE_PASSWORD')
+                keyAlias System.getenv('ADT_KEY_ALIAS')
+                keyPassword System.getenv('ADT_KEY_PASSWORD')
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.stableRelease
         }
     }
 

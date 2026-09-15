@@ -549,6 +549,11 @@ public class MainActivity extends Activity {
 
     public class NativeBridge {
         @JavascriptInterface
+        public int getAppVersionCode() {
+            return BuildConfig.VERSION_CODE;
+        }
+
+        @JavascriptInterface
         public void markStartupReady() {
             runOnUiThread(() -> firstWebFrameReady = true);
         }

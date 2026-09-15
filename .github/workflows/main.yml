@@ -25,12 +25,26 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Build Debug APK
-        run: gradle :app:assembleDebug
+      - name: Restore stable release signing key
+        env:
+          ADT_KEYSTORE_BASE64: ${{ secrets.ADT_KEYSTORE_BASE64 }}
+          ADT_STORE_PASSWORD: ${{ secrets.ADT_STORE_PASSWORD }}
+          ADT_KEY_ALIAS: ${{ secrets.ADT_KEY_ALIAS }}
+          ADT_KEY_PASSWORD: ${{ secrets.ADT_KEY_PASSWORD }}
+        run: |
+          test -n "$ADT_KEYSTORE_BASE64" && test -n "$ADT_STORE_PASSWORD" && test -n "$ADT_KEY_ALIAS" && test -n "$ADT_KEY_PASSWORD" || { echo 'Stable APK signing secrets are missing'; exit 1; }
+          printf '%s' "$ADT_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/adt-release.jks"
+          echo "ADT_KEYSTORE_PATH=$RUNNER_TEMP/adt-release.jks" >> "$GITHUB_ENV"
+          echo "ADT_STORE_PASSWORD=$ADT_STORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "ADT_KEY_ALIAS=$ADT_KEY_ALIAS" >> "$GITHUB_ENV"
+          echo "ADT_KEY_PASSWORD=$ADT_KEY_PASSWORD" >> "$GITHUB_ENV"
+
+      - name: Build signed Release APK
+        run: gradle :app:assembleRelease
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ADT-Stock-v183-APK
-          path: app/build/outputs/apk/debug/*.apk
+          name: ADT-Stock-v191-Release-APK
+          path: app/build/outputs/apk/release/*.apk
           if-no-files-found: error
