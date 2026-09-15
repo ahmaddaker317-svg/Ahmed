@@ -6,7 +6,9 @@ plugins {
 android {
     namespace 'com.adt.pro'
     compileSdk 35
-
+    buildFeatures {
+        buildConfig true
+    }
     defaultConfig {
         applicationId "com.adt.pro"
         minSdk 24
