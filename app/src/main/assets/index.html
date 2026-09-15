@@ -2727,6 +2727,11 @@ body[data-adt-tab="home"] .page {
   margin:5px 12px 0!important;
 }
 
+/* تقليل الفراغ بين عنوان الواجهة وأول محتوى في جميع الواجهات */
+body:not([data-adt-tab="home"]) .page.active {
+  margin-top:-18px!important;
+}
+
 .adt-v12-product .prod-info-center {
   display:grid!important;
   grid-template-columns:minmax(0,1.55fr) 72px 72px!important;
@@ -5609,7 +5614,6 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 #pageDailySales .daily-sales-section-title{font-size:12px;font-weight:1000;color:#fff;margin:0 0 8px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 #pageDailySales .daily-sales-section-side{font-size:9px;color:var(--text-muted);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:58%}
 #pageDailySales .daily-sales-list{display:flex;flex-direction:column;gap:6px}
-.daily-settlement-actions{display:flex;align-items:center;gap:7px;flex:0 0 auto}.daily-settlement-delete-btn{height:30px;min-width:48px;padding:0 8px;border:1px solid rgba(255,86,105,.48);border-radius:9px;background:rgba(255,86,105,.10);color:#ff6b78;font:900 9px inherit;cursor:pointer}.daily-settlement-delete-btn:active{transform:scale(.96)}
 #pageDailySales .daily-sale-item,#pageDailySales .daily-settlement-item{position:relative;background:#0b1622;border:1px solid #17283a;border-radius:12px;padding:10px 11px 10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;overflow:hidden}
 #pageDailySales .daily-sale-item:before,#pageDailySales .daily-settlement-item:before{content:"";position:absolute;right:0;top:8px;bottom:8px;width:3px;border-radius:3px;background:var(--primary)}
 #pageDailySales .daily-settlement-item:before{background:#f0b83e}
@@ -5633,7 +5637,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 .adt-intro-step{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;z-index:1}.adt-intro-step.active{display:flex}
 .adt-intro-kicker{font-size:12px;color:var(--accent-teal);font-weight:1000;letter-spacing:.6px;margin-bottom:8px}.adt-intro-step h2{font-size:24px;color:#fff;margin:0 0 9px;font-weight:1000}.adt-intro-step p{font-size:12px;line-height:1.9;color:var(--text-muted);max-width:310px;margin:0 auto}
 .adt-language-grid{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}.adt-language-card{min-height:104px;border:1px solid rgba(0,210,180,.28);border-radius:16px;background:rgba(11,22,34,.92);color:#fff;padding:14px 10px;display:flex;flex-direction:column;gap:7px;align-items:center;justify-content:center;font-family:inherit;cursor:pointer}.adt-language-card strong{font-size:16px;color:#fff}.adt-language-card span{font-size:10px;color:var(--text-muted)}.adt-language-card:active{transform:scale(.98);border-color:var(--accent-teal)}
-.adt-country-step{justify-content:flex-start!important;padding-top:14px}.adt-country-confirm{width:100%;min-height:42px;margin-top:10px;border-radius:12px}.adt-country-confirm:disabled{opacity:.45;filter:saturate(.55);cursor:not-allowed}.adt-country-search-wrap{width:100%;margin:14px 0 9px;position:relative}.adt-country-search{width:100%;min-height:44px;border:1px solid #1c3043;border-radius:13px;background:#09131e;color:#fff;padding:0 13px;font:800 12px inherit;outline:none;box-sizing:border-box}.adt-country-search:focus{border-color:var(--accent-teal);box-shadow:0 0 0 3px rgba(0,210,180,.08)}.adt-country-list{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px;max-height:260px;overflow:auto;padding:2px 1px 4px;scrollbar-width:thin}.adt-country-card{min-height:58px;border:1px solid #182b3d;border-radius:12px;background:#0a1520;color:#fff;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:inherit;cursor:pointer;text-align:inherit}.adt-country-card:active,.adt-country-card.active{border-color:var(--accent-teal);background:rgba(0,210,180,.08)}.adt-country-card span{min-width:0;display:flex;flex-direction:column;gap:2px}.adt-country-card b{font-size:10.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.adt-country-card small{font-size:7.8px;color:#768aa0}.adt-country-card strong{font-size:11px;color:var(--accent-teal);white-space:nowrap}.adt-country-empty{grid-column:1/-1;padding:22px 8px;text-align:center;color:var(--text-muted);font-size:10px;font-weight:800;border:1px dashed #203247;border-radius:12px}@media(max-width:360px){.adt-country-list{grid-template-columns:1fr}.adt-country-card{min-height:52px}}
+.adt-country-step{justify-content:flex-start!important;padding-top:14px}.adt-country-search-wrap{width:100%;margin:14px 0 9px;position:relative}.adt-country-search{width:100%;min-height:44px;border:1px solid #1c3043;border-radius:13px;background:#09131e;color:#fff;padding:0 13px;font:800 12px inherit;outline:none;box-sizing:border-box}.adt-country-search:focus{border-color:var(--accent-teal);box-shadow:0 0 0 3px rgba(0,210,180,.08)}.adt-country-list{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px;max-height:260px;overflow:auto;padding:2px 1px 4px;scrollbar-width:thin}.adt-country-card{min-height:58px;border:1px solid #182b3d;border-radius:12px;background:#0a1520;color:#fff;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:inherit;cursor:pointer;text-align:inherit}.adt-country-card:active,.adt-country-card.active{border-color:var(--accent-teal);background:rgba(0,210,180,.08)}.adt-country-card span{min-width:0;display:flex;flex-direction:column;gap:2px}.adt-country-card b{font-size:10.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.adt-country-card small{font-size:7.8px;color:#768aa0}.adt-country-card strong{font-size:11px;color:var(--accent-teal);white-space:nowrap}.adt-country-empty{grid-column:1/-1;padding:22px 8px;text-align:center;color:var(--text-muted);font-size:10px;font-weight:800;border:1px dashed #203247;border-radius:12px}@media(max-width:360px){.adt-country-list{grid-template-columns:1fr}.adt-country-card{min-height:52px}}
 .adt-intro-icon{width:78px;height:78px;border-radius:22px;border:1px solid rgba(0,210,180,.35);background:rgba(0,210,180,.08);display:flex;align-items:center;justify-content:center;margin-bottom:22px;box-shadow:0 0 30px rgba(0,210,180,.08)}.adt-intro-icon svg{width:38px;height:38px;fill:var(--accent-teal)}
 .adt-intro-footer{position:relative;z-index:1;margin-top:16px}.adt-intro-dots{display:flex;justify-content:center;gap:6px;margin-bottom:12px}.adt-intro-dots span{width:7px;height:7px;border-radius:99px;background:#334155;transition:.2s}.adt-intro-dots span.active{width:20px;background:var(--accent-teal)}.adt-intro-next{min-height:46px;font-size:13px!important;border-radius:13px!important;margin:0!important}
 
@@ -5725,9 +5729,61 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 #adtIntroModal .adt-intro-step[data-intro-step="language"] .adt-language-grid{margin-top:17px!important}
 #adtIntroModal .adt-intro-step[data-intro-step="country"]{padding-top:10px!important}
 #adtIntroModal .adt-intro-step[data-intro-step="country"] h2{margin-top:0!important;margin-bottom:7px!important}
+#adtIntroModal .adt-intro-shell{height:480px!important;min-height:480px!important;max-height:calc(100dvh - 36px)!important;box-sizing:border-box!important}
+#adtIntroModal .adt-intro-step{width:100%!important;min-height:0!important}
+#adtIntroModal .adt-country-list{max-height:205px!important}
+#adtIntroModal .adt-country-confirm{width:100%;min-height:44px;margin:10px 0 0!important;border-radius:13px!important;flex:0 0 auto}
+#adtIntroModal .adt-country-confirm:disabled{opacity:.45!important;cursor:not-allowed!important;filter:grayscale(.35)}
+.daily-settlement-item{gap:8px!important;flex-wrap:wrap!important}
+.daily-sales-delete-settlement{border:1px solid rgba(255,77,77,.42);background:rgba(255,77,77,.10);color:#ff7a7a;border-radius:9px;padding:6px 9px;font-family:inherit;font-size:9px;font-weight:900;cursor:pointer;white-space:nowrap}
+.daily-sales-delete-settlement:active{transform:scale(.97);background:rgba(255,77,77,.18)}
+
+/* V187 — واجهات أصغر وثابتة مع لوحة المفاتيح */
+#adtIntroModal .adt-language-showcase{width:100%;margin-top:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+#adtIntroModal .adt-showcase-item{height:70px;border:1px solid rgba(0,210,180,.22);border-radius:14px;background:linear-gradient(145deg,rgba(0,210,180,.075),rgba(8,17,29,.65));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+#adtIntroModal .adt-showcase-item:before{content:"";position:absolute;width:34px;height:34px;border-radius:50%;background:rgba(0,210,180,.10);animation:adtShowcasePulse 2.8s ease-in-out infinite}
+#adtIntroModal .adt-showcase-item:nth-child(2):before{animation-delay:.35s}#adtIntroModal .adt-showcase-item:nth-child(3):before{animation-delay:.7s}
+#adtIntroModal .adt-showcase-item svg{width:26px;height:26px;fill:var(--accent-teal);position:relative;z-index:1;filter:drop-shadow(0 0 8px rgba(0,210,180,.28))}
+@keyframes adtShowcasePulse{0%,100%{transform:scale(.85);opacity:.55}50%{transform:scale(1.35);opacity:1}}
+@media(prefers-reduced-motion:reduce){#adtIntroModal .adt-showcase-item:before{animation:none}}
+
+#onboardingModal{padding:8px 10px!important;align-items:center!important;overflow:hidden!important}
+#onboardingModal .adt-auth-box{width:min(92vw,370px)!important;max-width:370px!important;padding:12px!important;border-radius:17px!important;max-height:calc(100dvh - 16px)!important;overflow-y:auto!important;margin:0 auto!important}
+#onboardingModal .adt-auth-brand{margin-bottom:8px!important}
+#onboardingModal .adt-auth-logo-host{height:46px!important;margin-bottom:3px!important}
+#onboardingModal .adt-auth-logo-host img{max-width:142px!important;max-height:44px!important;object-fit:contain!important}
+#onboardingModal .adt-auth-brand h2{font-size:17px!important}
+#onboardingModal .adt-auth-brand p{font-size:9px!important;margin-top:3px!important}
+#onboardingModal .adt-auth-tabs{gap:4px!important;margin-bottom:8px!important}
+#onboardingModal #onboardingTabsRow .btn-filter-pill{min-height:34px!important;padding:4px!important;font-size:9.5px!important}
+#onboardingModal .adt-auth-form{gap:6px!important}
+#onboardingModal .adt-auth-field label{font-size:9px!important;margin-bottom:3px!important}
+#onboardingModal .input-field{min-height:38px!important;height:38px!important;padding:6px 9px!important;font-size:11px!important}
+#onboardingModal .adt-auth-submit{min-height:39px!important;height:39px!important;font-size:11.5px!important;margin-top:0!important}
+#onboardingModal .adt-auth-remember{font-size:9px!important}
+#onboardingModal #authLoginHint{margin:-1px 0 3px!important;font-size:8.5px!important;line-height:1.4!important}
+#onboardingModal .adt-auth-links{margin-top:0!important}
+
+.modal.keyboard-open{align-items:flex-start!important;justify-content:center!important;padding:5px 10px!important;overflow:hidden!important}
+.modal.keyboard-open .modal-box{margin-top:0!important;max-height:var(--adt-keyboard-modal-height,calc(100dvh - 10px))!important;overflow-y:auto!important;overscroll-behavior:contain!important}
+#productModal.keyboard-open{padding:5px 10px!important}
+#productModal.keyboard-open .modal-box{max-height:var(--adt-keyboard-modal-height,calc(100dvh - 10px))!important}
+
+#productModal .modal-box,#auditItemModal .modal-box,#newAccountModal .modal-box{width:min(90vw,320px)!important;max-width:320px!important;padding:11px 12px!important;border-radius:14px!important}
+#productModal .modal-box h3,#auditItemModal .modal-box h3,#newAccountModal .modal-box h3{font-size:15px!important;margin-bottom:7px!important}
+#productModal .form-group,#auditItemModal .form-group,#newAccountModal .form-group{margin-bottom:6px!important}
+#productModal label,#auditItemModal label,#newAccountModal label{font-size:9.5px!important;margin-bottom:3px!important}
+#productModal .input-field,#auditItemModal .input-field,#newAccountModal .input-field{min-height:39px!important;height:39px!important;padding:6px 9px!important;font-size:11px!important}
+#productModal #pPackagingGroup{padding:6px 7px!important;margin-bottom:6px!important}
+#productModal button,#auditItemModal button,#newAccountModal button{min-height:38px!important;padding:7px 9px!important;font-size:11px!important}
+#auditItemModal #auditModalProdName{font-size:13px!important;margin-bottom:7px!important}
+#auditItemModal #auditModalLineTotal{font-size:12px!important}
+
+#sidebarDrawer .drawer-header{margin:8px 9px 0!important;padding:9px 10px!important;border:1px solid rgba(0,210,180,.24)!important;border-radius:12px!important;background:rgba(0,210,180,.055)!important}
+#sidebarDrawer .drawer-user-info{min-width:0!important;flex:1!important}
 @media(max-height:700px){
   #adtIntroModal{padding:10px!important}
-  #adtIntroModal .adt-intro-shell{min-height:440px;padding-top:12px!important}
+  #adtIntroModal .adt-intro-shell{height:440px!important;min-height:440px!important;max-height:calc(100dvh - 20px)!important;padding-top:12px!important}
   #adtIntroModal .adt-intro-logo{height:54px!important}
   #adtIntroModal .adt-intro-logo img{max-width:164px!important;max-height:52px!important}
   #adtIntroModal .adt-intro-step[data-intro-step="language"]{padding-top:7px!important}
@@ -6118,13 +6174,18 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         <button type="button" class="adt-language-card" onclick="window.selectIntroLanguage('ar')"><strong>العربية</strong><span>متابعة بالعربية</span></button>
         <button type="button" class="adt-language-card" onclick="window.selectIntroLanguage('en')"><strong>English</strong><span>Continue in English</span></button>
       </div>
+      <div class="adt-language-showcase" aria-hidden="true">
+        <div class="adt-showcase-item"><svg viewBox="0 0 24 24"><path d="M3 4h18v16H3V4zm2 2v3h14V6H5zm0 5v7h5v-7H5zm7 0v2h7v-2h-7zm0 4v3h7v-3h-7z"/></svg></div>
+        <div class="adt-showcase-item"><svg viewBox="0 0 24 24"><path d="M4 3h16v18H4V3zm3 3v2h10V6H7zm0 4v2h4v-2H7zm6 0v2h4v-2h-4zm-6 4v4h10v-4H7z"/></svg></div>
+        <div class="adt-showcase-item"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15.5V19h-2v-1.4a4 4 0 0 1-3-2.6h2.1c.35.8 1.1 1.2 2.05 1.2 1.05 0 1.85-.5 1.85-1.2 0-.65-.55-1-2.2-1.45C9.55 12.95 8.2 12.1 8.2 10.4c0-1.45 1.15-2.5 2.8-2.8V6h2v1.55A3.7 3.7 0 0 1 15.7 10h-2.05a1.8 1.8 0 0 0-1.75-.95c-.95 0-1.65.45-1.65 1.1 0 .6.6.9 2.35 1.4 2.15.6 3.45 1.35 3.45 3.2 0 1.5-1.15 2.55-3.05 2.75z"/></svg></div>
+      </div>
     </section>
     <section class="adt-intro-step adt-country-step" data-intro-step="country">
       <h2 id="adtIntroCountryTitle">اختر البلد</h2>
       <p id="adtIntroCountrySub">سيتم ضبط عملة التطبيق تلقائياً حسب البلد</p>
       <div class="adt-country-search-wrap"><input id="adtCountrySearch" class="adt-country-search" type="search" autocomplete="off" placeholder="ابحث عن البلد" oninput="window.renderIntroCountries(this.value)"></div>
       <div class="adt-country-list" id="adtCountryList"></div>
-      <button type="button" class="btn-primary adt-country-confirm" id="adtCountryConfirmBtn" onclick="window.confirmIntroCountry()" disabled>تأكيد ومتابعة</button>
+      <button class="btn-primary adt-country-confirm" id="adtCountryConfirmBtn" type="button" onclick="window.confirmIntroCountry()" disabled>تأكيد اختيار البلد</button>
     </section>
     <section class="adt-intro-step" data-intro-step="0">
       <div class="adt-intro-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v4H4V4zm0 6h7v10H4V10zm9 0h7v4h-7v-4zm0 6h7v4h-7v-4z"/></svg></div>
@@ -9124,8 +9185,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     window.focusProductsSearch = function() {
         const box = document.getElementById('searchBox');
         if (!box) return;
-        try { box.focus({ preventScroll: true }); }
-        catch (_) { box.focus(); }
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => box.focus(), 220);
     };
 
     window.syncBottomMask = function() {
@@ -9352,7 +9413,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         set('adtIntroLanguageSub','اختر لغة البداية قبل الدخول إلى التطبيق','Choose your language before entering the app');
         set('adtIntroCountryTitle','اختر البلد','Choose country');
         set('adtIntroCountrySub','سيتم ضبط عملة التطبيق تلقائياً حسب البلد','The app currency will be set automatically for your country');
-        set('adtCountryConfirmBtn','تأكيد ومتابعة','Confirm & continue');
+        set('adtCountryConfirmBtn','تأكيد اختيار البلد','Confirm country');
         const cs=document.getElementById('adtCountrySearch'); if(cs)cs.placeholder=en?'Search country':'ابحث عن البلد';
         set('authLoginTitle','تسجيل الدخول','Sign in');
         set('authLoginSubtitle','مرحباً بك، يرجى تسجيل الدخول للمتابعة','Welcome back. Sign in to continue');
@@ -9369,19 +9430,16 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         set('authJoinLink','الانضمام لفريق','Join a team');
         const tc=document.getElementById('mgrLoginTeamCodeInput'); if(tc)tc.placeholder=en?'Enter team code if you are a member':'أدخل كود الفريق إذا كنت عضواً';
     };
-    window.__adtPendingCountryIso = null;
     window.renderIntroCountries = function(query=''){
         const box=document.getElementById('adtCountryList'); if(!box)return;
         const en=window.adtAuthLanguage==='en';
         const q=String(query||'').trim().toLocaleLowerCase();
-        const currentIso=String(window.__adtPendingCountryIso||'');
+        const currentIso=window.__adtPendingCountryIso||'';
         const rows=window.ADT_COUNTRY_CURRENCIES.filter(x=>{
             if(!q)return true;
             return [x.country,x.countryEn,x.iso,x.code].some(v=>String(v||'').toLocaleLowerCase().includes(q));
         });
         box.innerHTML=rows.length?rows.map(x=>`<button type="button" class="adt-country-card ${x.iso===currentIso?'active':''}" onclick="window.selectIntroCountry('${x.iso}')"><span><b>${en?x.countryEn:x.country}</b><small>${x.code}</small></span><strong>${x.symbol}</strong></button>`).join(''):`<div class="adt-country-empty">${en?'No matching country':'لا توجد دولة مطابقة'}</div>`;
-        const confirmBtn=document.getElementById('adtCountryConfirmBtn');
-        if(confirmBtn) confirmBtn.disabled=!currentIso;
     };
     window.selectIntroCountry = function(iso){
         const row=window.ADT_COUNTRY_CURRENCIES.find(x=>x.iso===String(iso||''));
@@ -9389,13 +9447,11 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         window.__adtPendingCountryIso=row.iso;
         const search=document.getElementById('adtCountrySearch');
         window.renderIntroCountries(search?.value||'');
+        const btn=document.getElementById('adtCountryConfirmBtn'); if(btn)btn.disabled=false;
     };
     window.confirmIntroCountry = function(){
         const row=window.ADT_COUNTRY_CURRENCIES.find(x=>x.iso===String(window.__adtPendingCountryIso||''));
-        if(!row){
-            window.customAlert?.(window.adtAuthLanguage==='en'?'Choose country':'اختر البلد',window.adtAuthLanguage==='en'?'Select a country first, then press confirm.':'اختر البلد أولاً ثم اضغط تأكيد ومتابعة.');
-            return;
-        }
+        if(!row){ window.customAlert?.(window.adtAuthLanguage==='en'?'Choose country':'اختر البلد',window.adtAuthLanguage==='en'?'Select a country first.':'حدد البلد أولاً ثم اضغط تأكيد.'); return; }
         localStorage.setItem('adt_app_country_iso',row.iso);
         localStorage.setItem('adt_app_currency_code',row.code);
         window.applyAppCurrency?.();
@@ -9415,8 +9471,9 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         if(window.adtIntroStage==='country'){
             modal.querySelector('[data-intro-step="country"]')?.classList.add('active');
             if(foot)foot.style.display='none';
-            if(window.__adtPendingCountryIso===null) window.__adtPendingCountryIso=localStorage.getItem('adt_app_country_iso')||'';
             const search=document.getElementById('adtCountrySearch'); if(search)search.value='';
+            window.__adtPendingCountryIso='';
+            const confirmBtn=document.getElementById('adtCountryConfirmBtn'); if(confirmBtn)confirmBtn.disabled=true;
             window.renderIntroCountries(''); window.releaseStartupSurface?.(); return;
         }
         const target=modal.querySelector(`[data-intro-step="${window.adtIntroIndex}"]`); if(target)target.classList.add('active');
@@ -9436,7 +9493,6 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     };
     window.selectIntroLanguage = function(lang){
         window.applyAuthLanguage(lang);
-        window.__adtPendingCountryIso=localStorage.getItem('adt_app_country_iso')||'';
         window.adtIntroStage='country'; window.adtIntroIndex=0;
         window.renderMandatoryIntro();
     };
@@ -14411,16 +14467,54 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 
     window.fitFocusedModalToKeyboard = function() {
         const active = document.activeElement;
-        const isField = !!(active && /INPUT|TEXTAREA/.test(active.tagName));
-        const viewportHeight = window.visualViewport ? Math.max(280, window.visualViewport.height - 12) : null;
-        ['invoiceItemEditModal','onboardingModal','invoiceModal'].forEach(id => {
-            const modal = document.getElementById(id); if (!modal) return;
-            modal.classList.toggle('keyboard-open', isField);
-            const box = modal.querySelector('.modal-box');
-            if (box && isField && viewportHeight) box.style.maxHeight = `${viewportHeight}px`;
-            else box?.style.removeProperty('max-height');
+        const fieldModal = active?.closest?.('.modal');
+        const isField = !!(active && /INPUT|TEXTAREA/.test(active.tagName) && fieldModal);
+        const viewportHeight = window.visualViewport ? Math.max(250, window.visualViewport.height - 10) : Math.max(250,window.innerHeight-10);
+        document.querySelectorAll('.modal').forEach(modal => {
+            const ownsField=!!(isField&&modal===fieldModal);
+            modal.classList.toggle('keyboard-open',ownsField);
+            if(ownsField)modal.style.setProperty('--adt-keyboard-modal-height',`${viewportHeight}px`);
+            else modal.style.removeProperty('--adt-keyboard-modal-height');
         });
-        if (isField) setTimeout(() => active.scrollIntoView({block:'center',behavior:'smooth'}), 80);
+        if (isField) setTimeout(() => {
+            if (document.activeElement === active && fieldModal?.contains(active)) {
+                const box=fieldModal.querySelector('.modal-box');
+                if(!box)return;
+                const fieldRect=active.getBoundingClientRect(),boxRect=box.getBoundingClientRect();
+                if(fieldRect.bottom>boxRect.bottom-10)box.scrollTop+=fieldRect.bottom-boxRect.bottom+18;
+                else if(fieldRect.top<boxRect.top+8)box.scrollTop-=boxRect.top-fieldRect.top+14;
+            }
+        }, 100);
+    };
+
+    // ثبّت موضع واجهة المنتجات عند فتح/إغلاق لوحة المفاتيح داخل بحث المنتجات.
+    window.installProductsSearchScrollLock = function(){
+        if(window.__adtProductsSearchScrollLockReady)return;
+        window.__adtProductsSearchScrollLockReady=true;
+        const input=document.getElementById('searchBox');
+        const scroller=document.querySelector('.app-main-content');
+        if(!input||!scroller)return;
+        let lockedTop=0, closingUntil=0, restoreTimer=0;
+        const restore=()=>{
+            if((document.activeElement===input||Date.now()<closingUntil) && currentTab==='products'){
+                scroller.scrollTop=lockedTop;
+            }
+        };
+        input.addEventListener('focus',()=>{
+            lockedTop=scroller.scrollTop;
+            closingUntil=0;
+            requestAnimationFrame(restore);
+        });
+        input.addEventListener('blur',()=>{
+            closingUntil=Date.now()+650;
+            clearTimeout(restoreTimer);
+            restoreTimer=setTimeout(()=>{restore();closingUntil=0;},420);
+        });
+        window.visualViewport?.addEventListener('resize',()=>{
+            requestAnimationFrame(restore);
+            setTimeout(restore,120);
+        },{passive:true});
+        window.visualViewport?.addEventListener('scroll',()=>requestAnimationFrame(restore),{passive:true});
     };
 
     window.initIntegratedUi = function() {
@@ -14429,6 +14523,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         window.applyAuthLanguage?.(window.adtAuthLanguage || 'ar');
         window.applyAppCurrency?.();
         window.syncBottomMask();
+        window.installProductsSearchScrollLock?.();
         window.showOnboardingSubTab?.('mgrLogin');
         document.querySelectorAll('button[onclick*="closeModal("]').forEach(button => {
             if (!(button.textContent || '').trim()) button.textContent = '×';
@@ -14543,9 +14638,8 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     if (settlementList) {
       settlementList.innerHTML = settlements.length ? settlements.map(row => {
         const count = Number(row.entries_count || 0);
-        const settlementId=String(row.id||'');
-        const deleteBtn=window.canSettleDailySales?.() && settlementId ? `<button type="button" class="daily-settlement-delete-btn" onclick="event.stopPropagation();window.deleteDailySalesSettlement('${settlementId.replace(/'/g,'')}')">حذف</button>` : '';
-        return `<div class="daily-settlement-item"><div class="daily-sale-main"><div class="daily-sale-note-text">تصفية ${count} عملية</div><div class="daily-sale-time">${window.formatDailySaleDateTime(row.settled_at)}</div></div><div class="daily-settlement-actions"><div class="daily-sale-amount">${window.formatMoney ? window.formatMoney(row.total_amount) : Number(row.total_amount||0).toFixed(2)}</div>${deleteBtn}</div></div>`;
+        const deleteBtn=window.canSettleDailySales?.()?`<button type="button" class="daily-sales-delete-settlement" onclick="window.deleteDailySalesSettlement('${String(row.id||'')}')">حذف التصفية</button>`:'';
+        return `<div class="daily-settlement-item"><div class="daily-sale-main"><div class="daily-sale-note-text">تصفية ${count} عملية</div><div class="daily-sale-time">${window.formatDailySaleDateTime(row.settled_at)}</div></div><div class="daily-sale-amount">${window.formatMoney ? window.formatMoney(row.total_amount) : Number(row.total_amount||0).toFixed(2)}</div>${deleteBtn}</div>`;
       }).join('') : '<div class="daily-sales-empty">لا توجد تصفيات سابقة</div>';
     }
   };
@@ -14611,38 +14705,6 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
     }
   };
 
-  window.deleteDailySalesSettlement = async function(settlementId){
-    if (window.__adtDailySalesBusy) return;
-    if (!window.canSettleDailySales?.()) { window.customAlert?.('غير مسموح','حذف تصفيات المبيعات متاح للمدير الرئيسي فقط.'); return; }
-    settlementId=String(settlementId||'').trim();
-    if(!settlementId)return;
-    const ok=await window.showAppConfirm?.({
-      title:'حذف التصفية',
-      message:'سيتم حذف هذه التصفية وكل عمليات المبيعات التابعة لها نهائياً. هل تريد المتابعة؟',
-      confirmText:'حذف التصفية',cancelText:'إلغاء'
-    });
-    if(!ok)return;
-    if(!dbClient) window.initSupabaseClient?.();
-    if(!dbClient || !currentTeam?.id){window.customAlert?.('لا يوجد اتصال بالخادم','حذف التصفية يحتاج اتصالاً بالخادم.');return;}
-    window.__adtDailySalesBusy=true;
-    try{
-      const {error}=await dbClient.rpc('adt_daily_sales_delete_settlement',{
-        p_team_id:String(currentTeam.id),p_user_id:getDeviceId(),p_settlement_id:settlementId
-      });
-      if(error)throw error;
-      await window.fetchDailySales(false);
-      window.showToast?.('تم حذف التصفية');
-    }catch(e){
-      console.error('[Daily Sales] delete settlement failed:',e);
-      const msg=String(e?.message||'');
-      if(msg.includes('NOT_ALLOWED')) window.customAlert?.('غير مسموح','حذف التصفيات متاح للمدير الرئيسي فقط.');
-      else if(msg.toLowerCase().includes('adt_daily_sales_delete_settlement')) window.customAlert?.('يلزم تحديث قاعدة البيانات','شغّل SQL حذف تصفيات المبيعات مرة واحدة في Supabase.');
-      else window.customAlert?.('تعذر حذف التصفية','لم يتم حذف التصفية. تحقق من الاتصال وحاول مرة أخرى.');
-    }finally{
-      window.__adtDailySalesBusy=false;
-    }
-  };
-
   window.settleDailySales = async function(){
     if (window.__adtDailySalesBusy) return;
     if (!window.canSettleDailySales?.()) { window.customAlert?.('غير مسموح','تصفية المبيعات متاحة للمدير الرئيسي فقط.'); return; }
@@ -14673,6 +14735,29 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
       window.__adtDailySalesBusy=false;
       if(btn){btn.disabled=false;btn.textContent='تصفية الدورة الحالية';}
     }
+  };
+
+  window.deleteDailySalesSettlement = async function(settlementId){
+    if(window.__adtDailySalesBusy)return;
+    if(!window.canSettleDailySales?.()){window.customAlert?.('غير مسموح','حذف تصفية المبيعات متاح للمدير الرئيسي فقط.');return;}
+    const id=String(settlementId||'').trim(); if(!id)return;
+    const ok=await window.showAppConfirm?.({title:'حذف تصفية المبيعات',message:'سيتم حذف هذه التصفية وعمليات المبيعات التابعة لها نهائياً.',confirmText:'حذف التصفية',cancelText:'إلغاء'});
+    if(!ok)return;
+    if(!dbClient)window.initSupabaseClient?.();
+    if(!dbClient||!currentTeam?.id){window.customAlert?.('لا يوجد اتصال بالخادم','الحذف يحتاج اتصالاً بالخادم.');return;}
+    window.__adtDailySalesBusy=true;
+    try{
+      const {error}=await dbClient.rpc('adt_daily_sales_delete_settlement',{p_team_id:String(currentTeam.id),p_user_id:getDeviceId(),p_settlement_id:id});
+      if(error)throw error;
+      await window.fetchDailySales(false);
+      window.showToast?.('تم حذف تصفية المبيعات');
+    }catch(e){
+      console.error('[Daily Sales] delete settlement failed:',e);
+      const msg=String(e?.message||'');
+      if(msg.includes('NOT_ALLOWED'))window.customAlert?.('غير مسموح','حذف التصفية متاح للمدير الرئيسي فقط.');
+      else if(msg.toLowerCase().includes('adt_daily_sales_delete_settlement'))window.customAlert?.('يلزم تحديث قاعدة البيانات','شغّل ملف V186_DAILY_SALES_DELETE_SETTLEMENT.sql في Supabase مرة واحدة.');
+      else window.customAlert?.('تعذر الحذف','لم يتم حذف التصفية. تحقق من الاتصال وحاول مرة أخرى.');
+    }finally{window.__adtDailySalesBusy=false;}
   };
 
   const oldApplyCurrency=window.applyAppCurrency;

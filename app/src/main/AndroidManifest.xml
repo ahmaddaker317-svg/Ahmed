@@ -27,7 +27,6 @@
             android:name=".MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustNothing"
             android:theme="@style/Theme.ADTPro.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
