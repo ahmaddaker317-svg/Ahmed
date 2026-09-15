@@ -5739,13 +5739,6 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
 .daily-sales-delete-settlement:active{transform:scale(.97);background:rgba(255,77,77,.18)}
 
 /* V187 — واجهات أصغر وثابتة مع لوحة المفاتيح */
-#adtIntroModal .adt-language-showcase{width:100%;margin-top:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-#adtIntroModal .adt-showcase-item{height:70px;border:1px solid rgba(0,210,180,.22);border-radius:14px;background:linear-gradient(145deg,rgba(0,210,180,.075),rgba(8,17,29,.65));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-#adtIntroModal .adt-showcase-item:before{content:"";position:absolute;width:34px;height:34px;border-radius:50%;background:rgba(0,210,180,.10);animation:adtShowcasePulse 2.8s ease-in-out infinite}
-#adtIntroModal .adt-showcase-item:nth-child(2):before{animation-delay:.35s}#adtIntroModal .adt-showcase-item:nth-child(3):before{animation-delay:.7s}
-#adtIntroModal .adt-showcase-item svg{width:26px;height:26px;fill:var(--accent-teal);position:relative;z-index:1;filter:drop-shadow(0 0 8px rgba(0,210,180,.28))}
-@keyframes adtShowcasePulse{0%,100%{transform:scale(.85);opacity:.55}50%{transform:scale(1.35);opacity:1}}
-@media(prefers-reduced-motion:reduce){#adtIntroModal .adt-showcase-item:before{animation:none}}
 
 #onboardingModal{padding:8px 10px!important;align-items:center!important;overflow:hidden!important}
 #onboardingModal .adt-auth-box{width:min(92vw,370px)!important;max-width:370px!important;padding:12px!important;border-radius:17px!important;max-height:calc(100dvh - 16px)!important;overflow-y:auto!important;margin:0 auto!important}
@@ -5789,6 +5782,13 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
   #adtIntroModal .adt-intro-step[data-intro-step="language"]{padding-top:7px!important}
   #adtIntroModal .adt-language-card{min-height:94px!important}
 }
+/* Language selection fits its content; other onboarding steps keep their height. */
+#adtIntroModal .adt-intro-shell:has(.adt-intro-step[data-intro-step="language"].active){height:auto!important;min-height:0!important;max-height:calc(100dvh - 36px)!important}
+#adtIntroModal .adt-intro-shell:has(.adt-intro-step[data-intro-step="language"].active) .adt-intro-step[data-intro-step="language"]{flex:0 0 auto!important;padding-bottom:12px!important}
+@media(max-height:700px){#adtIntroModal .adt-intro-shell:has(.adt-intro-step[data-intro-step="language"].active){height:auto!important;min-height:0!important;max-height:calc(100dvh - 20px)!important}}
+/* Keep the drawer user card beside the app header, without doubling the status-bar inset. */
+#sidebarDrawer{padding-top:max(8px, calc(env(safe-area-inset-top, 0px) - 52px))!important}
+#sidebarDrawer .drawer-header{background:#111c2a!important;border:1px solid #253749!important;box-shadow:0 8px 24px rgba(0,0,0,.12)!important}
 </style>
 </head>
 <body style="background-color: #070A12 !important; color: #FFFFFF !important;">
@@ -6174,11 +6174,7 @@ body[data-adt-tab="products"] #pageProducts, body[data-adt-tab="audit"] #pageAud
         <button type="button" class="adt-language-card" onclick="window.selectIntroLanguage('ar')"><strong>العربية</strong><span>متابعة بالعربية</span></button>
         <button type="button" class="adt-language-card" onclick="window.selectIntroLanguage('en')"><strong>English</strong><span>Continue in English</span></button>
       </div>
-      <div class="adt-language-showcase" aria-hidden="true">
-        <div class="adt-showcase-item"><svg viewBox="0 0 24 24"><path d="M3 4h18v16H3V4zm2 2v3h14V6H5zm0 5v7h5v-7H5zm7 0v2h7v-2h-7zm0 4v3h7v-3h-7z"/></svg></div>
-        <div class="adt-showcase-item"><svg viewBox="0 0 24 24"><path d="M4 3h16v18H4V3zm3 3v2h10V6H7zm0 4v2h4v-2H7zm6 0v2h4v-2h-4zm-6 4v4h10v-4H7z"/></svg></div>
-        <div class="adt-showcase-item"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15.5V19h-2v-1.4a4 4 0 0 1-3-2.6h2.1c.35.8 1.1 1.2 2.05 1.2 1.05 0 1.85-.5 1.85-1.2 0-.65-.55-1-2.2-1.45C9.55 12.95 8.2 12.1 8.2 10.4c0-1.45 1.15-2.5 2.8-2.8V6h2v1.55A3.7 3.7 0 0 1 15.7 10h-2.05a1.8 1.8 0 0 0-1.75-.95c-.95 0-1.65.45-1.65 1.1 0 .6.6.9 2.35 1.4 2.15.6 3.45 1.35 3.45 3.2 0 1.5-1.15 2.55-3.05 2.75z"/></svg></div>
-      </div>
+
     </section>
     <section class="adt-intro-step adt-country-step" data-intro-step="country">
       <h2 id="adtIntroCountryTitle">اختر البلد</h2>
